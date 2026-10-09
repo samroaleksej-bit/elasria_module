@@ -1,0 +1,4 @@
+.build export-ignore
+release.sh export-ignore
+.gitignore export-ignore
+.gitattributes export-ignore

@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
-# Сборка архива релиза: module.json в корне архива (так требует Foundry)
+# Новый патч: ./release.sh 2.2.0  → правит версию и ссылку download, коммитит, ставит тег и пушит.
+# Foundry скачивает zip, который GitHub сам собирает по тегу.
 set -e
-V=$(python3 -c "import json;print(json.load(open('module.json'))['version'])")
-python3 - <<PY
-import json; m=json.load(open('module.json'))
-m['download']=f"{m['url']}/releases/download/v{m['version']}/elastria-wiki.zip"
+V="$1"; [ -z "$V" ] && { echo "usage: ./release.sh X.Y.Z"; exit 1; }
+python3 - "$V" <<'PY'
+import json,sys
+v=sys.argv[1]; m=json.load(open('module.json'))
+m['version']=v
+m['download']=f"https://github.com/samroaleksej-bit/elasria_module/archive/refs/tags/v{v}.zip"
 json.dump(m,open('module.json','w'),ensure_ascii=False,indent=2)
 PY
-rm -f elastria-wiki.zip
-zip -qr elastria-wiki.zip module.json README.txt scripts styles fonts assets data chronicle packs -x "packs/**/LOCK"
-echo "v$V -> elastria-wiki.zip ($(du -h elastria-wiki.zip | cut -f1))"
+git add -A
+git commit -qm "Кодекс Эластрии v$V"
+git tag "v$V"
+git push origin main "v$V"
+echo "Выпущено: v$V"
