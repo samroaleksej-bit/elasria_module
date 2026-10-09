@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
-# Новый патч: ./release.sh 2.2.0  → правит версию и ссылку download, коммитит, ставит тег и пушит.
-# Foundry скачивает zip, который GitHub сам собирает по тегу.
+# Новый патч: ./release.sh 2.2.0 "что изменилось"
+# Поднимает версию в module.json, коммитит и пушит в main.
+# Foundry видит новую версию по raw-манифесту и скачивает архив ветки main.
 set -e
-V="$1"; [ -z "$V" ] && { echo "usage: ./release.sh X.Y.Z"; exit 1; }
+V="$1"; MSG="${2:-патч}"
+[ -z "$V" ] && { echo "usage: ./release.sh X.Y.Z \"описание\""; exit 1; }
 python3 - "$V" <<'PY'
 import json,sys
-v=sys.argv[1]; m=json.load(open('module.json'))
-m['version']=v
-m['download']=f"https://github.com/samroaleksej-bit/elasria_module/archive/refs/tags/v{v}.zip"
+m=json.load(open('module.json')); m['version']=sys.argv[1]
 json.dump(m,open('module.json','w'),ensure_ascii=False,indent=2)
 PY
 git add -A
-git commit -qm "Кодекс Эластрии v$V"
-git tag "v$V"
-git push origin main "v$V"
+git commit -qm "v$V: $MSG"
+git push origin main
 echo "Выпущено: v$V"
