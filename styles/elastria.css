@@ -1,0 +1,12 @@
+/* Эластрия — Вики */
+.journal-entry-page .elastria-lore img:not([width]),
+.journal-entry-page .elastria-story img:not([width]) {
+  display: block; max-width: 100%; height: auto; margin: 0.9rem auto;
+  border: none; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+.journal-entry-page .elastria-lore header img:not([width]),
+.journal-entry-page .elastria-story header img:not([width]) { max-height: 140px; width: auto; box-shadow: none; }
+.journal-entry-page .elastria-lore a.elastria-link img { transition: transform .15s ease, filter .15s ease; }
+.journal-entry-page .elastria-lore a.elastria-link:hover img { transform: scale(1.12); filter: drop-shadow(0 0 6px rgba(212,168,67,.8)); }
+.journal-entry-page .elastria-lore table th, .journal-entry-page .elastria-lore table td { border-bottom: 1px solid rgba(200,170,110,.2); vertical-align: top; }
+.journal-entry-page .elastria-lore a.content-link, .journal-entry-page .elastria-story a.content-link { background: rgba(212,168,67,.12); border-color: rgba(212,168,67,.45); }
