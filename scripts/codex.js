@@ -94,6 +94,12 @@ async function loadDB(force = false) {
       catch (e) { console.warn("Кодекс Эластрии | не разобрал", doc.name, e); }
     }
   }
+  // гербы и обложки из модуля (data/lands.json) перекрывают картинки журналов
+  const L = await loadLands();
+  for (const e of Object.values(entries)) {
+    if (L.emblems?.[e.name]) e.emblem = `${P}${L.emblems[e.name]}`;
+    if (L.covers?.[e.name]) e.cover = `${P}${L.covers[e.name]}`;
+  }
   const list = Object.values(entries);
   const sortFn = (a, b) => a.sort - b.sort || a.name.localeCompare(b.name, "ru");
   const countries = list.filter(e => e.kind === "country").sort(sortFn);
@@ -1010,7 +1016,7 @@ const api = {
   /** Режим показа: игроки следуют за мастером. */
   present(on = true) { state.present = !!on; syncPresentBtn(); if (on) emit({ action: "route", route: state.route }); },
   /** Перечитать компендиум после правок. */
-  reload: async () => { await loadDB(true); if (document.getElementById(ROOT_ID)) go(state.route, { replace: true }); },
+  reload: async () => { LANDS = null; await loadDB(true); if (document.getElementById(ROOT_ID)) go(state.route, { replace: true }); },
   /** Открыть эпоху летописи: api.epoch("war-of-zephrit") */
   epoch: (id) => open(id ? { v: "epoch", id } : { v: "chronicle" }),
   /** Показать картинку всем: api.image("путь", "подпись") */
