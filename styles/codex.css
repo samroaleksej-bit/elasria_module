@@ -310,7 +310,7 @@
 #ew-lightbox.ew-in { opacity: 1; }
 #ew-lightbox .ew-lb-back { position: absolute; inset: 0; background: rgba(4,3,8,.92); backdrop-filter: blur(8px); }
 #ew-lightbox .ew-lb-stage { position: relative; width: 94vw; height: 86vh; display: grid; place-items: center; overflow: hidden; }
-#ew-lightbox .ew-lb-stage img { max-width: 100%; max-height: 100%; object-fit: contain; border: none; border-radius: 8px; box-shadow: 0 30px 100px rgba(0,0,0,.8); cursor: zoom-in; transform: scale(.96); transition: transform .35s cubic-bezier(.2,.8,.3,1); }
+#ew-lightbox .ew-lb-stage img { width: auto !important; height: auto !important; max-width: 94vw !important; max-height: 86vh !important; min-width: 0 !important; min-height: 0 !important; aspect-ratio: auto !important; object-fit: contain !important; border: none; border-radius: 8px; box-shadow: 0 30px 100px rgba(0,0,0,.8); cursor: zoom-in; transform: scale(.96); transition: transform .35s cubic-bezier(.2,.8,.3,1); }
 #ew-lightbox.ew-in .ew-lb-stage img { transform: scale(1); }
 #ew-lightbox.ew-lb-zoom .ew-lb-stage img { transform: scale(2.4); cursor: zoom-out; border-radius: 0; }
 #ew-lightbox .ew-lb-cap { position: absolute; bottom: 2.4vh; left: 50%; transform: translateX(-50%); max-width: 80vw; text-align: center; font-family: "EW Serif", Georgia, serif; font-style: italic; font-size: 20px; color: #f3d68e; text-shadow: 0 2px 12px #000; pointer-events: none; }
