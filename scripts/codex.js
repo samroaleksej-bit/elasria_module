@@ -19,6 +19,7 @@ const TIER = {
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const isGM = () => !!globalThis.game?.user?.isGM;
 const plain = (html) => { const d = document.createElement("div"); d.innerHTML = html ?? ""; return (d.textContent || "").replace(/\s+/g, " ").trim(); };
+const plural = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; return m10 === 1 && m100 !== 11 ? one : m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20) ? few : many; };
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 /* ================================================================ данные */
@@ -142,7 +143,7 @@ function entryCard(e, big = false) {
   return `<button type="button" class="ew-card${big ? " ew-card-big" : ""}${e.adult ? " ew-adult" : ""}" data-go="entry:${e.id}">
     <span class="ew-card-img">${e.cover ? `<img src="${esc(e.cover)}" alt="" loading="lazy">` : ""}</span>
     <span class="ew-card-shade"></span>
-    ${e.emblem ? `<span class="ew-card-emb"><img src="${esc(e.emblem)}" alt=""></span>` : ""}
+    ${e.emblem ? `<span class="ew-card-emb"><img src="${esc(e.emblem)}" alt=""></span>` : (e.kind === "country" ? `<span class="ew-card-emb ew-mono">${esc(e.title.trim()[0] ?? "✦")}</span>` : "")}
     <span class="ew-card-txt">
       ${e.region ? `<span class="ew-eyebrow">${esc(e.region)}</span>` : ""}
       <span class="ew-card-n">${esc(e.title)}</span>
@@ -159,7 +160,7 @@ function ringHTML() {
     return `<button type="button" class="ew-ring-item" data-go="god:${g.id}" data-tip="${esc(g.n)}"
       style="left:${(50 + 46 * Math.cos(a)).toFixed(2)}%;top:${(50 + 46 * Math.sin(a)).toFixed(2)}%">${coin(g, g.tier === "F" ? "ew-coin-f" : "")}</button>`;
   }).join("")}</div>
-  <div class="ew-ring-core"><span class="ew-ring-star">✦</span><span class="ew-ring-title">Пантеон</span><span class="ew-ring-sub">23 бога</span></div></div>`;
+  <div class="ew-ring-core"><span class="ew-ring-star">✦</span><span class="ew-ring-title">Пантеон</span><span class="ew-ring-sub">${DB.gods.length} ${plural(DB.gods.length, "бог", "бога", "богов")}</span></div></div>`;
 }
 
 function viewHome() {
@@ -171,7 +172,7 @@ function viewHome() {
       <p class="ew-lead">Мир, собранный из четырёх великих душ. Страны, народы, боги и истории — всё в одном кодексе. Имена в тексте кликабельны: от страны к богу, от бога к легенде.</p>
       <div class="ew-hero-stats">
         <button type="button" data-go="list:country"><b>${c.length}</b><span>земель</span></button>
-        <button type="button" data-go="pantheon"><b>${DB.gods.length}</b><span>богов</span></button>
+        <button type="button" data-go="pantheon"><b>${DB.gods.length}</b><span>${plural(DB.gods.length, "бог", "бога", "богов")}</span></button>
         <button type="button" data-go="list:story"><b>${s.length}</b><span>историй</span></button>
         ${DB.epochs.length ? `<button type="button" data-go="chronicle"><b>${DB.epochs.length}</b><span>${DB.epochs.length === 1 ? "эпоха" : "эпох"}</span></button>` : ""}
       </div>
@@ -302,7 +303,7 @@ function viewEntry(id) {
       <div class="ew-entryhero-shade"></div>
       ${e.cover ? `<button type="button" class="ew-zoombtn" data-zoom="${esc(e.cover)}" data-cap="${esc(e.title)}" title="Открыть арт">⤢</button>` : ""}
       <div class="ew-entryhero-copy">
-        ${e.emblem ? `<button type="button" class="ew-entry-emb" data-zoom="${esc(e.emblem)}" data-cap="${esc(e.title)} — герб" title="Открыть герб"><img src="${esc(e.emblem)}" alt=""></button>` : ""}
+        ${e.emblem ? `<button type="button" class="ew-entry-emb" data-zoom="${esc(e.emblem)}" data-cap="${esc(e.title)} — герб" title="Открыть герб"><img src="${esc(e.emblem)}" alt=""></button>` : (e.kind === "country" ? `<span class="ew-entry-emb ew-mono">${esc(e.title.trim()[0] ?? "✦")}</span>` : "")}
         <div class="ew-eyebrow">${esc(e.kind === "story" ? "Истории Эластрии" : (e.region || e.group))}</div>
         <h1 class="ew-title-l">${esc(e.title)}</h1>
         ${e.subtitle ? `<p class="ew-entryhero-s">${esc(e.subtitle)}</p>` : ""}

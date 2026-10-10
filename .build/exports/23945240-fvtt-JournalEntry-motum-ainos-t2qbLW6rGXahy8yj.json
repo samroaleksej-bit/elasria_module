@@ -1,0 +1,65 @@
+{
+  "folder": "0o3Q23SMi68NK1ED",
+  "name": "Мотум Аинос",
+  "pages": [
+    {
+      "sort": 100000,
+      "name": "Затерянные земли",
+      "type": "text",
+      "_id": "h8a90rx6JAQDXPiH",
+      "system": {},
+      "title": {
+        "show": false,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<section class=\"elastria-lore motum-ainos\" style=\"max-width:900px;margin:0 auto;padding:0.25rem 0.25rem 1rem;line-height:1.7\"><header style=\"margin:0.25rem 0 1rem;text-align:center\"><div style=\"font-variant:small-caps;letter-spacing:0.12em;opacity:0.85;font-size:0.95em\"><p>Эластрия • Пустыни Юга</p></div><h1 style=\"margin:0.35rem 0 0.35rem;font-size:1.9em;letter-spacing:0.02em\">Мотум Аинос</h1><div style=\"opacity:0.75;font-style:italic\"><p><em>Земля разумной нежити и забытых богов</em></p></div></header><div style=\"height:1px;background:linear-gradient(90deg, transparent, rgba(200,170,110,0.65), transparent);margin:1rem 0 1.25rem\"><p></p></div><article><h2 style=\"margin:0 0 0.6rem;font-size:1.25em;letter-spacing:0.03em\">Затерянная страна</h2><p>Мотум Аинос — одна из самых таинственных земель Эластрии. Её редко отмечают на картах, а если и делают это, то с сомнением, будто сама реальность не уверена в существовании этого места. Пустыни здесь кажутся бесконечными, а воздух наполнен ощущением древнего покоя и настороженного молчания.</p><p>Путники, что осмеливались приблизиться к этим землям, рассказывали о странном чувстве — словно сама смерть наблюдает за каждым шагом, но не с враждебностью, а с холодным интересом.</p><div style=\"height:1px;background:linear-gradient(90deg, transparent, rgba(200,170,110,0.65), transparent);margin:1.25rem 0\"><p></p></div><h2 style=\"margin:0 0 0.6rem;font-size:1.25em;letter-spacing:0.03em\">Происхождение Мотум Аинос</h2><p>В глубокой древности Вестария стремилась распространить своё влияние на южные земли. Однако Мотум Аинос отвергла это влияние, отказавшись подчиняться чужой воле и богам. В те времена разрозненные племена пустынь объединил могущественный некромант — не тиран, но философ, видевший в смерти не конец, а новую форму бытия.</p><p>Под его руководством возник народ разумной нежити. Для них смерть стала не проклятием, а состоянием существования, лишённым страха и сожалений. Их общество строилось не на стремлении к расширению или власти, а на поиске знаний и ощущений, недоступных живым.</p><div style=\"height:1px;background:linear-gradient(90deg, transparent, rgba(200,170,110,0.65), transparent);margin:1.25rem 0\"><p></p></div><h2 style=\"margin:0 0 0.6rem;font-size:1.25em;letter-spacing:0.03em\">Война за Зефрит</h2><p>Во время Войны за Зефрит Мотум Аинос словно исчезла. Большая часть нежити не проявляла интереса к конфликту живых, однако отдельные представители всё же вступили в войну — не из ненависти или долга, а из желания испытать новые эмоции и переживания.</p><p>После окончания войны нежить покинула свои города. Их влекло нечто иное — древний зов пустынь, скрытых гробниц и мест силы. Они ушли вглубь песков, растворившись среди руин и легенд, оставив за собой лишь опустевшие земли.</p><div style=\"height:1px;background:linear-gradient(90deg, transparent, rgba(200,170,110,0.65), transparent);margin:1.25rem 0\"><p></p></div><h2 style=\"margin:0 0 0.6rem;font-size:1.25em;letter-spacing:0.03em\">Современное состояние</h2><p>Сегодня Мотум Аинос считается покинутой. Когда леонины пытались исследовать эти земли, им преградили путь древние духи стихий — безмолвные хранители пустыни. Они не атаковали, но ясно дали понять: здесь нет места живым.</p><p>Среди песков до сих пор можно увидеть каменные столбы и полуразрушенные строения — следы некогда существовавшей цивилизации. Ветер шлифует их, превращая в молчаливые памятники тем, кто избрал смерть как форму жизни и ушёл туда, где даже боги говорят шёпотом.</p><img src=\"worlds/elastriya-privetsvennyj-mir/assets/pages/t2qbLW6rGXahy8yj-pages-h8a90rx6JAQDXPiH-%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B6%D0%B5%D0%BD%D0%BD%D0%BE%D0%B5%20(6)-xKgdFVOkOQQPlBPC.webp\" /></article><footer style=\"margin-top:1.25rem;text-align:center;opacity:0.75;font-size:0.95em\"><p><span style=\"font-variant:small-caps;letter-spacing:0.10em\">Мотум Аинос</span></p></footer></section>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "dnd5e",
+        "systemVersion": "5.2.4",
+        "createdTime": 1768395793169,
+        "modifiedTime": 1768395889954,
+        "lastModifiedBy": "3tCWhcHQ2hK3qoiX"
+      },
+      "ownership": {
+        "default": -1
+      }
+    }
+  ],
+  "categories": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": {
+      "worldId": "elastriya-privetsvennyj-mir",
+      "uuid": "JournalEntry.t2qbLW6rGXahy8yj",
+      "coreVersion": "14.364",
+      "systemId": "dnd5e",
+      "systemVersion": "5.3.3"
+    },
+    "coreVersion": "13.351",
+    "systemId": "dnd5e",
+    "systemVersion": "5.2.4",
+    "createdTime": 1768395788399,
+    "modifiedTime": 1768395830936,
+    "lastModifiedBy": "3tCWhcHQ2hK3qoiX"
+  },
+  "ownership": {
+    "default": 2
+  }
+}

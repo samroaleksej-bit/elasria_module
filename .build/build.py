@@ -1,9 +1,10 @@
 import json, re, os, random, string, shutil, html, glob
 
-UP = '/root/.claude/uploads/2e4b7e6e-616d-5522-93e7-5a6dcdb0afa2/'
-SP = '/tmp/claude-0/-home-claude/2e4b7e6e-616d-5522-93e7-5a6dcdb0afa2/scratchpad/'
-MOD = SP + 'wiki/elastria-wiki/'
-SRC = SP + 'wiki/src/'
+BASE = os.path.dirname(os.path.abspath(__file__)) + '/'
+UP = BASE + 'exports/'
+SP = BASE
+MOD = os.path.dirname(BASE.rstrip('/')) + '/'
+SRC = BASE + 'src/'
 MID = 'elastria-wiki'
 PACK = 'wiki'
 
@@ -72,7 +73,7 @@ for i, s in enumerate(STORIES):
     story_entries[s] = import_entry(s, 'stories', (i + 1) * 100000)
 
 # ---------------------------------------------------------------- pantheon
-data = json.load(open(SP + 'wiki/gods.json', encoding='utf8'))
+data = json.load(open(BASE + 'gods.json', encoding='utf8'))
 G, TIES = data['G'], data['TIES']
 BY = {g['id']: g for g in G}
 TIER = {'F': ('Фундаментальные', 'Фундаментальный'), 'M': ('Средние', 'Средний'), 'S': ('Малые', 'Малый')}
@@ -85,7 +86,9 @@ TIER_DESC = {
          'его богом. Список растёт с каждым законченным кампейном.'}
 IMG = f'modules/{MID}/assets/gods/'
 PANTH_ID = rid()
-GOD_PID = {g['id']: rid() for g in G}
+FIXED_PID = {'tszinlun': 'TszinlunGodPage1'}
+GOD_PID = {g['id']: rid() for g in G if g['id'] not in FIXED_PID}
+GOD_PID.update({k: v for k, v in FIXED_PID.items() if k in BY})
 OVERVIEW_PID = rid()
 
 e = html.escape
@@ -149,7 +152,7 @@ def tier_block(tk):
 overview = f'''<section class="elastria-lore elastria-pantheon" style="max-width:900px;margin:0 auto;padding:0.25rem 0.25rem 1rem;line-height:1.7">
 <header style="margin:0.25rem 0 1rem;text-align:center"><div style="font-variant:small-caps;letter-spacing:0.12em;opacity:0.85;font-size:0.95em"><p>Эластрия • Боги</p></div>
 <h1 style="margin:0.35rem 0 0.35rem;font-size:1.9em;letter-spacing:0.02em">Пантеон Эластрии</h1>
-<div style="opacity:0.75;font-style:italic"><p><em>23 бога на трёх ярусах. Ярус решает не сила, а то, что держит бог: сам мир, Искру или веру смертных.</em></p></div></header>
+<div style="opacity:0.75;font-style:italic"><p><em>{len(G)} богов на трёх ярусах. Ярус решает не сила, а то, что держит бог: сам мир, Искру или веру смертных.</em></p></div></header>
 <p style="text-align:center;line-height:2.4">{" ".join(coin_link(g, 44) for g in G)}</p>
 {HR}<article>
 <h2 {H2}>Правила веры</h2>
@@ -205,7 +208,7 @@ GOD_STEMS = {'dreiven': 'Дрейвен', 'avrora': 'Аврор', 'melodia': 'М
              'sirius': 'Сириус', 'amatus': 'Аматус', 'noktira': 'Ноктир', 'eilin': 'Эйлин', 'panzer': 'Панцерфауст',
              'morna': 'Морн', 'veiron': 'Вейрон', 'fina': 'Фин', 'kairon': 'Кайрон', 'pinki': 'Пинки',
              'michaio': 'Мичайо', 'rosko': 'Роско', 'lozarito': 'Лозарито', 'baragon': 'Барагон',
-             'zeinariel': 'Зейнариэл', 'henk': 'Хенк', 'stitci': 'Стит Ци', 'torgrim': 'Торгрим'}
+             'zeinariel': 'Зейнариэл', 'henk': 'Хенк', 'stitci': 'Стит Ци', 'torgrim': 'Торгрим', 'tszinlun': 'Цзиньлун'}
 TARGETS = []  # (regex, jid, pid)
 for gid, st in GOD_STEMS.items():
     TARGETS.append((re.compile(NB + re.escape(st) + E_ + NA), PANTH_ID, GOD_PID[gid]))
@@ -217,6 +220,7 @@ C_PAT = {'avangardiya': r'Авангарди[яиюей]+', 'kvilandriya': r'К�
 for slug, pat in C_PAT.items():
     TARGETS.append((re.compile(NB + pat + NA), country_entries[slug]['_id'], None))
 
+TARGETS.append((re.compile(NB + r'Золот(?:ой|ого|ому|ым|ом) [Дд]ракон(?:а|у|ом|е)?' + NA), PANTH_ID, GOD_PID['tszinlun']))
 TARGETS.append((re.compile(NB + r'Каал(?:а|ом|е|у)? Таар(?:а|ом|е|у)?(?: Ура?гаа?ра?| Ураг)?' + NA), story_entries['zharkie-zemli-oreskosa']['_id'], None))
 SKIP = {'h1', 'h2', 'h3', 'h4', 'a', 'figcaption', 'header', 'footer'}
 TAG = re.compile(r'(<[^>]+>)')
@@ -277,7 +281,7 @@ HOME = f'''<section class="elastria-lore elastria-home" style="max-width:900px;m
 <p style="text-align:center;line-height:2.2">{coins}</p>
 {HR}<article>
 <h2 {H2}>Пантеон</h2>
-<p>{link(PANTH_ID, "Пантеон Эластрии", OVERVIEW_PID)} — 23 бога на трёх ярусах: фундаментальные, средние с Искрой и малые вознесённые герои. У каждого бога своя страница с артом, эмблемой, доменами, связями и легендами.</p>
+<p>{link(PANTH_ID, "Пантеон Эластрии", OVERVIEW_PID)} — {len(G)} богов на трёх ярусах: фундаментальные, средние с Искрой и малые вознесённые герои. У каждого бога своя страница с артом, эмблемой, доменами, связями и легендами.</p>
 {HR}<h2 {H2}>Страны и народы</h2><ul style="margin:0.5rem 0 0.9rem 1.25rem">{c_list}</ul>
 {HR}<h2 {H2}>Истории Эластрии</h2><p style="opacity:0.8"><em>Рассказы Verlierboy. «Королева Пиратов» — 18+.</em></p><ul style="margin:0.5rem 0 0.9rem 1.25rem">{s_list}</ul>
 {HR}<h2 {H2}>Как пополнять вики</h2>

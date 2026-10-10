@@ -1,0 +1,65 @@
+{
+  "folder": "0o3Q23SMi68NK1ED",
+  "name": "Земли Людоящеров",
+  "pages": [
+    {
+      "sort": 100000,
+      "name": "???",
+      "type": "text",
+      "_id": "GO2EPGlMLybRg9Qy",
+      "system": {},
+      "title": {
+        "show": true,
+        "level": 1
+      },
+      "image": {},
+      "text": {
+        "format": 1,
+        "content": "<p>ШИ НЕ БЕ НЕ КИ ВИ РО <br /><br />ВИ ЛУ ТО ПО РО</p><p>ДА ВО МА ВО ЛО ПО МА МЕ НИ РО</p><p>МО</p><p>ИКС ВО ПЕ</p><p></p><p>А это уже какой-то шифр - подсказка тг-канал</p>"
+      },
+      "video": {
+        "controls": true,
+        "volume": 0.5
+      },
+      "src": null,
+      "category": null,
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "exportSource": null,
+        "coreVersion": "13.351",
+        "systemId": "dnd5e",
+        "systemVersion": "5.2.4",
+        "createdTime": 1768397866654,
+        "modifiedTime": 1768398105018,
+        "lastModifiedBy": "3tCWhcHQ2hK3qoiX"
+      },
+      "ownership": {
+        "default": -1
+      }
+    }
+  ],
+  "categories": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": {
+      "worldId": "elastriya-privetsvennyj-mir",
+      "uuid": "JournalEntry.AtMGEboGWHSXVoEM",
+      "coreVersion": "14.364",
+      "systemId": "dnd5e",
+      "systemVersion": "5.3.3"
+    },
+    "coreVersion": "13.351",
+    "systemId": "dnd5e",
+    "systemVersion": "5.2.4",
+    "createdTime": 1768397861879,
+    "modifiedTime": 1768397931325,
+    "lastModifiedBy": "3tCWhcHQ2hK3qoiX"
+  },
+  "ownership": {
+    "default": 2
+  }
+}
