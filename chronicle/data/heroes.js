@@ -107,7 +107,7 @@ const HEROES = [
     name: "Карантир",
     title: "Страж Безумия",
     role: "Бывший стражник Гарды · следователь по делу Ереси",
-    epoch: "great-resettlement",
+    epoch: "age-of-change",
     image: "assets/images/karantir/portrait.webp",
     tagline: "За Гарду. За город. За свободу.",
     color: "#9a7fd1",
