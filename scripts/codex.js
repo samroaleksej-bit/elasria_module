@@ -42,8 +42,8 @@ function parseEntry(doc, kind, group) {
     const hImg = header.querySelector("img");
     const hs = hImg?.getAttribute("src") ?? "";
     // svg/png в шапке — герб; фото в шапке — обложка
-    if (hs && /\.(svg|png)(\?|$)/i.test(hs)) emblem = hs;
-    else if (hs) hImg.setAttribute("data-ew-cover", hs);
+    // любая картинка в шапке журнала — герб/флаг страны (у историй — обложка, см. ниже)
+    if (hs) emblem = hs;
     region = (header.querySelector("div")?.textContent ?? "").replace(/\s+/g, " ").trim();
     subtitle = (header.querySelector("em")?.textContent ?? "").trim();
     title = (header.querySelector("h1")?.textContent ?? "").trim();
