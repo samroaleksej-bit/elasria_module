@@ -1029,7 +1029,7 @@ globalThis.ElastriaCodex = api;
 Hooks.once("init", () => {
   game.keybindings?.register(MID, "open", {
     name: "Открыть Кодекс Эластрии",
-    editable: [{ key: "KeyK", modifiers: ["Shift"] }],
+    editable: [{ key: "KeyE" }],
     onDown: () => { document.getElementById(ROOT_ID) ? close() : open(); return true; }
   });
 });
