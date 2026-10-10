@@ -48,7 +48,7 @@ def entry(name, fkey, pages, sort, jid=None):
 COUNTRIES = ['nekotochi', 'nebesnye-ostrova', 'motum-ainos', 'moroznye-gavani', 'maotulin_',
              'zemli-lyudoyasherov', 'atlantiya', 'tiflingi-ekzortusa', 'poleniya', 'kvilandriya',
              'avangardiya', 'tiflingi-akvirtusa', 'oazis-dyun-gor', 'oreskos']
-STORIES = ['koroleva-piratov-stit-ci', 'tishina-akvirtusa', 'zharkie-zemli-oreskosa']
+STORIES = ['koroleva-piratov-stit-ci', 'tishina-akvirtusa', 'zharkie-zemli-oreskosa', 'raskolotyj-vo-vremeni']
 
 def load(slug):
     f = [p for p in glob.glob(UP + '*-fvtt-JournalEntry-*.json') if f'-JournalEntry-{slug}-' in p]
