@@ -528,3 +528,18 @@
 #ew-codex .ew-tip { border-left: 3px solid var(--k, var(--gold)); }
 #ew-codex .ew-tocmap { margin-top: 14px; font-size: 12px; letter-spacing: .08em; color: var(--gold2); }
 #ew-codex .ew-tocmap:hover { color: #fff; }
+
+/* События эпохи: карточки с артом */
+#ew-codex .ew-evcards { display: flex; flex-direction: column; gap: 22px; }
+#ew-codex .ew-evcard { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 26px; align-items: center; }
+#ew-codex .ew-evcard-r { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); }
+#ew-codex .ew-evcard-r .ew-evcard-art { order: 2; }
+#ew-codex .ew-evcard-art { position: relative; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 18px 50px rgba(0,0,0,.45), 0 0 0 1px color-mix(in srgb, var(--ep) 25%, transparent); }
+#ew-codex .ew-evcard-art img { width: 100%; height: 100%; object-fit: cover; transition: transform .8s cubic-bezier(.2,.8,.3,1); cursor: zoom-in; }
+#ew-codex .ew-evcard:hover .ew-evcard-art img { transform: scale(1.04); }
+#ew-codex .ew-evcard-ph { position: absolute; inset: 0; display: grid; place-items: center; background: radial-gradient(ellipse at 50% 40%, color-mix(in srgb, var(--ep) 30%, #14111d), #0c0a12 75%); }
+#ew-codex .ew-evcard-ph span { font-family: var(--serif); font-weight: 700; font-size: 64px; color: color-mix(in srgb, var(--ep) 70%, #fff); opacity: .55; letter-spacing: .04em; }
+#ew-codex .ew-evcard-txt h3 { font-family: var(--serif); font-size: 28px; line-height: 1.15; margin: 6px 0 10px; color: #f3ede2; }
+#ew-codex .ew-evcard-txt p { margin: 0 0 .7em; line-height: 1.6; color: #d6cfe2; }
+#ew-codex .ew-evcard-txt .ew-epoch-years { color: var(--ep); }
+@media (max-width: 900px) { #ew-codex .ew-evcard { grid-template-columns: 1fr; } #ew-codex .ew-evcard-r .ew-evcard-art { order: 0; } }

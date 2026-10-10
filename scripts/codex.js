@@ -341,7 +341,7 @@ function viewSearch(q) {
     return (a ? "…" : "") + esc(t.slice(a, i)) + `<mark>${esc(t.slice(i, i + s.length))}</mark>` + esc(t.slice(i + s.length, i + s.length + 110)) + "…"; };
   const gods = DB.gods.filter(g => [g.n, g.t, g.sph, g.who, g.sym, ...g.txt, g.leg?.p?.join(" ") ?? ""].join(" ").toLowerCase().includes(s));
   const ents = DB.countries.concat(DB.stories).filter(e => (e.title + " " + e.text).toLowerCase().includes(s));
-  const epText = (ep) => [ep.title, ep.subtitle, ep.tagline, ep.description, ...(ep.keyEvents ?? []),
+  const epText = (ep) => [ep.title, ep.subtitle, ep.tagline, ep.description, ...(ep.keyEvents ?? []).map((x) => { const e = evNorm(x); return `${e.title} ${e.text}`; }),
     ...(ep.chronicle ?? []).flatMap(c => [c.title, ...paras(c.text), c.character?.name, ...paras(c.character?.bio)]),
     ...(ep.heroes ?? []).flatMap(h => [h.name, ...paras(h.bio)]), ...(ep.characters ?? []).flatMap(c => [c.name, c.description])].filter(Boolean).join(" ").replace(/\s+/g, " ");
   const eps = DB.epochs.filter(ep => epText(ep).toLowerCase().includes(s));
@@ -560,6 +560,10 @@ function hideTip() { tipEl?.remove(); tipEl = null; }
 const CP = (p) => !p ? "" : (/^(https?:|data:|modules\/|worlds\/|systems\/|\/)/.test(p) ? p : encodeURI(`${P}chronicle/${p}`));
 const paras = (arr) => (Array.isArray(arr) ? arr : String(arr ?? "").trim().split(/\n\s*\n/)).map(t => String(t).trim()).filter(Boolean);
 const yearOf = (t) => { const m = String(t).match(/^\s*(\d{1,5})\s*г\.?\s*э\.?/i); return m ? +m[1] : null; };
+/** Событие эпохи: строка «807 г.э. — …» или объект { year, title, text, image } */
+const evNorm = (x) => typeof x === "string"
+  ? { year: yearOf(x), title: yearOf(x) != null ? x.replace(/^\s*\d+\s*г\.?\s*э\.?\s*[—–-]?\s*/i, "") : x, text: "", image: "" }
+  : { year: x?.year ?? yearOf(x?.title ?? ""), title: x?.title ?? "", text: x?.text ?? "", image: x?.image ?? "" };
 
 /** Автоссылки на богов и земли в тексте летописи (первое упоминание на страницу) */
 function autoLinker() {
@@ -607,7 +611,7 @@ function epochCard(ep) {
 function viewChronicle() {
   const eps = DB.epochs;
   if (!eps.length) return `<section class="ew-pagehead"><h1 class="ew-title-l">Летопись</h1><p class="ew-lead">Эпохи пока не добавлены. Файл: chronicle/data/epochs.js</p></section>`;
-  const events = eps.flatMap(ep => (ep.keyEvents ?? []).map(t => ({ ep, t, y: yearOf(t) })));
+  const events = eps.flatMap(ep => (ep.keyEvents ?? []).map(x => { const e = evNorm(x); return { ep, t: e.title, y: e.year }; }));
   return `<section class="ew-pagehead ew-pagehead-center">
       <div class="ew-eyebrow">${esc(DB.universe)}</div><h1 class="ew-title-l">Летопись</h1>
       <p class="ew-lead">Эпохи Эластрии от падения Вестарии до наших дней. Каждая эпоха — хроника, герои, лица и музыка.</p>
@@ -616,7 +620,7 @@ function viewChronicle() {
     ${events.length ? `<section class="ew-sec"><div class="ew-sec-head"><h2>Ключевые события</h2></div>
       <ol class="ew-timeline">${events.map(({ ep, t, y }) => `<li style="--ep:${esc(ep.color || "#e0b553")}">
         <span class="ew-tl-year">${y ?? "✦"}</span><span class="ew-tl-dot"></span>
-        <span class="ew-tl-body"><b>${esc(y != null ? t.replace(/^\s*\d+\s*г\.?\s*э\.?\s*[—–-]?\s*/i, "") : t)}</b>
+        <span class="ew-tl-body"><b>${esc(t)}</b>
         <button type="button" class="ew-tl-ep" data-go="epoch:${esc(ep.id)}">${esc(ep.title)}</button></span></li>`).join("")}</ol></section>` : ""}`;
 }
 
@@ -655,7 +659,17 @@ function viewEpoch(id) {
       ${DB.gods.find(g => g.n === c.name) ? `<button type="button" class="ew-tl-ep" data-go="god:${DB.gods.find(g => g.n === c.name).id}">✦ в пантеоне →</button>` : ""}</div></div>`).join("");
   const gallery = (ep.gallery ?? []).map(g => `
     <figure class="ew-gal"><img class="ew-z" src="${esc(CP(g.image))}" alt="${esc(g.caption ?? "")}" loading="lazy"><figcaption>${esc(g.caption ?? "")}</figcaption></figure>`).join("");
-  const events = (ep.keyEvents ?? []).map(t => { const y = yearOf(t); return `<li><span class="ew-tl-year">${y ?? "✦"}</span><span class="ew-tl-dot"></span><span class="ew-tl-body"><b>${L(y != null ? t.replace(/^\s*\d+\s*г\.?\s*э\.?\s*[—–-]?\s*/i, "") : t)}</b></span></li>`; }).join("");
+  const evs = (ep.keyEvents ?? []).map(evNorm);
+  const events = evs.map(e => `<li><span class="ew-tl-year">${e.year ?? "✦"}</span><span class="ew-tl-dot"></span><span class="ew-tl-body"><b>${esc(e.title)}</b></span></li>`).join("");
+  const evCards = evs.some(e => e.text || e.image) ? evs.map((e, k) => `
+    <article class="ew-evcard${k % 2 ? " ew-evcard-r" : ""}">
+      <div class="ew-evcard-art">${e.image ? `<img class="ew-z" src="${esc(CP(e.image))}" alt="${esc(e.title)}" loading="lazy">` : `<div class="ew-evcard-ph"><span>${e.year ?? "✦"}</span></div>`}</div>
+      <div class="ew-evcard-txt">
+        <span class="ew-epoch-years">${e.year != null ? `${e.year} г.э.` : ""}</span>
+        <h3>${esc(e.title)}</h3>
+        ${paras(e.text).map(t => `<p>${L(t)}</p>`).join("")}
+      </div>
+    </article>`).join("") : "";
   return `<article class="ew-epoch" style="--ep:${esc(ep.color || "#e0b553")}">
     <section class="ew-epochhero">
       ${bg ? `<img class="ew-epochhero-bg" src="${esc(bg)}" alt="">` : ""}
@@ -681,6 +695,7 @@ function viewEpoch(id) {
       </div>
       ${events ? `<aside class="ew-epochside"><div class="ew-side-h">Ключевые события</div><ol class="ew-timeline ew-timeline-sm">${events}</ol></aside>` : ""}
     </div>
+    ${evCards ? `<section class="ew-sec"><div class="ew-sec-head"><h2>События эпохи</h2></div><div class="ew-evcards">${evCards}</div></section>` : ""}
     ${chron ? `<section class="ew-sec"><div class="ew-sec-head"><h2>Хроника</h2></div><ol class="ew-chron">${chron}</ol></section>` : ""}
     ${heroes ? `<section class="ew-sec"><div class="ew-sec-head"><h2>Герои эпохи</h2></div><div class="ew-heroes">${heroes}</div></section>` : ""}
     ${chars ? `<section class="ew-sec"><div class="ew-sec-head"><h2>Действующие лица</h2></div><div class="ew-people">${chars}</div></section>` : ""}
