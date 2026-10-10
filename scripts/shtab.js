@@ -255,7 +255,7 @@ function lightbox(id, { remote = false } = {}) {
   el.innerHTML = `
     <div class="gs-lb-back"></div>
     <div class="gs-lb-frame">
-      <div class="gs-lb-wrap">${h.map ? mapInner(true) : `<img src="${esc(h.img)}" alt="">`}</div>
+      <div class="gs-lb-wrap">${h.map ? mapInner() : `<img src="${esc(h.img)}" alt="">`}</div>
       <div class="gs-lb-cap"><span class="gs-chip">№ ${esc(h.id)}</span> ${esc(h.t)}</div>
       ${isGM() ? `<div class="gs-lb-gm">
           ${h.map ? `<button data-lb="pinmode" class="${LB_PINMODE ? "on" : ""}">📍 Ставить метку кликом</button><button data-lb="unpin">Убрать метку</button>` : ""}
@@ -275,6 +275,7 @@ function lightbox(id, { remote = false } = {}) {
       if (a === "unpin") return act.clearPin();
     }
     if (ev.target.classList.contains("gs-lb-back")) return closeLightbox();
+    if (ev.target.closest(".gs-hm")) return;
     const img = ev.target.closest(".gs-lb-wrap img, .gs-map-img");
     if (img && isGM() && h.map && LB_PINMODE) return pinFromClick(ev, img);
     if (img && !h.map) el.classList.toggle("zoom");
@@ -286,7 +287,7 @@ function lightbox(id, { remote = false } = {}) {
 let LB_PINMODE = false;
 function closeLightbox() { if (!LB) return false; const el = LB.el; LB = null; el.classList.remove("in"); setTimeout(() => el.remove(), 250); return true; }
 function refreshLightboxPin() {
-  for (const wrap of document.querySelectorAll(".gs-map")) wrap.querySelector(".gs-pin-layer").innerHTML = pinHTML();
+  for (const wrap of document.querySelectorAll(".gs-map")) wrap.querySelector(".gs-pin-layer").innerHTML = layerHTML(wrap.dataset.viewer);
 }
 function pinFromClick(ev, img) {
   const r = img.getBoundingClientRect();
@@ -308,9 +309,38 @@ function pinHTML() {
       <span class="gs-pin-label">ВЫ ЗДЕСЬ${p.label ? `<small>${esc(p.label)}</small>` : ""}</span>
     </div>`;
 }
-function mapInner() {
+function defViewer() { return isGM() ? "gm" : game.user.id; }
+function layerHTML(viewer = defViewer()) { return hintsHTML(viewer) + pinHTML(); }
+function mapInner(viewer = defViewer()) {
   const h = hById(MAP_HID);
-  return `<div class="gs-map"><img class="gs-map-img" src="${esc(h.img)}" alt="" draggable="false"><div class="gs-pin-layer">${pinHTML()}</div></div>`;
+  return `<div class="gs-map" data-viewer="${esc(viewer)}"><img class="gs-map-img" src="${esc(h.img)}" alt="" draggable="false"><div class="gs-pin-layer">${layerHTML(viewer)}</div></div>`;
+}
+
+/* подсказки заданий на карте: «!» — куда идти, «?» — где сдавать */
+function hintsHTML(viewer) {
+  const st = getState();
+  if (st.hints === false) return "";
+  const by = new Map();
+  for (const q of DATA.quests) {
+    const e = st.q[q.id];
+    if (!e || e.s !== "active") continue;
+    if (viewer !== "gm" && !visibleTo(e, viewer)) continue;
+    const o = q.obj.find((x) => !e.o?.[x.id]);
+    if (!o?.pt) continue;
+    if (!by.has(o.pt)) by.set(o.pt, []);
+    by.get(o.pt).push({ q, o });
+  }
+  let out = "";
+  for (const [pid, list] of by) {
+    const p = ptById(pid); if (!p) continue;
+    const ret = list.every((x) => x.o.ret);
+    const main = list.some((x) => x.q.kind === "main");
+    out += `<div class="gs-hm ${ret ? "ret" : ""} ${main ? "main" : ""}" style="left:${((p.x - 0.1) * 100).toFixed(2)}%;top:${((p.y + 0.006) * 100).toFixed(2)}%">
+      <span class="gs-hm-ic">${ret ? "?" : "!"}</span>${list.length > 1 ? `<span class="gs-hm-n">${list.length}</span>` : ""}
+      <div class="gs-hm-tip"><div class="gs-hm-loc">${esc(p.t)}</div>${list.map(({ q, o }) => `<div class="gs-hm-row"><b>${o.ret ? "?" : "!"} ${esc(q.t)}</b><span>${esc(o.t)}</span></div>`).join("")}</div>
+    </div>`;
+  }
+  return out;
 }
 
 /* ───────────── окно штаба / журнала отряда ───────────── */
@@ -546,6 +576,7 @@ class ShtabApp extends AppV2 {
         <p class="gs-hint">Кликни по карте или выбери локацию. Игроки увидят метку «ВЫ ЗДЕСЬ» и уведомление.</p>
         <div class="gs-mpts">${DATA.mapPoints.map((p) => `<button data-act="pinpt" data-pt="${p.id}" class="${st.pin && Math.abs(st.pin.x - p.x) < 0.001 && Math.abs(st.pin.y - p.y) < 0.001 ? "on" : ""}">${esc(p.t)}</button>`).join("")}</div>
         <button data-act="unpin" class="ghost">Убрать метку</button>
+        <label class="gs-check"><input type="checkbox" data-hints ${st.hints === false ? "" : "checked"}><span>Подсказки заданий на карте: <b style="color:#ffd23a">!</b> — куда идти, <b style="color:#ffd23a">?</b> — где сдать. Жёлтые — основные, голубые — побочные.</span></label>
         <div class="gs-mapstate">${e ? `Карта открыта: 👁 ${esc(whoLabel(e))}` : `<b>Карта ещё не у игроков.</b> ${this.revealCtl(hById(MAP_HID))}`}</div>
         ${e ? `<button data-act="screen" data-h="${MAP_HID}">🖥 Карту на экран всем</button>` : ""}
       </aside></div>`;
@@ -602,7 +633,7 @@ class ShtabApp extends AppV2 {
             <div class="gs-hcard-img"><img src="${esc(h.img)}" alt="" loading="lazy">${h.map ? `<span class="gs-chip map">📍 карта</span>` : ""}</div>
             <div class="gs-hcard-b"><b>${esc(h.t)}</b></div></div>`).join("")}</div>`;
     } else {
-      body = `<div class="gs-mapbox">${mapInner()}</div>`;
+      body = `<div class="gs-mapbox">${mapInner(this.viewerId())}</div>`;
     }
     const tabs = [["quests", "⚙", "Задания", newQ, qs.length], ["handouts", "📜", "Раздатки", newH, hs.length], ...(mapOk ? [["map", "📍", "Карта", 0, null]] : [])];
     return `<div class="gs-shell gs-squad">
@@ -661,6 +692,7 @@ class ShtabApp extends AppV2 {
       case "toggleDone": this.showDone = !this.showDone; return this.render();
       case "openjournal": { const pg = advJournal()?.pages.get(this.page); return pg?.parent?.sheet?.render(true, { pageId: pg.id }); }
       case "mapclick": {
+        if (ev.target.closest(".gs-hm")) return;
         const img = ev.target.closest(".gs-map-img, .gs-pin-layer, .gs-map");
         const mi = t.querySelector(".gs-map-img");
         if (img && mi && isGM()) return pinFromClick(ev, mi);
@@ -679,6 +711,7 @@ class ShtabApp extends AppV2 {
 
   async onChange(ev) {
     if (ev.target.closest("[data-recap]")) return this.saveRecapForm();
+    if (ev.target.matches("[data-hints]")) return setState((s) => { s.hints = ev.target.checked; });
     const s = ev.target.closest("select[data-act]");
     if (!s || !s.value) return;
     const uid = s.value; s.value = "";
@@ -835,7 +868,7 @@ function renderRecap(prevRecap) {
   const mapBox = el.querySelector(".gs-rc-map");
   mapBox.style.display = r.map ? "" : "none";
   if (r.map) mapBox.innerHTML = `<div class="gs-rc-map-h">📍 Схема Гномрегана${st.pin?.label ? ` · <b>${esc(st.pin.label)}</b>` : ""}</div>
-    <div class="gs-map">${`<img class="gs-map-img" src="${esc(hById(MAP_HID).img)}" alt="" draggable="false">`}${trailSVG(st)}<div class="gs-pin-layer">${pinHTML()}</div></div>`;
+    <div class="gs-map" data-viewer="${esc(defViewer())}">${`<img class="gs-map-img" src="${esc(hById(MAP_HID).img)}" alt="" draggable="false">`}${trailSVG(st)}<div class="gs-pin-layer">${layerHTML()}</div></div>`;
 }
 
 /* ───────────── плавающая шестерёнка ───────────── */

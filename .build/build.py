@@ -335,6 +335,30 @@ quests = [
       gm="СЕКРЕТНО: выдавать только одному игроку через «Кому»."),
 ]
 
+# где на карте Хинкла цель (точка) и «?» — цель сдачи
+OBJPT = {
+    "main": ["city", "upper", "hall", "court", "city?"],
+    "g1": ["hall2", "hall2", "hall2?"],
+    "amy": ["trogg", "trogg", "trogg"],
+    "data": ["city", "upper", "dorms", "launch", "labs", "city?"],
+    "brother": ["safe", "safe", "safe?"],
+    "forall": ["court", "court", "upper?"],
+    "friend": ["safe?", "dorms", "dorms"],
+    "g2": ["tunnel", "launch", "launch?"],
+    "iron": ["dorms", "path", "path", "city?"],
+    "razlo": ["city", "depot", "city?"],
+    "g3": ["path", "court", "court?"],
+    "horde": [None, "safe", "labs", None],
+}
+for x in quests:
+    pts = OBJPT.get(x["id"], [])
+    assert len(pts) in (0, len(x["obj"])), x["id"]
+    for o, p in zip(x["obj"], pts):
+        if not p: continue
+        o["pt"] = p.rstrip("?")
+        if p.endswith("?"): o["ret"] = True
+        assert o["pt"] in {m["id"] for m in mapPoints}, p
+
 data = {"journal": JID, "nav": nav, "pages": pages, "handouts": handouts, "quests": quests, "mapPoints": mapPoints,
         # что показывать на странице локации
         "pageLinks": {

@@ -443,3 +443,23 @@
 @keyframes gs-type { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes gs-glow { 0% { text-shadow: 0 0 12px #8cff4a; } 100% { text-shadow: none; } }
 @keyframes gs-march { to { stroke-dashoffset: -16; } }
+
+/* ═══════════ Подсказки заданий на карте ═══════════ */
+.gs-hm { position: absolute; width: 0; height: 0; z-index: 1; pointer-events: auto; }
+.gs-hm-ic { position: absolute; left: -15px; top: -32px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; cursor: help;
+  font: 400 19px/1 "GS Title", sans-serif; color: #2a1800; background: radial-gradient(circle at 35% 30%, #fff1a8, #ffcc2e 45%, #c98a00); border: 2px solid #2a1800;
+  box-shadow: 0 0 0 2px #ffd23a88, 0 0 14px #ffcf3acc, 0 3px 4px #000; animation: gs-hm-bob 1.8s ease-in-out infinite; transition: transform .15s; }
+.gs-hm:not(.main) .gs-hm-ic { color: #002331; background: radial-gradient(circle at 35% 30%, #e6fbff, #6fdcff 45%, #1a8fb8); border-color: #002331; box-shadow: 0 0 0 2px #4fd8ff88, 0 0 14px #4fd8ffcc, 0 3px 4px #000; }
+.gs-hm.ret .gs-hm-ic { border-style: double; border-width: 3px; }
+.gs-hm:hover .gs-hm-ic { transform: scale(1.2); animation-play-state: paused; }
+.gs-hm-n { position: absolute; left: 9px; top: -38px; min-width: 16px; height: 16px; border-radius: 8px; background: #2a1800; border: 1px solid #ffd23a; color: #ffd23a; font: 700 10px/14px "GS Cond", sans-serif; text-align: center; padding: 0 3px; pointer-events: none; }
+.gs-hm-tip { position: absolute; left: 18px; top: -40px; min-width: 220px; max-width: 300px; padding: 8px 10px; border-radius: 8px; background: #120f09f2; border: 1px solid #d9a441; box-shadow: 0 10px 24px #000c; line-height: 1.3; font-family: "GS Sans", sans-serif; opacity: 0; transform: translateY(4px); transition: .15s; pointer-events: none; z-index: 5; }
+.gs-hm:hover .gs-hm-tip { opacity: 1; transform: none; }
+.gs-hm-loc { font: 500 10.5px "GS Cond", sans-serif; text-transform: uppercase; letter-spacing: .12em; color: var(--gs-holo); margin-bottom: 4px; }
+.gs-hm-row { display: flex; flex-direction: column; margin-top: 4px; }
+.gs-hm-row b { font: 500 13.5px "GS Cond", sans-serif; color: #ffd98a; }
+.gs-hm-row span { font-size: 12.5px; color: #d5dde1; }
+.gs-rc-map .gs-hm { transform: scale(.7); }
+.gs-rc-map .gs-hm-tip { display: none; }
+@keyframes gs-hm-bob { 50% { transform: translateY(-4px); } }
+.gs-hm:hover { z-index: 6; }
