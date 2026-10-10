@@ -18,9 +18,12 @@ const ACCENTS = ["#d9b46a", "#8fd3f0", "#e89650", "#e2788c", "#a98cf0", "#7fd6a0
 const PARTICLES = { snow: "Снег", ash: "Пепел", sparks: "Искры", petals: "Лепестки", stars: "Звёзды", none: "Без частиц" };
 const MODES = { tale: "Рассказ", dream: "Сон", vision: "Видение" };
 const FX = {
+  shake1: "〰 Тряска · слабая", shake2: "〰 Тряска · средняя", shake3: "〰 Тряска · сильная", tremor: "≋ Дрожь (долгая)",
   frost: "❄ Лёд трескается", frostStrong: "❄ Лёд ломается", quake: "⛰ Землетрясение",
   lightning: "⚡ Молния", scourge: "☠ Плеть Кишина", divine: "✦ Свет богов"
 };
+const TRANS = { fade: "Затемнение", mist: "Туман", ash: "Пепел и угли", none: "Без перехода" };
+const LOC_SOUND = `modules/${MID}/assets/sounds/perehod.ogg`;
 
 const ABIL = [["str", "СИЛ"], ["dex", "ЛОВ"], ["con", "ТЕЛ"], ["int", "ИНТ"], ["wis", "МДР"], ["cha", "ХАР"]];
 const ACTIVATION = { action: "Действие", bonus: "Бонус", reaction: "Реакция", special: "Особое", minute: "Минуты", hour: "Часы", legendary: "Легендарное" };
@@ -309,12 +312,66 @@ function crackSVG(n) {
   }
   return `<svg class="es-cracks" viewBox="0 0 100 100" preserveAspectRatio="none">${paths}</svg>`;
 }
-function shake(cls = "es-shake") {
+function shake(cls = "es-shake", ms = 900) {
   const t = document.getElementById("board") ?? document.body;
   t.classList.remove(cls); void t.offsetWidth; t.classList.add(cls);
-  setTimeout(() => t.classList.remove(cls), 900);
+  setTimeout(() => t.classList.remove(cls), ms);
+}
+
+/* ───────────── проявление локации (как в Dark Souls) ───────────── */
+function locOf(scene) {
+  if (!scene) return null;
+  const f = scene.getFlag?.(MID, "loc") ?? {};
+  return { on: !!f.on, title: f.title || scene.navName || scene.name, sub: f.sub || "", sound: f.sound ?? LOC_SOUND };
+}
+function showLocation({ title = "", sub = "", sound = LOC_SOUND } = {}) {
+  if (!title) return;
+  document.getElementById("es-loc")?.remove();
+  const el = document.createElement("div");
+  el.id = "es-loc";
+  el.innerHTML = `<div class="es-loc-band"></div><div class="es-loc-in">
+      <div class="es-loc-title">${esc(title)}</div><div class="es-loc-line"></div>${sub ? `<div class="es-loc-sub">${esc(sub)}</div>` : ""}
+    </div>`;
+  document.body.append(el);
+  if (sound) playSound(sound, 0.9);
+  setTimeout(() => el.classList.add("out"), 5200);
+  setTimeout(() => el.remove(), 7000);
+}
+
+/* ───────────── переходы между сценами ───────────── */
+function transStyle() { return game.settings.get(MID, "stageTransition") || "fade"; }
+function coverIn() {
+  const st = transStyle();
+  if (st === "none") return;
+  let el = document.getElementById("es-trans");
+  if (!el) { el = document.createElement("div"); el.id = "es-trans"; document.body.append(el); }
+  el.className = `t-${st}`;
+  el.innerHTML = st === "ash" ? `<div class="es-trans-fx"></div>` : st === "mist" ? `<div class="es-trans-fx"></div>` : "";
+  if (st === "ash") makeParticles(el.querySelector(".es-trans-fx"), "sparks", 60);
+  requestAnimationFrame(() => el.classList.add("in"));
+}
+function coverOut() {
+  const el = document.getElementById("es-trans");
+  if (!el) return false;
+  setTimeout(() => { el.classList.add("reveal"); setTimeout(() => el.remove(), 2200); }, 350);
+  return true;
+}
+let lastSceneId = null;
+function onCanvasReady(cv) {
+  const scene = cv?.scene;
+  const hadCover = coverOut();
+  if (!scene || !game.settings.get(MID, "stageLocAuto")) { lastSceneId = scene?.id ?? null; return; }
+  const loc = locOf(scene);
+  let seen = null; try { seen = sessionStorage.getItem("es-loc-last"); } catch (e) { /* ok */ }
+  const changed = scene.id !== lastSceneId && scene.id !== seen;
+  lastSceneId = scene.id;
+  try { sessionStorage.setItem("es-loc-last", scene.id); } catch (e) { /* ok */ }
+  if (loc?.on && changed) setTimeout(() => showLocation(loc), hadCover ? 1300 : 600);
 }
 function playFx(fx) {
+  if (fx.type === "location") return showLocation(fx.data ?? {});
+  if (/^shake[123]$/.test(fx.type)) { shake(`es-shake-${fx.type.slice(-1)}`, 1200); return fx.sound && playSound(fx.sound); }
+  if (fx.type === "tremor") { shake("es-tremor", 4200); return fx.sound && playSound(fx.sound); }
   const el = document.createElement("div");
   el.className = `es-fx es-fx-${fx.type}`;
   let life = 3200;
@@ -400,6 +457,10 @@ const stage = {
   textEnd() { return setS((s) => { s.text = null; }); },
 
   fx(type, opts = {}) { return setS((s) => { s.fx = { type, t: Date.now(), to: opts.to ?? "all", sound: opts.sound ?? "" }; }); },
+  /** Название локации всем: ElastriaStage.location("Анор Лондо", "Город богов") */
+  location(title, sub = "", o = {}) { return setS((s) => { s.fx = { type: "location", t: Date.now(), to: o.to ?? "all", data: { title, sub, sound: o.sound ?? LOC_SOUND } }; }); },
+  /** Показать название текущей (или указанной) сцены по её настройкам */
+  showSceneLocation(scene = canvas?.scene) { const l = locOf(scene); if (l) return stage.location(l.title, l.sub, { sound: l.sound }); },
   iceCrack(o = {}) { return stage.fx(o.strength === "strong" ? "frostStrong" : "frost", o); },
 
   async spiritEnter(o = {}) { const sc = spiritScene(); if (isGM() && sc) await sc.setFlag("world", "spiritWorld", { action: "enter", t: Date.now(), soundPath: o.sound ?? SPIRIT_SOUND }); },
@@ -436,10 +497,11 @@ class StagePanel extends AppV2 {
 
   html() {
     const s = S();
-    const tabs = [["heroes", "Герои"], ["texts", "Тексты"], ["fx", "Эффекты"]];
+    const tabs = [["heroes", "Герои"], ["texts", "Тексты"], ["fx", "Эффекты"], ["loc", "Локации"]];
     let body = "";
     if (this.tab === "heroes") body = this.heroesHTML(s);
     else if (this.tab === "texts") body = this.textsHTML(s);
+    else if (this.tab === "loc") body = this.locHTML();
     else body = this.fxHTML();
     const live = [s.card ? `карточка: <b>${esc(s.card.payload.card.name)}</b>` : "", s.text ? `текст: <b>${esc(s.text.title || "без названия")}</b> ${(s.text.i ?? 0) + 1}/${steps(s.text).length} · видят: ${esc(whoLabel(s.text.to))}` : "", spiritOn() ? "<b>мир духов</b>" : ""].filter(Boolean);
     return `<nav class="es-pn-tabs">${tabs.map(([id, t]) => `<button data-tab="${id}" class="${this.tab === id ? "on" : ""}">${t}</button>`).join("")}</nav>
@@ -483,6 +545,21 @@ class StagePanel extends AppV2 {
       <p class="es-pn-hint"><b>Рассказ</b> — тёмная завеса и текст. <b>Сон</b> — веки смыкаются, два удара сердца, мир открывается в дымке. <b>Видение</b> — золотой свет и звёзды. Игроки листать не могут, листаешь ты.</p>`;
   }
 
+  locHTML() {
+    const scenes = (game.scenes?.contents ?? Array.from(game.scenes ?? [])).slice().sort((a, b) => (b.active - a.active) || (a.navOrder ?? a.sort ?? 0) - (b.navOrder ?? b.sort ?? 0));
+    return `<label class="es-pn-lbl">Переход между картами</label>
+      <select data-set="trans">${Object.entries(TRANS).map(([k, v]) => `<option value="${k}" ${transStyle() === k ? "selected" : ""}>${v}</option>`).join("")}</select>
+      <label class="es-pn-check"><input type="checkbox" data-set="locAuto" ${game.settings.get(MID, "stageLocAuto") ? "checked" : ""}> Проявлять название локации при входе на сцену</label>
+      <p class="es-pn-hint">Как в Dark Souls: название проступает по центру со звуком. Включается галочкой у нужных сцен ниже. Название по умолчанию — имя сцены в навигации.</p>
+      <label class="es-pn-lbl">Сцены</label>
+      <div class="es-pn-scenes">${scenes.map((sc) => { const l = locOf(sc); return `<div class="es-pn-sc ${sc.active ? "act" : ""}" data-scene="${sc.id}">
+          <div class="es-pn-sc-h"><label><input type="checkbox" data-loc="on" ${l.on ? "checked" : ""}> ${esc(sc.name)}${sc.active ? " <em>· активна</em>" : ""}</label><button data-a="locplay" data-id="${sc.id}" title="Показать название всем сейчас">▶</button></div>
+          <input type="text" data-loc="title" placeholder="${esc(sc.navName || sc.name)}" value="${esc(sc.getFlag?.(MID, "loc")?.title ?? "")}">
+          <input type="text" data-loc="sub" placeholder="Подзаголовок (необязательно)" value="${esc(l.sub)}">
+        </div>`; }).join("") || `<p class="es-pn-hint">В мире нет сцен.</p>`}</div>
+      <p class="es-pn-hint">Звук — твой «переход». Свой звук на сцену: <code>scene.setFlag("${MID}", "loc", {...scene.getFlag("${MID}", "loc"), sound: "путь.ogg"})</code></p>`;
+  }
+
   fxHTML() {
     const on = spiritOn();
     return `<div class="es-pn-fx">${Object.entries(FX).map(([k, v]) => `<button data-a="fx" data-fx="${k}">${v}</button>`).join("")}</div>
@@ -498,6 +575,14 @@ class StagePanel extends AppV2 {
     const t = ev.target;
     if (t.dataset.d) { this.draft[t.dataset.d] = t.dataset.d === "to" ? (t.value === "all" ? "all" : [t.value]) : t.value; this.saveDraft(); return; }
     if (changed && t.dataset.set === "particles") return game.settings.set(MID, "stageParticles", t.value);
+    if (changed && t.dataset.set === "trans") return game.settings.set(MID, "stageTransition", t.value);
+    if (changed && t.dataset.set === "locAuto") return game.settings.set(MID, "stageLocAuto", t.checked);
+    if (changed && t.dataset.loc) {
+      const sc = game.scenes.get(t.closest("[data-scene]")?.dataset.scene); if (!sc) return;
+      const cur = { ...(sc.getFlag(MID, "loc") ?? {}) };
+      cur[t.dataset.loc] = t.type === "checkbox" ? t.checked : t.value;
+      return sc.setFlag(MID, "loc", cur);
+    }
     if (changed && t.dataset.color) { const m = { ...(game.settings.get(MID, "stageCards") || {}) }; m[t.dataset.color] = { ...(m[t.dataset.color] || {}), accent: t.value }; await game.settings.set(MID, "stageCards", m); this.render(); }
   }
 
@@ -534,6 +619,7 @@ class StagePanel extends AppV2 {
       case "load": { const t = lib().find((x) => x.id === id); if (t) { this.draft = clone(t); this.saveDraft(); } return this.render(); }
       case "play": { const t = lib().find((x) => x.id === id); if (!t) return; this.draft = clone(t); this.saveDraft(); return stage.text(this.draftToText()); }
       case "fx": return stage.fx(b.dataset.fx);
+      case "locplay": return stage.showSceneLocation(game.scenes.get(id));
       case "spirit": await stage.spiritToggle(); return setTimeout(() => this.render(), 200);
     }
   }
@@ -559,6 +645,8 @@ Hooks.once("init", () => {
   game.settings.register(MID, "stageLib", { scope: "world", config: false, type: Array, default: STARTER });
   game.settings.register(MID, "stageCards", { scope: "world", config: false, type: Object, default: {} });
   game.settings.register(MID, "stageParticles", { scope: "world", config: false, type: String, default: "snow" });
+  game.settings.register(MID, "stageTransition", { scope: "world", config: false, type: String, default: "fade" });
+  game.settings.register(MID, "stageLocAuto", { scope: "world", config: false, type: Boolean, default: true });
   game.settings.register(MID, "stageDraft", { scope: "client", config: false, type: Object, default: {} });
   game.settings.register(MID, "stagePanelPos", { scope: "client", config: false, type: Object, default: {} });
   game.settings.register(MID, "stageFab", { name: "Кнопка пульта сцены (✦)", hint: "Круглая кнопка в правом нижнем углу, открывает пульт сцены. Видна только мастеру.", scope: "client", config: true, type: Boolean, default: true, onChange: () => location.reload() });
@@ -593,7 +681,9 @@ Hooks.on("updateScene", (scene, changes) => {
   if (cmd?.action === "enter") spiritEnter(cmd); else if (cmd?.action === "exit") spiritExit(cmd);
   panel?.rendered && panel.render();
 });
+Hooks.on("canvasTearDown", () => { try { coverIn(); } catch (e) { console.warn(e); } });
 Hooks.on("canvasReady", (cv) => {
+  try { onCanvasReady(cv); } catch (e) { console.warn(e); }
   spiritCleanup();
   if (cv?.scene?.getFlag?.("world", "spiritWorld")?.action === "enter") spiritEnter(null, true);
 });
