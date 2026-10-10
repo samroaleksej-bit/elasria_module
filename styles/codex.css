@@ -541,7 +541,7 @@
 #ew-codex .ew-evcard-ph span { font-family: var(--serif); font-weight: 700; font-size: 64px; color: color-mix(in srgb, var(--ep) 70%, #fff); opacity: .55; letter-spacing: .04em; }
 #ew-codex .ew-evcard-txt h3 { font-family: var(--serif); font-size: 28px; line-height: 1.15; margin: 6px 0 10px; color: #f3ede2; }
 #ew-codex .ew-evcard-txt p { margin: 0 0 .7em; line-height: 1.6; color: #d6cfe2; }
-#ew-codex .ew-evcard-txt .ew-epoch-years { color: var(--ep); }
+#ew-codex .ew-evcard-txt .ew-epoch-years { color: #f3ede2; }
 @media (max-width: 900px) { #ew-codex .ew-evcard { grid-template-columns: 1fr; } #ew-codex .ew-evcard-r .ew-evcard-art { order: 0; } }
 
 /* ═══ Летопись: подразделы и Известные герои ═══ */
