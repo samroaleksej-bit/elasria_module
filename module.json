@@ -1,0 +1,15 @@
+{
+  "id": "gnomregan-shtab",
+  "title": "Спасти Гномреган! · Штаб операции",
+  "description": "Штаб мастера для мини-кампании «Спасти Гномреган!»: журнал приключения по сессиям, задания и раздатки, которые игроки видят только после того, как мастер их откроет, с уведомлениями «Новое задание!» и «Новая раздатка!», и карта с меткой «Вы здесь». Требует импортированного приключения «Гномреган» (журнал «Приключение»).",
+  "version": "1.0.0",
+  "authors": [{ "name": "Verlierboy", "url": "https://t.me/circleofdms" }],
+  "compatibility": { "minimum": "13", "verified": "14" },
+  "esmodules": ["scripts/shtab.js"],
+  "styles": ["styles/shtab.css"],
+  "socket": true,
+  "flags": {},
+  "url": "https://github.com/samroaleksej-bit/elasria_module/tree/gnomregan",
+  "manifest": "https://raw.githubusercontent.com/samroaleksej-bit/elasria_module/gnomregan/module.json",
+  "download": "https://github.com/samroaleksej-bit/elasria_module/archive/refs/heads/gnomregan.zip"
+}
