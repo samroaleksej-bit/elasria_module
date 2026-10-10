@@ -116,7 +116,7 @@ def god_page(g):
     ties_html = ''
     if ties:
         li = []
-        for a, b, txt in ties:
+        for a, b, txt, *_ in ties:
             other = b if a == g['id'] else a
             who = god_link(other) if other else 'Фундаментальные'
             li.append(f'<li style="margin:0.25rem 0"><strong>{who}</strong> — {e(txt)}</li>')

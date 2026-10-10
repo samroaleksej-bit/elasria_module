@@ -378,9 +378,9 @@ function godGraph() {
         name: g.n, label: `${TIER[g.tier].one} бог`, sub: g.t, coin: coin(g), coinL: coin(g, "ew-coin-l"), go: { v: "god", id: g.id } });
     });
   }
-  const edges = DB.ties.map(([a, b, txt]) => ({ a, b: b ?? "_core", txt, kind: tieKind(txt) }));
+  const edges = DB.ties.map(([a, b, txt, k]) => ({ a, b: b ?? "_core", txt, kind: KINDS[k] ? k : tieKind(txt) }));
   return { key: "ties", title: "Карта связей", eyebrow: "Пантеон", rings: Object.values(rings).map((r, i) => ({ r, color: Object.values(TIER)[i].accent })),
-    legend: ["F", "M", "S"].map(t => ({ label: TIER[t].name, color: TIER[t].accent })), kinds: ["ally", "foe"], nodes, edges,
+    legend: ["F", "M", "S"].map(t => ({ label: TIER[t].name, color: TIER[t].accent })), kinds: ["ally", "foe", "kin"], nodes, edges,
     lead: "Наведи на бога — подсветятся его связи. Кликни — закрепить и прочитать. Двойной клик — открыть страницу бога.",
     hint: `Главная угроза эпохи: злые боги хотят освободить ${godLinkInline("kishin", "Кишина")} и убить ${godLinkInline("simori", "Симори")}.`,
     openLabel: "Открыть страницу бога →" };
