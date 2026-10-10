@@ -113,7 +113,12 @@ async function loadDB(force = false) {
     epochs = Array.isArray(r.E) ? r.E : [];
     if (r.U) universe = r.U;
   } catch (e) { console.warn("Кодекс Эластрии | летопись не загрузилась", e); }
-  DB = { ...data, gods, byId, pageToGod, entries, countries, stories, groups, domains, epochs, universe };
+  let legends = [];
+  try {
+    const res = await fetch(`${P}chronicle/data/heroes.js`, { cache: "no-store" });
+    if (res.ok) { const r = new Function(`${await res.text()}\n;return typeof HEROES !== "undefined" ? HEROES : [];`)(); legends = Array.isArray(r) ? r : []; }
+  } catch (e) { console.warn("Кодекс Эластрии | герои не загрузились", e); }
+  DB = { ...data, gods, byId, pageToGod, entries, countries, stories, groups, domains, epochs, universe, legends };
   return DB;
 }
 
@@ -615,6 +620,7 @@ function viewChronicle() {
   return `<section class="ew-pagehead ew-pagehead-center">
       <div class="ew-eyebrow">${esc(DB.universe)}</div><h1 class="ew-title-l">Летопись</h1>
       <p class="ew-lead">Эпохи Эластрии от падения Вестарии до наших дней. Каждая эпоха — хроника, герои, лица и музыка.</p>
+      ${chronSub("chronicle")}
     </section>
     <section class="ew-sec"><div class="ew-epochs">${eps.map(epochCard).join("")}</div></section>
     ${events.length ? `<section class="ew-sec"><div class="ew-sec-head"><h2>Ключевые события</h2></div>
@@ -650,12 +656,14 @@ function viewEpoch(id) {
     <div class="ew-hero-row${k % 2 ? " ew-hero-row-r" : ""}">
       ${portrait(h, "ew-portrait-lg")}
       <div class="ew-hero-row-txt"><div class="ew-eyebrow">${esc(h.role ?? "")}</div><h3>${esc(h.name)}</h3>
-        ${paras(h.bio).map(t => `<p>${L(t)}</p>`).join("")}</div>
+        ${paras(h.bio).map(t => `<p>${L(t)}</p>`).join("")}
+        ${legendOf(h.name) ? `<button type="button" class="ew-tl-ep" data-go="hero:${esc(legendOf(h.name).id)}">✦ личная история →</button>` : ""}</div>
     </div>`).join("");
   const chars = (ep.characters ?? []).map(c => `
     <div class="ew-person">${portrait(c)}
       <div class="ew-person-txt"><b>${esc(c.name)}</b><span class="ew-eyebrow">${esc(c.role ?? "")}</span>
       ${c.description ? `<p>${L(c.description)}</p>` : ""}
+      ${legendOf(c.name) ? `<button type="button" class="ew-tl-ep" data-go="hero:${esc(legendOf(c.name).id)}">✦ личная история →</button>` : ""}
       ${DB.gods.find(g => g.n === c.name) ? `<button type="button" class="ew-tl-ep" data-go="god:${DB.gods.find(g => g.n === c.name).id}">✦ в пантеоне →</button>` : ""}</div></div>`).join("");
   const gallery = (ep.gallery ?? []).map(g => `
     <figure class="ew-gal"><img class="ew-z" src="${esc(CP(g.image))}" alt="${esc(g.caption ?? "")}" loading="lazy"><figcaption>${esc(g.caption ?? "")}</figcaption></figure>`).join("");
@@ -705,6 +713,86 @@ function viewEpoch(id) {
       <button type="button" data-go="chronicle">Вся летопись</button>
       <button type="button" data-go="epoch:${esc(eps[(i + 1) % eps.length].id)}"><span>${esc(eps[(i + 1) % eps.length].title)} →</span></button>
     </nav>` : `<nav class="ew-pager"><span></span><button type="button" data-go="chronicle">Вся летопись</button><span></span></nav>`}
+  </article>`;
+}
+
+/* ================================================================ известные герои */
+
+const legendOf = (name) => (DB.legends ?? []).find(h => h.name === name);
+function chronSub(cur) {
+  const n = heroList().length;
+  return `<nav class="ew-chronsub"><button type="button" data-go="chronicle" class="${cur === "chronicle" ? "on" : ""}">Эпохи <small>${DB.epochs.length}</small></button>${n ? `<button type="button" data-go="heroes" class="${cur === "heroes" ? "on" : ""}">Известные герои <small>${n}</small></button>` : ""}</nav>`;
+}
+/** Все герои: с личной историей (heroes.js) и герои эпох */
+function heroList() {
+  const out = [], seen = new Set();
+  for (const h of DB.legends ?? []) {
+    const ep = DB.epochs.find(e => e.id === h.epoch);
+    out.push({ ...h, ep, story: true }); seen.add(h.name);
+  }
+  for (const ep of DB.epochs) for (const h of [...(ep.heroes ?? []), ...(ep.characters ?? [])]) {
+    if (seen.has(h.name) || DB.gods.some(g => g.n === h.name)) continue;
+    seen.add(h.name);
+    out.push({ name: h.name, role: h.role, image: h.image, ep, bio: h.bio ?? h.description, story: false });
+  }
+  return out;
+}
+function viewHeroes() {
+  const list = heroList();
+  const card = (h) => `<button type="button" class="ew-herocard${h.story ? " has-story" : ""}" data-go="${h.story ? `hero:${esc(h.id)}` : `epoch:${esc(h.ep?.id ?? "")}`}" style="--ep:${esc(h.color || h.ep?.color || "#e0b553")}">
+      <span class="ew-herocard-img">${CP(h.image) ? `<img src="${esc(CP(h.image))}" alt="" loading="lazy">` : `<span class="ew-portrait-ph">⚔</span>`}</span>
+      <span class="ew-herocard-txt">
+        ${h.ep ? `<span class="ew-epoch-years">${esc(h.ep.title)}</span>` : ""}
+        <b>${esc(h.name)}</b>
+        ${h.title ? `<i>${esc(h.title)}</i>` : ""}
+        <span class="ew-eyebrow">${esc(h.role ?? "")}</span>
+        ${h.story ? `<em>✦ личная история · ${h.parts?.length ?? 0} ${(h.parts?.length ?? 0) === 1 ? "часть" : "части"}</em>` : ""}
+      </span></button>`;
+  const withStory = list.filter(h => h.story), rest = list.filter(h => !h.story);
+  return `<section class="ew-pagehead ew-pagehead-center">
+      <div class="ew-eyebrow">${esc(DB.universe)}</div><h1 class="ew-title-l">Известные герои</h1>
+      <p class="ew-lead">Те, чьи имена пережили свои эпохи. У некоторых — личная история в иллюстрациях.</p>
+      ${chronSub("heroes")}
+    </section>
+    ${withStory.length ? `<section class="ew-sec"><div class="ew-sec-head"><h2>Личные истории</h2></div><div class="ew-herocards big">${withStory.map(card).join("")}</div></section>` : ""}
+    ${rest.length ? `<section class="ew-sec"><div class="ew-sec-head"><h2>Герои эпох</h2></div><div class="ew-herocards">${rest.map(card).join("")}</div></section>` : ""}`;
+}
+function heroText(t, L) {
+  const html = L(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+  return /^\s*—/.test(t) ? `<p class="ew-line">${html}</p>` : `<p>${html}</p>`;
+}
+function viewHero(id) {
+  const h = (DB.legends ?? []).find(x => x.id === id);
+  if (!h) return viewHeroes();
+  const ep = DB.epochs.find(e => e.id === h.epoch);
+  const L = autoLinker();
+  const all = DB.legends, i = all.indexOf(h);
+  const parts = (h.parts ?? []).map((p, k) => `
+    <section class="ew-hpart${k % 2 ? " ew-hpart-r" : ""}">
+      ${p.image ? `<figure class="ew-hpart-art"><img class="ew-z" src="${esc(CP(p.image))}" alt="${esc(p.title ?? "")}" loading="lazy"></figure>` : ""}
+      <div class="ew-hpart-txt">
+        <div class="ew-eyebrow">${esc(h.name)}</div>
+        <h2>${esc(p.title ?? "")}</h2>
+        <div class="ew-prose ew-prose-serif">${paras(p.text).map(t => heroText(t, L)).join("")}</div>
+      </div>
+    </section>`).join("");
+  return `<article class="ew-heropage" style="--ep:${esc(h.color || ep?.color || "#e0b553")}">
+    <section class="ew-herohead">
+      ${portrait(h, "ew-portrait-lg")}
+      <div class="ew-herohead-txt">
+        ${ep ? `<button type="button" class="ew-tl-ep" data-go="epoch:${esc(ep.id)}">${esc(ep.title)} · ${esc(ep.years ?? "")}</button>` : ""}
+        <h1 class="ew-title-xl">${esc(h.name)}</h1>
+        ${h.title ? `<div class="ew-epochhero-s">${esc(h.title)}</div>` : ""}
+        ${h.role ? `<div class="ew-eyebrow">${esc(h.role)}</div>` : ""}
+        ${h.tagline ? `<p class="ew-epochhero-t">«${esc(h.tagline)}»</p>` : ""}
+      </div>
+    </section>
+    ${parts}
+    <nav class="ew-pager">
+      ${all.length > 1 ? `<button type="button" data-go="hero:${esc(all[(i - 1 + all.length) % all.length].id)}"><span>← ${esc(all[(i - 1 + all.length) % all.length].name)}</span></button>` : "<span></span>"}
+      <button type="button" data-go="heroes">Все герои</button>
+      ${all.length > 1 ? `<button type="button" data-go="hero:${esc(all[(i + 1) % all.length].id)}"><span>${esc(all[(i + 1) % all.length].name)} →</span></button>` : "<span></span>"}
+    </nav>
   </article>`;
 }
 
@@ -793,6 +881,8 @@ function parseGo(go) {
   if (v === "chronicle") return { v };
   if (v === "ties" || v === "landmap") return arg ? { v, sel: arg } : { v };
   if (v === "epoch") return { v, id: arg };
+  if (v === "heroes") return { v };
+  if (v === "hero") return { v, id: arg };
   return { v: "home" };
 }
 
@@ -806,6 +896,8 @@ function render(route) {
     case "chronicle": return viewChronicle();
     case "ties": case "landmap": return viewTies(route);
     case "epoch": return viewEpoch(route.id);
+    case "heroes": return viewHeroes();
+    case "hero": return viewHero(route.id);
     default: return viewHome();
   }
 }
@@ -893,7 +985,7 @@ async function go(route, { replace = false, silent = false } = {}) {
   bindImages(view);
   main.scrollTop = 0;
   view.classList.remove("ew-swap");
-  const tab = route.v === "list" ? `list-${route.kind}` : (route.v === "epoch" ? "chronicle" : (route.v === "god" || route.v === "ties") ? "pantheon" : route.v === "landmap" ? "list-country" : (route.v === "entry" ? `list-${DB.entries[route.id]?.kind ?? "country"}` : route.v));
+  const tab = route.v === "list" ? `list-${route.kind}` : (route.v === "epoch" || route.v === "heroes" || route.v === "hero" ? "chronicle" : (route.v === "god" || route.v === "ties") ? "pantheon" : route.v === "landmap" ? "list-country" : (route.v === "entry" ? `list-${DB.entries[route.id]?.kind ?? "country"}` : route.v));
   root.querySelectorAll(".ew-tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
   root.querySelector(".ew-back").disabled = !state.history.length;
   if (!silent && isGM() && state.present) emit({ action: "route", route });

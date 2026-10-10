@@ -543,3 +543,35 @@
 #ew-codex .ew-evcard-txt p { margin: 0 0 .7em; line-height: 1.6; color: #d6cfe2; }
 #ew-codex .ew-evcard-txt .ew-epoch-years { color: var(--ep); }
 @media (max-width: 900px) { #ew-codex .ew-evcard { grid-template-columns: 1fr; } #ew-codex .ew-evcard-r .ew-evcard-art { order: 0; } }
+
+/* ═══ Летопись: подразделы и Известные герои ═══ */
+#ew-codex .ew-chronsub { display: inline-flex; gap: 6px; margin-top: 18px; padding: 4px; border-radius: 999px; border: 1px solid var(--line); background: rgba(12,10,18,.6); }
+#ew-codex .ew-chronsub button { border: 0; background: transparent; color: #cfc6dd; padding: 8px 18px; border-radius: 999px; font: 600 14px var(--sans, "EW Sans", sans-serif); cursor: pointer; }
+#ew-codex .ew-chronsub button small { opacity: .6; margin-left: 4px; }
+#ew-codex .ew-chronsub button.on { background: linear-gradient(#f0d28a, #d4a64a); color: #1a1208; }
+#ew-codex .ew-herocards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+#ew-codex .ew-herocards.big { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+#ew-codex .ew-herocard { position: relative; display: flex; flex-direction: column; text-align: left; padding: 0; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: var(--ink2, #14111d); cursor: pointer; color: inherit; transition: transform .25s, box-shadow .25s, border-color .25s; }
+#ew-codex .ew-herocard:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--ep) 70%, transparent); box-shadow: 0 16px 40px rgba(0,0,0,.5), 0 0 24px color-mix(in srgb, var(--ep) 25%, transparent); }
+#ew-codex .ew-herocard-img { display: block; aspect-ratio: 4 / 5; overflow: hidden; background: #0c0a12; }
+#ew-codex .ew-herocards.big .ew-herocard-img { aspect-ratio: 4 / 3; }
+#ew-codex .ew-herocard-img img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform .8s cubic-bezier(.2,.8,.3,1); }
+#ew-codex .ew-herocard:hover .ew-herocard-img img { transform: scale(1.05); }
+#ew-codex .ew-herocard-txt { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px 14px; }
+#ew-codex .ew-herocard-txt b { font-family: var(--serif); font-size: 22px; line-height: 1.1; color: #f3ede2; }
+#ew-codex .ew-herocard-txt i { font-family: var(--serif); color: var(--ep); font-size: 16px; }
+#ew-codex .ew-herocard-txt em { font-style: normal; font-size: 12px; color: #f0d28a; margin-top: 4px; }
+#ew-codex .ew-herocard-txt .ew-epoch-years { align-self: flex-start; }
+#ew-codex .ew-herohead { display: grid; grid-template-columns: 320px 1fr; gap: 34px; align-items: center; padding: 30px 0 40px; border-bottom: 1px solid var(--line); margin-bottom: 30px; }
+#ew-codex .ew-herohead .ew-portrait-lg { width: 100%; aspect-ratio: 4 / 5; }
+#ew-codex .ew-herohead-txt { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+#ew-codex .ew-herohead-txt .ew-title-xl { color: #f3ede2; }
+#ew-codex .ew-herohead-txt .ew-epochhero-s { color: var(--ep); }
+#ew-codex .ew-hpart { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 40px; align-items: start; margin: 0 0 56px; }
+#ew-codex .ew-hpart-r .ew-hpart-art { order: 2; }
+#ew-codex .ew-hpart-art { margin: 0; position: sticky; top: 20px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 24px 60px rgba(0,0,0,.55), 0 0 0 1px color-mix(in srgb, var(--ep) 20%, transparent); }
+#ew-codex .ew-hpart-art img { width: 100%; display: block; cursor: zoom-in; }
+#ew-codex .ew-hpart-txt h2 { font-size: 34px; margin: 6px 0 16px; color: #f3ede2; }
+#ew-codex .ew-hpart-txt p b { color: var(--ep); font-weight: 700; }
+#ew-codex .ew-hpart-txt p.ew-line { font-style: italic; color: #f0d28a; border-left: 2px solid var(--ep); padding-left: 14px; }
+@media (max-width: 1000px) { #ew-codex .ew-hpart, #ew-codex .ew-herohead { grid-template-columns: 1fr; } #ew-codex .ew-hpart-r .ew-hpart-art { order: 0; } #ew-codex .ew-hpart-art { position: static; } }
