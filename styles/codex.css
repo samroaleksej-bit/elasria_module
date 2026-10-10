@@ -449,3 +449,62 @@
 #ew-codex .ew-mono { display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #3a2a52, #15101f) !important; color: var(--gold2); font-family: var(--serif); font-weight: 700; line-height: 1; text-shadow: 0 0 14px rgba(224,181,83,.6); }
 #ew-codex .ew-card-emb.ew-mono { font-size: 26px; }
 #ew-codex .ew-entry-emb.ew-mono { font-size: 48px; }
+
+/* ================================================================ v2.3: карта связей */
+#ew-codex .ew-btn-map { margin-top: 14px; border-color: var(--gold); color: var(--gold2); }
+#ew-codex .ew-side-link { margin-left: 8px; font-size: 10px; letter-spacing: .12em; color: var(--muted); text-transform: uppercase; }
+#ew-codex .ew-side-link:hover { color: var(--gold2); }
+#ew-codex .ew-dot { display: inline-block; width: 14px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+#ew-codex .ew-dot-ally { background: #e0b553; }
+#ew-codex .ew-dot-foe { background: #e0605a; }
+#ew-codex .ew-tiesmap { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 26px; align-items: start; }
+#ew-codex .ew-graph { position: relative; width: 100%; max-width: 820px; aspect-ratio: 1; margin: 0 auto; border-radius: 50%; background: radial-gradient(circle, rgba(91,58,140,.22), transparent 70%); }
+#ew-codex .ew-graph-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+#ew-codex .ew-ring-line { fill: none; stroke-width: 1.2; stroke-dasharray: 4 7; opacity: .35; }
+#ew-codex .ew-edge { fill: none; stroke-width: 2.2; opacity: .42; transition: opacity .25s, stroke-width .25s; pointer-events: none; }
+#ew-codex .ew-edge-ally { stroke: #e0b553; }
+#ew-codex .ew-edge-foe { stroke: #e0605a; stroke-dasharray: 9 6; }
+#ew-codex .ew-edge-hit { fill: none; stroke: transparent; stroke-width: 16; cursor: help; pointer-events: stroke; }
+#ew-codex .ew-graph.ew-focus .ew-edge { opacity: .06; }
+#ew-codex .ew-graph .ew-edge.on, #ew-codex .ew-graph .ew-edge.hov { opacity: 1; stroke-width: 3.6; filter: drop-shadow(0 0 6px currentColor); }
+#ew-codex .ew-graph .ew-edge-ally.on, #ew-codex .ew-graph .ew-edge-ally.hov { color: #e0b553; }
+#ew-codex .ew-graph .ew-edge-foe.on, #ew-codex .ew-graph .ew-edge-foe.hov { color: #e0605a; }
+#ew-codex .ew-graph[data-filter="ally"] .ew-edge-foe, #ew-codex .ew-graph[data-filter="foe"] .ew-edge-ally { opacity: 0 !important; }
+#ew-codex .ew-node { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 3px; z-index: 2; transition: opacity .25s, transform .25s; }
+#ew-codex .ew-node .ew-coin { width: 54px; height: 54px; }
+#ew-codex .ew-node-F .ew-coin { width: 66px; height: 66px; }
+#ew-codex .ew-node-S .ew-coin { width: 46px; height: 46px; }
+#ew-codex .ew-node-n { font-family: var(--serif); font-weight: 700; font-size: 14px; line-height: 1; white-space: nowrap; padding: 2px 7px; border-radius: 999px; background: rgba(12,10,18,.78); text-shadow: 0 1px 4px #000; }
+#ew-codex .ew-graph.ew-focus .ew-node:not(.on), #ew-codex .ew-graph.ew-focus .ew-graph-core:not(.on) { opacity: .22; }
+#ew-codex .ew-node.on .ew-coin { box-shadow: 0 0 0 2px var(--acc), 0 0 24px var(--acc); }
+#ew-codex .ew-node.sel { transform: translate(-50%, -50%) scale(1.15); z-index: 3; }
+#ew-codex .ew-node.sel .ew-node-n { background: var(--acc); color: #120e18; text-shadow: none; }
+#ew-codex .ew-graph-core { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: radial-gradient(circle, rgba(224,181,83,.22), rgba(12,10,18,.9) 70%); border: 1px solid rgba(224,181,83,.4); cursor: pointer; z-index: 1; transition: opacity .25s; }
+#ew-codex .ew-graph-core span { font-size: 30px; color: var(--gold); text-shadow: 0 0 20px var(--gold); line-height: 1; }
+#ew-codex .ew-graph-core b { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-top: 6px; font-weight: 600; }
+#ew-codex .ew-graph-legend { position: absolute; left: 0; bottom: -6px; display: flex; flex-direction: column; gap: 4px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+#ew-codex .ew-graph-legend i { display: inline-block; width: 18px; border-top: 2px dashed var(--acc); margin-right: 8px; vertical-align: middle; }
+#ew-codex .ew-tiespanel { position: sticky; top: 16px; padding: 18px; border-radius: 16px; border: 1px solid var(--line); background: var(--ink2); min-height: 300px; }
+#ew-codex .ew-tiespanel.has .ew-tp-empty { display: none; }
+#ew-codex .ew-tp-top { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 8px; border-radius: 10px; transition: background .2s; }
+#ew-codex .ew-tp-top:hover { background: rgba(224,181,83,.08); }
+#ew-codex .ew-tp-top .ew-coin { width: 34px; height: 34px; }
+#ew-codex .ew-tp-top b { flex: 1; font-family: var(--serif); font-size: 18px; }
+#ew-codex .ew-tp-top span { font-size: 12px; color: var(--gold); border: 1px solid var(--line); border-radius: 999px; padding: 0 9px; }
+#ew-codex .ew-tp-hint { margin-top: 14px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+#ew-codex .ew-tp-head { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
+#ew-codex .ew-tp-head h3 { font-size: 30px; line-height: 1; margin: 2px 0 4px; }
+#ew-codex .ew-tp-head p { margin: 0; font-size: 13px; color: var(--acc, var(--gold2)); font-style: italic; }
+#ew-codex .ew-tp-head .ew-eyebrow { color: var(--acc, var(--gold)); }
+#ew-codex .ew-coin-l { width: 76px !important; height: 76px !important; display: grid; place-items: center; }
+#ew-codex .ew-tiespanel .ew-tie { width: 100%; margin-bottom: 8px; text-align: left; }
+#ew-codex .ew-tie-foe { border-left: 3px solid #e0605a; }
+#ew-codex .ew-tie-ally { border-left: 3px solid #e0b553; }
+#ew-codex .ew-tp-open { margin-top: 8px; width: 100%; justify-content: center; border-color: var(--gold); color: var(--gold2); }
+#ew-codex .ew-tp-reset { display: block; margin: 10px auto 0; font-size: 12px; color: var(--muted); }
+#ew-codex .ew-tp-reset:hover { color: var(--cream); }
+#ew-codex .ew-tip { position: fixed; z-index: 5; max-width: 320px; padding: 10px 12px; border-radius: 10px; background: rgba(12,10,18,.96); border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(0,0,0,.6); pointer-events: none; display: flex; flex-direction: column; gap: 4px; }
+#ew-codex .ew-tip b { font-family: var(--serif); font-size: 17px; color: var(--gold2); }
+#ew-codex .ew-tip span { font-size: 13px; color: #d4cbe0; line-height: 1.4; }
+@media (max-width: 1100px) { #ew-codex .ew-tiesmap { grid-template-columns: 1fr; } #ew-codex .ew-tiespanel { position: static; } }
+#ew-codex .ew-graph-core b { letter-spacing: .04em; font-size: 10px; max-width: 100px; }

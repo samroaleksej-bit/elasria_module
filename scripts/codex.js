@@ -218,6 +218,7 @@ function viewPantheon(r) {
   return `<section class="ew-pagehead ew-pagehead-center">
       <div class="ew-eyebrow">Боги Эластрии</div><h1 class="ew-title-l">Пантеон</h1>
       <p class="ew-lead">Ярус решает не сила, а то, что держит бог: сам мир, Искру или веру смертных.</p>
+      <button type="button" class="ew-btn ew-btn-map" data-go="ties">✦ Карта связей</button>
       <div class="ew-chips">
         <button type="button" class="ew-chip${!dom ? " on" : ""}" data-go="pantheon">Все домены</button>
         ${DB.domains.map(d => `<button type="button" class="ew-chip${d === dom ? " on" : ""}" data-go="pantheon:${esc(d)}">${esc(d)}</button>`).join("")}
@@ -275,7 +276,7 @@ function viewGod(id) {
           ${g.leg.p.map(p => `<p>${esc(p)}</p>`).join("")}${g.leg.c ? `<p class="ew-legend-c">${esc(g.leg.c)}</p>` : ""}</div>` : ""}
       </div>
       <aside class="ew-godside">
-        ${ties ? `<div class="ew-side-h">Связи</div><div class="ew-ties">${ties}</div>` : ""}
+        ${ties ? `<div class="ew-side-h">Связи <button type="button" class="ew-side-link" data-go="ties:${g.id}">на карте →</button></div><div class="ew-ties">${ties}</div>` : ""}
         ${mentions.length ? `<div class="ew-side-h">Упоминается</div><div class="ew-mentions">${mentions.map(e => `<button type="button" data-go="entry:${e.id}">${esc(e.title)}</button>`).join("")}</div>` : ""}
       </aside>
     </div>
@@ -345,6 +346,157 @@ function viewSearch(q) {
     ${ents.length ? `<section class="ew-sec"><div class="ew-sec-head"><h2>Земли и истории</h2></div><div class="ew-results">${ents.map(e =>
       `<button type="button" class="ew-result" data-go="entry:${e.id}"><b>${esc(e.title)}</b><span>${snip(e.text) || esc(e.subtitle)}</span></button>`).join("")}</div></section>` : ""}`;
 }
+
+/* ================================================================ карта связей */
+
+const HOSTILE = /против|враж|убить|смерть|метит|презира|соперни|не прощает|подделыва|откроет клетку|удар в спину|тюремщ|конкурент|территори/i;
+const tieKind = (txt) => HOSTILE.test(txt) ? "foe" : "ally";
+
+function tiesLayout() {
+  const rings = { F: 175, M: 315, S: 455 };
+  const pos = { _core: { x: 500, y: 500 } };
+  for (const t of ["F", "M", "S"]) {
+    const gs = DB.gods.filter(g => g.tier === t);
+    const off = t === "F" ? -90 : t === "M" ? -90 + 180 / gs.length : -90 + 90 / gs.length;
+    gs.forEach((g, i) => {
+      const a = (off + (360 / gs.length) * i) * Math.PI / 180;
+      pos[g.id] = { x: 500 + rings[t] * Math.cos(a), y: 500 + rings[t] * Math.sin(a) };
+    });
+  }
+  return { pos, rings };
+}
+
+function viewTies(route) {
+  const { pos, rings } = tiesLayout();
+  const edges = DB.ties.map(([a, b, txt], i) => {
+    const A = pos[a], B = pos[b ?? "_core"];
+    if (!A || !B) return "";
+    const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2;
+    const cx = mx * 0.62 + 500 * 0.38, cy = my * 0.62 + 500 * 0.38;
+    return `<path class="ew-edge ew-edge-${tieKind(txt)}" data-i="${i}" data-a="${a}" data-b="${b ?? "_core"}" d="M${A.x.toFixed(1)},${A.y.toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${B.x.toFixed(1)},${B.y.toFixed(1)}"/>`;
+  }).join("");
+  const hit = DB.ties.map(([a, b], i) => {
+    const A = pos[a], B = pos[b ?? "_core"]; if (!A || !B) return "";
+    const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2, cx = mx * 0.62 + 190, cy = my * 0.62 + 190;
+    return `<path class="ew-edge-hit" data-i="${i}" d="M${A.x.toFixed(1)},${A.y.toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${B.x.toFixed(1)},${B.y.toFixed(1)}"/>`;
+  }).join("");
+  const nodes = DB.gods.map(g => `<button type="button" class="ew-node ew-node-${g.tier}" data-node="${g.id}" style="left:${pos[g.id].x / 10}%;top:${pos[g.id].y / 10}%;--acc:${TIER[g.tier].accent}">
+      ${coin(g)}<span class="ew-node-n">${esc(g.n)}</span></button>`).join("");
+  const count = (id) => DB.ties.filter(t => t[0] === id || t[1] === id).length;
+  return `<section class="ew-pagehead ew-pagehead-center">
+      <div class="ew-eyebrow">Пантеон</div><h1 class="ew-title-l">Карта связей</h1>
+      <p class="ew-lead">Наведи на бога — подсветятся его связи. Кликни — закрепить и прочитать. Двойной клик — открыть страницу бога.</p>
+      <div class="ew-chips ew-ties-filter">
+        <button type="button" class="ew-chip on" data-tf="all">Все связи · ${DB.ties.length}</button>
+        <button type="button" class="ew-chip" data-tf="ally"><i class="ew-dot ew-dot-ally"></i>Союзы и родство</button>
+        <button type="button" class="ew-chip" data-tf="foe"><i class="ew-dot ew-dot-foe"></i>Вражда и соперничество</button>
+      </div>
+    </section>
+    <section class="ew-sec ew-tiesmap">
+      <div class="ew-graph">
+        <svg viewBox="0 0 1000 1000" class="ew-graph-svg">
+          ${["F", "M", "S"].map(t => `<circle cx="500" cy="500" r="${rings[t]}" class="ew-ring-line" style="stroke:${TIER[t].accent}"/>`).join("")}
+          <g class="ew-edges">${edges}</g><g class="ew-hits">${hit}</g>
+        </svg>
+        <div class="ew-graph-core" data-node="_core"><span>✦</span><b>Фундаментальные</b></div>
+        ${nodes}
+        <div class="ew-graph-legend">${["F", "M", "S"].map(t => `<span style="--acc:${TIER[t].accent}"><i></i>${TIER[t].name}</span>`).join("")}</div>
+      </div>
+      <aside class="ew-tiespanel">
+        <div class="ew-tp-empty">
+          <div class="ew-side-h">Самые связанные</div>
+          ${DB.gods.map(g => [g, count(g.id)]).filter(x => x[1]).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([g, n]) =>
+            `<button type="button" class="ew-tp-top" data-pick="${g.id}">${coin(g)}<b>${esc(g.n)}</b><span>${n}</span></button>`).join("")}
+          <p class="ew-tp-hint">Главная угроза эпохи: злые боги хотят освободить ${godLinkInline("kishin", "Кишина")} и убить ${godLinkInline("simori", "Симори")}.</p>
+        </div>
+        <div class="ew-tp-body"></div>
+      </aside>
+    </section>`;
+}
+
+function godLinkInline(id, text) { return DB.byId[id] ? `<a class="ew-link" data-go="god:${id}">${esc(text ?? DB.byId[id].n)}</a>` : esc(text); }
+
+function initTies(view, sel = null) {
+  const graph = view.querySelector(".ew-graph");
+  const panel = view.querySelector(".ew-tiespanel");
+  const body = panel.querySelector(".ew-tp-body");
+  let pinned = null, filter = "all";
+  const edgesOf = (id) => DB.ties.map((t, i) => [t, i]).filter(([t]) => t[0] === id || (t[1] ?? "_core") === id);
+  const apply = (id) => {
+    graph.classList.toggle("ew-focus", !!id);
+    const linked = new Set(id ? [id] : []);
+    graph.querySelectorAll(".ew-edge").forEach(e => {
+      const on = id && (e.dataset.a === id || e.dataset.b === id);
+      e.classList.toggle("on", !!on);
+      if (on) { linked.add(e.dataset.a); linked.add(e.dataset.b); }
+    });
+    graph.querySelectorAll("[data-node]").forEach(n => n.classList.toggle("on", linked.has(n.dataset.node)));
+    graph.querySelectorAll("[data-node]").forEach(n => n.classList.toggle("sel", n.dataset.node === pinned));
+  };
+  const show = (id) => {
+    if (!id) { panel.classList.remove("has"); body.innerHTML = ""; return; }
+    const g = DB.byId[id];
+    const list = edgesOf(id).filter(([t]) => filter === "all" || tieKind(t[2]) === filter);
+    body.innerHTML = `${g ? `<div class="ew-tp-head" style="--acc:${TIER[g.tier].accent}">${coin(g, "ew-coin-l")}
+        <div><div class="ew-eyebrow">${TIER[g.tier].one} бог</div><h3>${esc(g.n)}</h3><p>${esc(g.t)}</p></div></div>`
+      : `<div class="ew-tp-head"><span class="ew-coin ew-coin-blank ew-coin-l">✦</span><div><div class="ew-eyebrow">Ярус</div><h3>Фундаментальные</h3></div></div>`}
+      <div class="ew-side-h">Связи · ${list.length}</div>
+      ${list.length ? list.map(([t]) => { const o = t[0] === id ? (t[1] ?? "_core") : t[0]; const og = DB.byId[o];
+        return `<button type="button" class="ew-tie ew-tie-${tieKind(t[2])}" data-pick="${o}">${og ? coin(og) : `<span class="ew-coin ew-coin-blank">✦</span>`}<span><b>${esc(og?.n ?? "Фундаментальные")}</b><i>${esc(t[2])}</i></span></button>`; }).join("")
+        : `<p class="ew-tp-hint">Связей этого типа нет.</p>`}
+      ${g ? `<button type="button" class="ew-btn ew-tp-open" data-go="god:${g.id}">Открыть страницу →</button>` : ""}
+      <button type="button" class="ew-tp-reset" data-tp="reset">✕ сбросить</button>`;
+    panel.classList.add("has");
+    bindImages(body);
+  };
+  const pick = (id) => { pinned = pinned === id ? null : id; apply(pinned); show(pinned); };
+  graph.addEventListener("mouseover", (ev) => {
+    const n = ev.target.closest("[data-node]"); if (n && !pinned) apply(n.dataset.node);
+    const h = ev.target.closest(".ew-edge-hit");
+    if (h) { const e = graph.querySelector(`.ew-edge[data-i="${h.dataset.i}"]`); e?.classList.add("hov"); showTip(ev, DB.ties[+h.dataset.i]); }
+  });
+  graph.addEventListener("mouseout", (ev) => {
+    const n = ev.target.closest("[data-node]"); if (n && !pinned) apply(null);
+    const h = ev.target.closest(".ew-edge-hit");
+    if (h) { graph.querySelector(`.ew-edge[data-i="${h.dataset.i}"]`)?.classList.remove("hov"); hideTip(); }
+  });
+  graph.addEventListener("mousemove", (ev) => { if (ev.target.closest(".ew-edge-hit")) moveTip(ev); });
+  graph.addEventListener("click", (ev) => {
+    ev.stopPropagation(); ev.preventDefault();
+    const n = ev.target.closest("[data-node]"); if (n) return pick(n.dataset.node);
+    const h = ev.target.closest(".ew-edge-hit");
+    if (h) { const [a] = DB.ties[+h.dataset.i]; pinned = null; return pick(a); }
+    pinned = null; apply(null); show(null);
+  });
+  graph.addEventListener("dblclick", (ev) => { const n = ev.target.closest("[data-node]"); if (n && DB.byId[n.dataset.node]) go({ v: "god", id: n.dataset.node }); });
+  panel.addEventListener("click", (ev) => {
+    const p = ev.target.closest("[data-pick]");
+    if (p) { ev.preventDefault(); ev.stopPropagation(); pinned = null; return pick(p.dataset.pick); }
+    if (ev.target.closest("[data-tp=reset]")) { ev.stopPropagation(); pinned = null; apply(null); show(null); }
+  });
+  view.querySelector(".ew-ties-filter").addEventListener("click", (ev) => {
+    const b = ev.target.closest("[data-tf]"); if (!b) return;
+    ev.stopPropagation();
+    filter = b.dataset.tf;
+    view.querySelectorAll("[data-tf]").forEach(x => x.classList.toggle("on", x === b));
+    graph.dataset.filter = filter;
+    if (pinned) show(pinned);
+  });
+  if (sel) pick(sel);
+}
+
+let tipEl = null;
+function showTip(ev, t) {
+  tipEl?.remove();
+  tipEl = document.createElement("div");
+  tipEl.className = "ew-tip";
+  const a = DB.byId[t[0]]?.n ?? "?", b = t[1] ? (DB.byId[t[1]]?.n ?? "?") : "Фундаментальные";
+  tipEl.innerHTML = `<b>${esc(a)} ⟷ ${esc(b)}</b><span>${esc(t[2])}</span>`;
+  document.getElementById(ROOT_ID)?.appendChild(tipEl);
+  moveTip(ev);
+}
+function moveTip(ev) { if (tipEl) { tipEl.style.left = `${ev.clientX + 16}px`; tipEl.style.top = `${ev.clientY + 16}px`; } }
+function hideTip() { tipEl?.remove(); tipEl = null; }
 
 /* ================================================================ летопись */
 
@@ -567,6 +719,7 @@ function parseGo(go) {
   if (v === "list") return { v, kind: arg || "country" };
   if (v === "pantheon") return arg ? { v, dom: arg } : { v };
   if (v === "chronicle") return { v };
+  if (v === "ties") return arg ? { v, sel: arg } : { v };
   if (v === "epoch") return { v, id: arg };
   return { v: "home" };
 }
@@ -579,6 +732,7 @@ function render(route) {
     case "list": return viewList(route.kind);
     case "search": return viewSearch(route.q ?? "");
     case "chronicle": return viewChronicle();
+    case "ties": return viewTies(route);
     case "epoch": return viewEpoch(route.id);
     default: return viewHome();
   }
@@ -660,11 +814,12 @@ async function go(route, { replace = false, silent = false } = {}) {
   await sleep(140);
   if (route.v !== "epoch" && music.audio && !music.remote) stopMusic();
   view.innerHTML = render(route);
+  if (route.v === "ties") initTies(view, route.sel);
   syncMusicUI();
   bindImages(view);
   main.scrollTop = 0;
   view.classList.remove("ew-swap");
-  const tab = route.v === "list" ? `list-${route.kind}` : (route.v === "epoch" ? "chronicle" : route.v === "god" ? "pantheon" : (route.v === "entry" ? `list-${DB.entries[route.id]?.kind ?? "country"}` : route.v));
+  const tab = route.v === "list" ? `list-${route.kind}` : (route.v === "epoch" ? "chronicle" : (route.v === "god" || route.v === "ties") ? "pantheon" : (route.v === "entry" ? `list-${DB.entries[route.id]?.kind ?? "country"}` : route.v));
   root.querySelectorAll(".ew-tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
   root.querySelector(".ew-back").disabled = !state.history.length;
   if (!silent && isGM() && state.present) emit({ action: "route", route });
