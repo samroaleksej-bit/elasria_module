@@ -30,7 +30,7 @@ async function loadData() {
 
 function getState() {
   const s = clone(game.settings.get(MID, "state"));
-  s.q ??= {}; s.h ??= {}; s.pin ??= null;
+  s.q ??= {}; s.h ??= {}; s.pin ??= null; s.trail ??= [];
   return s;
 }
 async function setState(mut) {
@@ -134,6 +134,7 @@ function onStateChange(next) {
   PREV = clone(next);
   rerenderAll();
   updateFab();
+  renderRecap(prev.recap);
   if (isGM() || !DATA) return;
   const me = game.user.id;
 
@@ -218,14 +219,28 @@ const act = {
     lightbox(id);
   },
   async setPin(x, y, label = "") { await setState((s) => { s.pin = { x: +x.toFixed(4), y: +y.toFixed(4), label, t: Date.now() }; }); },
-  async pinPoint(pid) { const p = ptById(pid); if (p) await act.setPin(p.x, p.y, p.t); },
+  async pinPoint(pid) {
+    const p = ptById(pid); if (!p) return;
+    await setState((s) => {
+      s.pin = { x: p.x, y: p.y, label: p.t, pt: p.id, t: Date.now() };
+      s.trail ??= [];
+      if (s.trail[s.trail.length - 1] !== p.id) s.trail.push(p.id);
+    });
+  },
+  async clearTrail() { await setState((s) => { s.trail = s.pin?.pt ? [s.pin.pt] : []; }); },
+  /* ───── сводка «Ранее в операции» ───── */
+  async recapSave(patch) { await setState((s) => { s.recap = { ...defaultRecap(), ...(s.recap ?? {}), ...patch }; }); },
+  async recapStart() { await act.recapSave({ on: true, i: 0, t: Date.now() }); },
+  async recapStep(d) { await setState((s) => { const r = s.recap; if (!r) return; r.i = Math.max(0, Math.min(recapLines(r).length - 1, (r.i ?? 0) + d)); }); },
+  async recapAll() { await setState((s) => { const r = s.recap; if (r) r.i = recapLines(r).length - 1; }); },
+  async recapStop() { await setState((s) => { if (s.recap) s.recap.on = false; }); },
   async clearPin() { await setState((s) => { s.pin = null; }); },
   async resetAll() {
     const ok = await foundry.applications.api.DialogV2.confirm({
       window: { title: "Сбросить операцию?" },
       content: "<p>Все задания и раздатки снова станут скрытыми у игроков. Метка на карте пропадёт.</p>"
     });
-    if (ok) await game.settings.set(MID, "state", { q: {}, h: {}, pin: null });
+    if (ok) await game.settings.set(MID, "state", { q: {}, h: {}, pin: null, trail: [], recap: getState().recap ?? null });
   }
 };
 
@@ -362,19 +377,20 @@ class ShtabApp extends AppV2 {
 
   /* ───── мастер ───── */
   async gmHTML() {
-    const tabs = [["journal", "📖", "Журнал"], ["quests", "⚙", "Задания"], ["handouts", "📜", "Раздатки"], ["map", "📍", "Карта"]];
+    const tabs = [["journal", "📖", "Журнал"], ["quests", "⚙", "Задания"], ["handouts", "📜", "Раздатки"], ["map", "📍", "Карта"], ["recap", "⏪", "Сводка"]];
     const st = getState();
     const nQ = Object.keys(st.q).length, nH = Object.keys(st.h).length;
     let body = "";
     if (this.tab === "journal") body = await this.journalHTML(st);
     else if (this.tab === "quests") body = `<div class="gs-scroll gs-pad">${this.questsGM(st)}</div>`;
     else if (this.tab === "handouts") body = `<div class="gs-scroll gs-pad">${this.handoutsGM(st)}</div>`;
+    else if (this.tab === "recap") body = `<div class="gs-scroll gs-pad">${this.recapGM(st)}</div>`;
     else body = `<div class="gs-scroll gs-pad">${this.mapGM(st)}</div>`;
     return `<div class="gs-shell gs-gm">
       <header class="gs-top">
         <div class="gs-logo"><svg viewBox="0 0 100 100"><path d="${GEAR_PATH}"/></svg><div><b>Спасти Гномреган!</b><small>Штаб операции «Гномреган II»</small></div></div>
         <nav class="gs-tabs">${tabs.map(([id, ic, t]) => `<button data-tab="${id}" class="${this.tab === id ? "on" : ""}"><i>${ic}</i>${t}${id === "quests" ? `<em>${nQ}/${DATA.quests.length}</em>` : id === "handouts" ? `<em>${nH}/${DATA.handouts.length}</em>` : ""}</button>`).join("")}</nav>
-        <div class="gs-top-r"><button data-act="preview" title="Что сейчас видят игроки">👁 Глазами игроков</button></div>
+        <div class="gs-top-r"><button data-act="${st.recap?.on ? "recapStop" : "recapStart"}" class="${st.recap?.on ? "on" : ""}" title="Сводка «Ранее в операции» на экраны игроков">${st.recap?.on ? "■ Сводка идёт" : "⏪ Сводка"}</button><button data-act="preview" title="Что сейчас видят игроки">👁 Глазами игроков</button></div>
       </header>
       <div class="gs-body">${body}</div>
     </div>`;
@@ -535,6 +551,33 @@ class ShtabApp extends AppV2 {
       </aside></div>`;
   }
 
+  recapGM(st) {
+    const r = { ...defaultRecap(), ...(st.recap ?? {}) };
+    const trail = (st.trail ?? []).map((id) => ptById(id)?.t).filter(Boolean);
+    return `<div class="gs-recap-ed">
+      <div class="gs-recap-l">
+        <h2 class="gs-h2">Ранее в операции</h2>
+        <p class="gs-hint">Каждая строка — один шаг рассказа. На показе ты листаешь их кнопкой ▶, а у игроков строки появляются по одной. Пустая строка — пропускается. <b>**текст**</b> — выделить.</p>
+        <label class="gs-lbl">Заголовок</label>
+        <input type="text" data-recap="title" value="${esc(r.title)}">
+        <label class="gs-lbl">Строки рассказа</label>
+        <textarea data-recap="text" rows="14">${esc(r.text)}</textarea>
+        <label class="gs-check"><input type="checkbox" data-recap="map" ${r.map ? "checked" : ""}> Показывать мини-карту Хинкла с меткой и маршрутом</label>
+        <div class="gs-qctl">
+          <button data-act="recapGen">⚙ Собрать из прогресса</button>
+          <button data-act="${r.on ? "recapStop" : "recapStart"}" class="${r.on ? "on" : "prim"}">${r.on ? "■ Закончить показ" : "▶ Показать игрокам"}</button>
+        </div>
+      </div>
+      <aside class="gs-recap-r">
+        <h2 class="gs-h2">Маршрут отряда</h2>
+        <p class="gs-hint">Пишется сам, когда ставишь метку «Вы здесь» по локации.</p>
+        <ol class="gs-trail">${trail.map((t) => `<li>${esc(t)}</li>`).join("") || "<li class='gs-hint'>пока пусто</li>"}</ol>
+        <button data-act="clearTrail" class="ghost">Сбросить маршрут</button>
+        <div class="gs-mapbox">${mapInner()}</div>
+      </aside>
+    </div>`;
+  }
+
   /* ───── игроки (и предпросмотр мастера) ───── */
   viewerId() { return this.mode === "preview" ? "*" : game.user.id; }
 
@@ -607,6 +650,14 @@ class ShtabApp extends AppV2 {
       case "look": return lightbox(h);
       case "pinpt": return act.pinPoint(t.dataset.pt);
       case "unpin": return act.clearPin();
+      case "clearTrail": return act.clearTrail();
+      case "recapStart": await this.saveRecapForm(); return act.recapStart();
+      case "recapStop": return act.recapStop();
+      case "recapGen": {
+        const ta = this.element.querySelector("textarea[data-recap=text]");
+        if (ta) { ta.value = genRecapText(); await this.saveRecapForm(); }
+        return;
+      }
       case "toggleDone": this.showDone = !this.showDone; return this.render();
       case "openjournal": { const pg = advJournal()?.pages.get(this.page); return pg?.parent?.sheet?.render(true, { pageId: pg.id }); }
       case "mapclick": {
@@ -617,7 +668,17 @@ class ShtabApp extends AppV2 {
     }
   }
 
+  async saveRecapForm() {
+    const el = this.element; if (!el?.querySelector("[data-recap]")) return;
+    await act.recapSave({
+      title: el.querySelector("[data-recap=title]").value,
+      text: el.querySelector("[data-recap=text]").value,
+      map: el.querySelector("[data-recap=map]").checked
+    });
+  }
+
   async onChange(ev) {
+    if (ev.target.closest("[data-recap]")) return this.saveRecapForm();
     const s = ev.target.closest("select[data-act]");
     if (!s || !s.value) return;
     const uid = s.value; s.value = "";
@@ -674,6 +735,107 @@ function toggle() {
   const a = isGM() ? apps.gm : apps.player;
   if (a?.rendered) return a.close();
   return openShtab();
+}
+
+/* ───────────── сводка «Ранее в операции» ───────────── */
+function defaultRecap() {
+  return {
+    title: "Ранее в операции «Гномреган II»", map: true, on: false, i: 0,
+    text: [
+      "Главный механик **Гелбин Меггакрут** собрал добровольцев у Ворот-шестерни.",
+      "Голозапись показала провал первой операции: **Облучатель 3000**, экстренный телепорт…",
+      "…и клон. Машина, которую убили в глубинах, была подделкой. **Настоящий Термоштепсель жив.**",
+      "Отряд получил разрешение главного механика и спустился в **Верхний Гномреган**.",
+      "Дезактивация, госпиталь, Часовой ход. Депо обошли стороной.",
+      "В Машинном зале вас перехватил **Мерд-Док** и записал в **Команду «Г»**. Это очень почётно.",
+      "Он выдал парашюты и крикнул: «Прыгайте!»",
+      "И вы прыгнули. Прямо вниз. **В зелёный туман.**",
+      "Где-то наверху остались Эми Фитилюшка, «Безопасная зона» и Спальни…",
+      "А здесь, внизу, в радиоактивной жиже **что-то шевелится**."
+    ].join("\n")
+  };
+}
+function recapLines(r) { return String(r?.text ?? "").split("\n").map((x) => x.trim()).filter(Boolean); }
+function fmtLine(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); }
+
+function genRecapText() {
+  const st = getState(), out = [];
+  const qs = DATA.quests.filter((q) => st.q[q.id] && st.q[q.id].to === "all").sort((a, b) => st.q[a.id].t - st.q[b.id].t);
+  for (const q of qs) {
+    const e = st.q[q.id];
+    out.push(`${q.giver ? `**${q.giver}**: ` : ""}задание «**${q.t}**».`);
+    for (const o of q.obj) if (e.o?.[o.id]) out.push(`✔ ${o.t}`);
+    if (e.s === "done") out.push(`Задание «${q.t}» **выполнено**.`);
+    if (e.s === "failed") out.push(`Задание «${q.t}» **провалено**.`);
+  }
+  const hs = DATA.handouts.filter((h) => st.h[h.id]?.to === "all");
+  if (hs.length) out.push(`В руках у отряда: ${hs.map((h) => h.t).join(", ")}.`);
+  const trail = (st.trail ?? []).map((id) => ptById(id)?.t).filter(Boolean);
+  if (trail.length > 1) out.push(`Путь отряда: ${trail.join(" → ")}.`);
+  if (st.pin?.label) out.push(`Сейчас отряд: **${st.pin.label}**.`);
+  return out.join("\n") || defaultRecap().text;
+}
+
+function trailSVG(st) {
+  const pts = (st.trail ?? []).map((id) => ptById(id)).filter(Boolean);
+  if (pts.length < 2) return "";
+  const d = pts.map((p, i) => `${i ? "L" : "M"}${(p.x * 100).toFixed(2)},${(p.y * 100 + 3).toFixed(2)}`).join(" ");
+  return `<svg class="gs-trail-svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="${d}"/>${pts.slice(0, -1).map((p) => `<circle cx="${(p.x * 100).toFixed(2)}" cy="${(p.y * 100 + 3).toFixed(2)}" r=".9"/>`).join("")}</svg>`;
+}
+
+const RC_GEAR = (cls, size) => `<svg class="gs-rc-gear ${cls}" viewBox="0 0 100 100" style="width:${size}px;height:${size}px"><path d="${GEAR_PATH}"/></svg>`;
+
+function renderRecap(prevRecap) {
+  if (!DATA) return;
+  const st = getState(), r = st.recap;
+  let el = document.getElementById("gs-recap");
+  if (!r?.on) {
+    if (el && !el.classList.contains("out")) { el.classList.remove("in"); el.classList.add("out"); chirp("fail"); setTimeout(() => el.remove(), 900); }
+    return;
+  }
+  const lines = recapLines(r);
+  const i = Math.min(r.i ?? 0, lines.length - 1);
+  const fresh = !el || el.classList.contains("out");
+  if (fresh) {
+    el?.remove();
+    el = document.createElement("div");
+    el.id = "gs-recap";
+    el.innerHTML = `
+      ${RC_GEAR("g1", 340)}${RC_GEAR("g2", 190)}${RC_GEAR("g3", 260)}${RC_GEAR("g4", 140)}
+      <div class="gs-rc-col">
+        <div class="gs-rc-panel">
+          <div class="gs-rc-head">${RC_GEAR("mini", 34)}<div><small>Сводка штаба</small><b class="gs-rc-title"></b></div><span class="gs-rc-n"></span></div>
+          <ol class="gs-rc-lines"></ol>
+          ${isGM() ? `<div class="gs-rc-ctl"><button data-rc="prev" title="Назад">◀</button><button data-rc="next" class="prim" title="Следующая строка">Дальше ▶</button><button data-rc="all" title="Показать все строки">⏭</button><button data-rc="stop" title="Закончить показ">✕</button></div>` : ""}
+        </div>
+        <div class="gs-rc-map"></div>
+      </div>`;
+    document.body.append(el);
+    el.addEventListener("click", (ev) => {
+      const b = ev.target.closest("[data-rc]"); if (!b || !isGM()) return;
+      const a = b.dataset.rc;
+      if (a === "next") act.recapStep(1); else if (a === "prev") act.recapStep(-1);
+      else if (a === "all") act.recapAll(); else if (a === "stop") act.recapStop();
+    });
+    el.querySelector(".gs-rc-map").addEventListener("click", () => lightbox(MAP_HID));
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("in")));
+    chirp("quest");
+  }
+  el.querySelector(".gs-rc-title").textContent = r.title || "Ранее в операции";
+  el.querySelector(".gs-rc-n").textContent = `${i + 1}/${lines.length}`;
+  const ol = el.querySelector(".gs-rc-lines");
+  const prevI = fresh ? -1 : (prevRecap?.on ? prevRecap.i ?? 0 : -1);
+  ol.innerHTML = lines.map((l, k) => {
+    const vis = k <= i;
+    if (!vis && !isGM()) return "";
+    return `<li class="${vis ? "vis" : "ghost"} ${k === i ? "cur" : ""} ${k === i && k !== prevI ? "typing" : ""}"><span class="gs-rc-dot"></span><span>${fmtLine(l)}</span></li>`;
+  }).join("");
+  ol.querySelector("li.cur")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  if (!fresh && i !== prevI) chirp("obj");
+  const mapBox = el.querySelector(".gs-rc-map");
+  mapBox.style.display = r.map ? "" : "none";
+  if (r.map) mapBox.innerHTML = `<div class="gs-rc-map-h">📍 Схема Гномрегана${st.pin?.label ? ` · <b>${esc(st.pin.label)}</b>` : ""}</div>
+    <div class="gs-map">${`<img class="gs-map-img" src="${esc(hById(MAP_HID).img)}" alt="" draggable="false">`}${trailSVG(st)}<div class="gs-pin-layer">${pinHTML()}</div></div>`;
 }
 
 /* ───────────── плавающая шестерёнка ───────────── */
@@ -755,7 +917,9 @@ Hooks.once("ready", async () => {
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape" && LB) { ev.stopPropagation(); ev.preventDefault(); closeLightbox(); }
   }, true);
+  renderRecap(null);
   const api = {
+    recap: act.recapStart, recapNext: () => act.recapStep(1), recapStop: act.recapStop,
     open: openShtab, squad: openSquad,
     give: act.giveQuest, done: (id) => act.questStatus(id, "done"), fail: (id) => act.questStatus(id, "failed"),
     reveal: act.revealHandout, screen: act.screen, pin: act.pinPoint, unpin: act.clearPin,
