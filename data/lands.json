@@ -153,6 +153,7 @@
     "Орескос": "assets/lands/oreskos-e.webp"
   },
   "covers": {
-    "Атлантия": "assets/lands/atlantiya.webp"
+    "Атлантия": "assets/lands/atlantiya.webp",
+    "Земли Людоящеров": "assets/lands/lizardfolk.webp"
   }
 }
