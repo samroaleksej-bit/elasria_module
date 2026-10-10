@@ -440,3 +440,6 @@
 #ew-codex .ew-card-emb img[src$=".svg"], #ew-codex .ew-entry-emb img[src$=".svg"] { object-fit: contain; transform: none; }
 #ew-codex .ew-card-emb { width: 52px; height: 52px; }
 #ew-codex .ew-entry-emb { width: 96px; height: 96px; }
+#ew-codex button.ew-entry-emb { display: inline-grid; place-items: center; border-radius: 50%; cursor: zoom-in; transition: transform .2s, box-shadow .2s; }
+#ew-codex button.ew-entry-emb:hover { transform: scale(1.06); box-shadow: 0 0 0 3px rgba(12,10,18,.6), 0 0 34px rgba(224, 181, 83, .55); }
+#ew-lightbox .ew-lb-stage img[src$=".svg"] { min-width: min(60vh, 60vw); background: radial-gradient(circle, rgba(255,255,255,.06), transparent 70%); box-shadow: none; }

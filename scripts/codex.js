@@ -302,7 +302,7 @@ function viewEntry(id) {
       <div class="ew-entryhero-shade"></div>
       ${e.cover ? `<button type="button" class="ew-zoombtn" data-zoom="${esc(e.cover)}" data-cap="${esc(e.title)}" title="Открыть арт">⤢</button>` : ""}
       <div class="ew-entryhero-copy">
-        ${e.emblem ? `<span class="ew-entry-emb"><img src="${esc(e.emblem)}" alt=""></span>` : ""}
+        ${e.emblem ? `<button type="button" class="ew-entry-emb" data-zoom="${esc(e.emblem)}" data-cap="${esc(e.title)} — герб" title="Открыть герб"><img src="${esc(e.emblem)}" alt=""></button>` : ""}
         <div class="ew-eyebrow">${esc(e.kind === "story" ? "Истории Эластрии" : (e.region || e.group))}</div>
         <h1 class="ew-title-l">${esc(e.title)}</h1>
         ${e.subtitle ? `<p class="ew-entryhero-s">${esc(e.subtitle)}</p>` : ""}
