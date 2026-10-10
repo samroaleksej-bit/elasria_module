@@ -768,7 +768,7 @@ function viewHero(id) {
   const L = autoLinker();
   const all = DB.legends, i = all.indexOf(h);
   const parts = (h.parts ?? []).map((p, k) => `
-    <section class="ew-hpart${k % 2 ? " ew-hpart-r" : ""}">
+    <section class="ew-hpart${p.image ? (k % 2 ? " ew-hpart-r" : "") : " ew-hpart-solo"}">
       ${p.image ? `<figure class="ew-hpart-art"><img class="ew-z" src="${esc(CP(p.image))}" alt="${esc(p.title ?? "")}" loading="lazy"></figure>` : ""}
       <div class="ew-hpart-txt">
         <div class="ew-eyebrow">${esc(h.name)}</div>
