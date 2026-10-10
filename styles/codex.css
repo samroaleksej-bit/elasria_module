@@ -569,8 +569,8 @@
 #ew-codex .ew-herohead-txt .ew-epochhero-s { color: var(--ep); }
 #ew-codex .ew-hpart { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 40px; align-items: start; margin: 0 0 56px; }
 #ew-codex .ew-hpart-r .ew-hpart-art { order: 2; }
-#ew-codex .ew-hpart-art { margin: 0; position: sticky; top: 20px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 24px 60px rgba(0,0,0,.55), 0 0 0 1px color-mix(in srgb, var(--ep) 20%, transparent); }
-#ew-codex .ew-hpart-art img { width: 100%; display: block; cursor: zoom-in; }
+#ew-codex .ew-hpart-art { margin: 0; position: sticky; top: 20px; justify-self: center; width: fit-content; max-width: 100%; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 24px 60px rgba(0,0,0,.55), 0 0 0 1px color-mix(in srgb, var(--ep) 20%, transparent); }
+#ew-codex .ew-hpart-art img { width: auto; max-width: 100%; max-height: calc(100vh - 60px); display: block; cursor: zoom-in; }
 #ew-codex .ew-hpart-txt h2 { font-size: 34px; margin: 6px 0 16px; color: #f3ede2; }
 #ew-codex .ew-hpart-txt p b { color: var(--ep); font-weight: 700; }
 #ew-codex .ew-hpart-txt p.ew-line { font-style: italic; color: #f0d28a; border-left: 2px solid var(--ep); padding-left: 14px; }
