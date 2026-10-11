@@ -594,3 +594,106 @@
 #ew-codex .ew-evmini { display: flex; align-items: center; gap: 20px; padding: 18px 24px; border: 1px solid var(--line); border-left: 3px solid var(--ep, #e0b553); border-radius: 14px; background: linear-gradient(90deg, color-mix(in srgb, var(--ep, #e0b553) 10%, transparent), transparent 60%); }
 #ew-codex .ew-evmini-y { font-family: "EW Serif", Georgia, serif; font-size: 30px; color: var(--ep, #e0b553); min-width: 64px; text-align: center; }
 #ew-codex .ew-evmini h3 { margin: 0; font-size: 22px; color: #f3ede2; }
+
+/* ================================================================ сайт (GitHub Pages) */
+#ew-codex.ew-site .ew-backdrop { display: none; }
+#ew-codex.ew-site .ew-shell { width: 100vw; height: 100dvh; max-width: none; border: none; border-radius: 0; box-shadow: none; }
+#ew-codex.ew-site .ew-close { display: none; }
+
+/* ================================================================ телефоны */
+@media (max-width: 760px) {
+  #ew-codex { font-size: 15px; }
+  #ew-codex .ew-shell { width: 100vw; height: 100dvh; border-radius: 0; border: none; }
+  /* шапка: строка 1 — назад, бренд, поиск; строка 2 — вкладки с прокруткой */
+  #ew-codex .ew-top { flex-wrap: wrap; gap: 8px; padding: 10px 12px 0; padding-top: max(10px, env(safe-area-inset-top)); }
+  #ew-codex .ew-iconbtn { width: 34px; height: 34px; }
+  #ew-codex .ew-brand { font-size: 18px; margin-right: 0; gap: 6px; }
+  #ew-codex .ew-search { order: 2; flex: 1; width: auto; min-width: 0; height: 34px; margin-left: 4px; }
+  #ew-codex .ew-search input { font-size: 16px; }
+  #ew-codex .ew-close, #ew-codex .ew-present, #ew-codex [data-act="share"] { order: 3; }
+  #ew-codex .ew-tabs { order: 10; flex: 0 0 calc(100% + 24px); margin: 0 -12px; padding: 4px 12px 10px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  #ew-codex .ew-tabs::-webkit-scrollbar { display: none; }
+  #ew-codex .ew-tabs button { flex: none; padding: 7px 14px; font-size: 13px; }
+  #ew-codex .ew-main { scroll-padding-top: 12px; }
+  #ew-codex .ew-view { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
+
+  /* общие отступы и заголовки */
+  #ew-codex .ew-sec { padding: 20px 16px 4px; }
+  #ew-codex .ew-pagehead { padding: 26px 16px 6px; }
+  #ew-codex .ew-title-xl { font-size: clamp(40px, 12vw, 56px); }
+  #ew-codex .ew-title-l { font-size: clamp(32px, 10vw, 44px); }
+  #ew-codex .ew-lead { font-size: 15px; }
+  #ew-codex .ew-sec-head h2 { font-size: 26px; }
+
+  /* главная */
+  #ew-codex .ew-hero-home { grid-template-columns: 1fr; padding: 26px 16px 10px; min-height: 0; gap: 10px; }
+  #ew-codex .ew-hero-stats { gap: 8px; flex-wrap: wrap; }
+  #ew-codex .ew-hero-stats button { min-width: 0; flex: 1; padding: 10px 6px; }
+  #ew-codex .ew-hero-stats b { font-size: 30px; }
+  #ew-codex .ew-hero-stats span { font-size: 10px; letter-spacing: .1em; }
+  #ew-codex .ew-ring { width: min(340px, 86vw); }
+  #ew-codex .ew-ring-item .ew-coin { width: 40px; height: 40px; }
+  #ew-codex .ew-ring-item .ew-coin-f { width: 50px; height: 50px; }
+  #ew-codex .ew-ring-title { font-size: 22px; }
+
+  /* сетки — в одну колонку */
+  #ew-codex .ew-grid, #ew-codex .ew-grid-wide { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  #ew-codex .ew-godgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  #ew-codex .ew-godcard { padding: 16px 8px 14px; }
+  #ew-codex .ew-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #ew-codex .ew-tier-head { grid-template-columns: 1fr; }
+  #ew-codex .ew-tier-head h2 { font-size: 28px; }
+  #ew-codex .ew-epochs, #ew-codex .ew-gallery, #ew-codex .ew-herocards.big { grid-template-columns: 1fr; }
+  #ew-codex .ew-herocards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  #ew-codex .ew-people { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  #ew-codex .ew-epochbody { padding: 20px 16px 0; gap: 22px; }
+  #ew-codex .ew-hero-row .ew-portrait, #ew-codex .ew-chchar .ew-portrait { max-width: 100%; width: 100%; }
+
+  /* бог / страна */
+  #ew-codex .ew-godhero { height: auto; min-height: 420px; display: flex; align-items: flex-end; }
+  #ew-codex .ew-godhero-copy { position: relative; left: auto; right: auto; bottom: auto; padding: 120px 16px 20px; flex-direction: column; align-items: flex-start; gap: 12px; }
+  #ew-codex .ew-godhero-copy .ew-coin-xl, #ew-codex .ew-godhero-copy .ew-coin { width: 96px !important; height: 96px !important; }
+  #ew-codex .ew-godhero-t { font-size: 19px; }
+  #ew-codex .ew-godbody, #ew-codex .ew-entrybody { padding: 18px 16px 6px; gap: 20px; }
+  #ew-codex .ew-entryhero-copy { padding: 0 16px 20px; }
+  #ew-codex .ew-entryhero-s { font-size: 18px; }
+  #ew-codex .ew-entry-emb { width: 72px; height: 72px; }
+  #ew-codex .ew-ch { grid-template-columns: 54px minmax(0, 1fr); }
+  #ew-codex .ew-zoombtn { right: 12px; bottom: 12px; }
+  /* карта связей */
+  #ew-codex .ew-node .ew-coin { width: 34px; height: 34px; }
+  #ew-codex .ew-node-F .ew-coin { width: 42px; height: 42px; }
+  #ew-codex .ew-node-S .ew-coin { width: 30px; height: 30px; }
+  #ew-codex .ew-node-n { font-size: 10px; padding: 1px 4px; }
+  #ew-codex .ew-graph-core { width: 70px; height: 70px; }
+  #ew-codex .ew-graph-core b { display: none; }
+  #ew-codex .ew-graph { margin-bottom: 44px; }
+  #ew-codex .ew-graph-legend { top: auto; bottom: -38px; left: 0; right: 0; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 4px 14px; font-size: 10px; }
+  #ew-codex .ew-entry-emb:has(img.ew-broken), #ew-codex .ew-card-emb:has(img.ew-broken) { display: none; }
+  /* летопись */
+  #ew-codex .ew-epochhero-copy { padding: 0 16px 24px; }
+  #ew-codex .ew-evcard { gap: 0; }
+  #ew-codex .ew-evcard-txt { padding: 16px; }
+  #ew-codex .ew-evmini { padding: 14px 16px; gap: 12px; }
+  #ew-codex .ew-evmini-y { font-size: 24px; min-width: 48px; }
+  #ew-codex .ew-evmini h3 { font-size: 18px; }
+  #ew-codex .ew-chronsub { flex-wrap: wrap; justify-content: center; }
+
+  /* герои */
+  #ew-codex .ew-heropage { padding: 0 16px 16px; }
+  #ew-codex .ew-herohead { grid-template-columns: 1fr; gap: 16px; padding: 22px 0 24px; justify-items: center; text-align: center; }
+  #ew-codex .ew-herohead .ew-portrait { width: min(260px, 70vw); }
+  #ew-codex .ew-hpart, #ew-codex .ew-hpart-r { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 28px 0; }
+  #ew-codex .ew-hpart-art { width: 100%; }
+  #ew-codex .ew-hpart-art img { width: 100%; max-width: 100%; max-height: none; }
+  #ew-codex .ew-hpart-txt h2 { font-size: 26px; }
+
+  /* лайтбокс */
+  #ew-lightbox .ew-lb-stage { width: 100vw; height: 80dvh; }
+  #ew-lightbox .ew-lb-stage img { max-width: 100vw !important; max-height: 80dvh !important; border-radius: 0; }
+  #ew-lightbox .ew-lb-cap { font-size: 16px; bottom: max(14px, env(safe-area-inset-bottom)); }
+}
+@media (hover: none) {
+  #ew-codex .ew-tl-go:hover { background: none; }
+}
+#ew-codex .ew-entry-emb:has(img.ew-broken), #ew-codex .ew-card-emb:has(img.ew-broken) { display: none; }

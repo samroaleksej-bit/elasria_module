@@ -17,7 +17,8 @@ const TIER = {
 };
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const isGM = () => !!globalThis.game?.user?.isGM;
+const SITE = !!globalThis.ELASTRIA_SITE; // режим сайта (GitHub Pages): без Foundry, адреса в #хэше
+const isGM = () => !SITE && !!globalThis.game?.user?.isGM;
 const plain = (html) => { const d = document.createElement("div"); d.innerHTML = html ?? ""; return (d.textContent || "").replace(/\s+/g, " ").trim(); };
 const plural = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; return m10 === 1 && m100 !== 11 ? one : m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20) ? few : many; };
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -872,6 +873,17 @@ function closeLightbox() {
 const state = { route: { v: "home" }, history: [], present: false };
 
 function routeKey(r) { return JSON.stringify(r); }
+function routeStr(r) {
+  switch (r?.v) {
+    case "god": case "entry": case "hero": return `${r.v}:${r.id}`;
+    case "epoch": return `epoch:${r.id}${r.at ? "@" + r.at : ""}`;
+    case "list": return `list:${r.kind}`;
+    case "pantheon": return r.dom ? `pantheon:${r.dom}` : "pantheon";
+    case "ties": case "landmap": return r.sel ? `${r.v}:${r.sel}` : r.v;
+    case "chronicle": case "heroes": return r.v;
+    default: return "";
+  }
+}
 
 function parseGo(go) {
   const [v, ...rest] = String(go).split(":");
@@ -940,6 +952,7 @@ async function open(route = null, { fromSocket = false } = {}) {
   if (!root) {
     root = document.createElement("div");
     root.id = ROOT_ID;
+    if (SITE) root.classList.add("ew-site");
     root.innerHTML = shellHTML();
     document.body.appendChild(root);
     root.addEventListener("click", onClick);
@@ -961,7 +974,7 @@ async function open(route = null, { fromSocket = false } = {}) {
 
 function close() {
   const root = document.getElementById(ROOT_ID);
-  if (!root) return;
+  if (!root || SITE) return;
   root.classList.remove("ew-in");
   root.classList.add("ew-out");
   if (!music.remote) stopMusic();
@@ -992,6 +1005,11 @@ async function go(route, { replace = false, silent = false } = {}) {
   root.querySelectorAll(".ew-tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
   root.querySelector(".ew-back").disabled = !state.history.length;
   if (!silent && isGM() && state.present) emit({ action: "route", route });
+  if (SITE && route.v !== "search") {
+    const h = routeStr(route), cur = decodeURIComponent(location.hash.slice(1));
+    if (h !== cur) history[replace ? "replaceState" : "pushState"](null, "", h ? `#${h}` : location.pathname);
+    document.title = (root.querySelector(".ew-view h1")?.textContent?.trim() || "Кодекс") + " · Эластрия";
+  }
 }
 
 function scrollToAnchor(id, main, smooth = false) {
@@ -1038,7 +1056,7 @@ async function onClick(ev) {
   }
   switch (el.dataset.act) {
     case "close": return close();
-    case "back": return back();
+    case "back": return SITE ? history.back() : back();
     case "present":
       state.present = !state.present; syncPresentBtn();
       ui.notifications?.info(state.present ? "Кодекс: режим показа включён, игроки видят то же, что и вы." : "Кодекс: режим показа выключен.");
@@ -1203,3 +1221,11 @@ document.addEventListener("click", async (ev) => {
   ev.preventDefault(); ev.stopPropagation();
   open(r ?? { v: "home" });
 }, true);
+
+// Сайт: навигация браузера (назад/вперёд, ссылки с #хэшем)
+if (SITE) {
+  globalThis.addEventListener("popstate", () => {
+    const r = parseGo(decodeURIComponent(location.hash.slice(1)) || "home");
+    if (routeKey(r) !== routeKey(state.route)) go(r, { replace: true });
+  });
+}

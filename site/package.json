@@ -1,0 +1,5 @@
+{
+  "private": true,
+  "type": "module",
+  "dependencies": { "@foundryvtt/foundryvtt-cli": "^1.0.4" }
+}

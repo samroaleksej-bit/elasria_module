@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0a12">
+<title>Кодекс Эластрии</title>
+<meta name="description" content="Кодекс Эластрии — земли, пантеон, летопись и герои авторского мира НРИ.">
+<meta property="og:title" content="Кодекс Эластрии">
+<meta property="og:description" content="Земли, пантеон, летопись и герои авторского мира Эластрия.">
+<meta property="og:image" content="modules/elastria-wiki/chronicle/assets/images/pereselenie/fon.webp">
+<link rel="icon" href="favicon.webp">
+<link rel="stylesheet" href="modules/elastria-wiki/styles/codex.css?v={{V}}">
+<style>
+  html, body { margin: 0; height: 100%; background: #0c0a12; overscroll-behavior: none; }
+  #ew-boot { position: fixed; inset: 0; display: grid; place-items: center; color: #e0b553; font: 600 28px/1 Georgia, serif; letter-spacing: .08em; }
+  #ew-boot span { animation: b 1.6s ease-in-out infinite; } @keyframes b { 50% { opacity: .35; } }
+</style>
+<script>window.ELASTRIA_SITE = true;</script>
+<script src="db.js?v={{V}}"></script>
+<script>
+  // Минимальная «заглушка» Foundry: Кодекс работает в обычном браузере
+  const docs = window.__DOCS;
+  const folders = docs.filter(d => d._key?.startsWith("!folders")).map(f => ({ id: f._id, name: f.name }));
+  const journals = docs.filter(d => d._key?.startsWith("!journal!")).map(j => ({ id: j._id, name: j.name, sort: j.sort, _source: { folder: j.folder }, pages: { contents: j.pages } }));
+  const hooks = {};
+  window.Hooks = { once: (n, f) => (hooks[n] ??= []).push(f), on: (n, f) => (hooks[n] ??= []).push(f) };
+  window.ui = { notifications: { info: console.log, warn: console.warn, error: console.error } };
+  window.fromUuid = async () => null;
+  window.game = { user: { isGM: false }, keybindings: { register() {} }, socket: { emit() {}, on() {} },
+    modules: { get: () => ({}) }, packs: { get: () => ({ getDocuments: async () => journals, folders: { contents: folders } }) } };
+  window.__hooks = hooks;
+</script>
+<script type="module">
+  import "./modules/elastria-wiki/scripts/codex.js?v={{V}}";
+  __hooks.init?.forEach(f => f()); __hooks.ready?.forEach(f => f());
+  const start = decodeURIComponent(location.hash.slice(1)) || "home";
+  await ElastriaCodex.open(start);
+  document.getElementById("ew-boot")?.remove();
+</script>
+</head>
+<body><div id="ew-boot"><span>✦ Кодекс Эластрии</span></div></body>
+</html>
