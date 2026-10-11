@@ -68,55 +68,64 @@ function floatText(actor, delta) {
   }
 }
 
-/* ---------------------------------------------------------------- ячейки */
+/* ---------------------------------------------------------------- использование активностей */
 
-/** Уровень потраченной ячейки по обновлениям актёра (spellN / pact). */
-function spentSlotLevel(actor, results, usageConfig) {
+const log = (...a) => { if (game.settings.get(MID, "debug")) console.log("%c[Волшебный щит]", "color:#6aa9e0;font-weight:bold", ...a); };
+const recent = new Map(); // защита от двойного срабатывания: actorId → время
+
+/** Уровень потраченной ячейки: из настроек использования или из обновлений актёра. */
+function slotLevel(actor, usageConfig, updates) {
   const slot = usageConfig?.spell?.slot;
   if (slot && usageConfig?.consume?.spellSlot !== false) {
-    const lvl = slot === "pact" ? actor.system.spells.pact?.level : Number(String(slot).replace("spell", ""));
+    const lvl = slot === "pact" ? actor.system.spells.pact?.level : Number(String(slot).replace(/\D/g, ""));
     if (lvl > 0) return lvl;
   }
-  const upd = flattenObject(results?.updates?.actor ?? {});
-  for (const [k, v] of Object.entries(upd)) {
+  const upd = flattenObject(updates?.actor ?? {});
+  for (const k of Object.keys(upd)) {
     const m = k.match(/^system\.spells\.(spell(\d)|pact)\.value$/);
-    if (!m) continue;
-    return m[2] ? Number(m[2]) : (actor.system.spells.pact?.level ?? 0);
+    if (m) return m[2] ? Number(m[2]) : (actor.system.spells.pact?.level ?? 0);
   }
   return 0;
 }
 
-/* ---------------------------------------------------------------- использование активностей */
-
-Hooks.on("dnd5e.postUseActivity", async (activity, usageConfig, results) => {
+async function onActivity(activity, usageConfig, updates, source) {
   const item = activity?.item, actor = item?.actor;
-  if (!actor || !isResponsible(actor)) return;
+  if (!actor) return;
   const ward = wardOf(actor);
-  if (!ward) return;
+  if (!ward) return log(source, "у персонажа нет предмета щита", actor.name);
+  const isRecharge = item.id === ward.id;
+  const isAbj = item.type === "spell" && item.system.school === "abj";
+  if (!isRecharge && !isAbj) return;
+  const lvl = slotLevel(actor, usageConfig, updates);
+  log(source, item.name, { school: item.system.school, slot: usageConfig?.spell?.slot, lvl, updates: updates?.actor });
+  if (!lvl) return;
+  if (!isResponsible(actor)) return;
+  const key = `${actor.uuid}|${item.id}`;
+  if (Date.now() - (recent.get(key) ?? 0) < 1500) return;
+  recent.set(key, Date.now());
 
-  // Бонусное действие: подзарядка щита ячейкой
-  if (item.id === ward.id && activity.id === RECHARGE_ID) {
-    const lvl = spentSlotLevel(actor, results, usageConfig);
-    if (!lvl) return ui.notifications.warn("Волшебный щит: ячейка не потрачена.");
+  if (isRecharge) {
     if (!created(ward)) return ui.notifications.warn("Волшебный щит ещё не создан — сотворите заклинание Ограждения ячейкой.");
-    const { value } = hpOf(ward), heal = lvl * 2;
-    const v = await setWardHP(ward, value + heal, { reason: `Подзарядка ячейкой ${lvl} уровня`, delta: Math.min(heal, hpOf(ward).max - value) });
-    return v;
+    const { value, max } = hpOf(ward), heal = lvl * 2;
+    return setWardHP(ward, value + heal, { reason: `Подзарядка ячейкой ${lvl} уровня`, delta: Math.min(heal, max - value) });
   }
-
-  // Заклинание Ограждения, сотворённое ячейкой
-  if (item.type !== "spell" || item.system.school !== "abj") return;
-  const lvl = spentSlotLevel(actor, results, usageConfig);
-  if (!lvl) return; // заговор, ритуал или без ячейки — щит не реагирует
   if (!created(ward)) {
     await ward.setFlag(MID, "created", true);
     const { max } = hpOf(ward);
-    await setWardHP(ward, max, { reason: `Щит соткан (${item.name})`, delta: max });
-  } else {
-    const { value, max } = hpOf(ward), heal = lvl * 2;
-    if (value >= max) return;
-    await setWardHP(ward, value + heal, { reason: `${item.name}: щит восстанавливается`, delta: Math.min(heal, max - value) });
+    return setWardHP(ward, max, { reason: `${item.name}: щит соткан`, delta: max });
   }
+  const { value, max } = hpOf(ward), heal = lvl * 2;
+  if (value >= max) return ui.notifications.info(`Волшебный щит уже полон (${value}/${max}).`);
+  return setWardHP(ward, value + heal, { reason: `${item.name}: щит восстанавливается`, delta: Math.min(heal, max - value) });
+}
+
+// Основной путь — момент траты ресурсов (работает и при обычном касте, и через midi-qol, и для реакций)
+Hooks.on("dnd5e.activityConsumption", (activity, usageConfig, messageConfig, updates) => {
+  setTimeout(() => onActivity(activity, usageConfig, updates, "consumption").catch(console.error), 50);
+});
+// Запасной путь
+Hooks.on("dnd5e.postUseActivity", (activity, usageConfig, results) => {
+  onActivity(activity, usageConfig, results?.updates, "postUse").catch(console.error);
 });
 
 /* ---------------------------------------------------------------- поглощение урона */
@@ -197,6 +206,10 @@ async function fixWard(item) {
   if (fresh) await item.update({ "system.uses.spent": hpOf(item).max, [`flags.${MID}.created`]: false });
 }
 
+Hooks.once("init", () => {
+  game.settings.register(MID, "debug", { name: "Волшебный щит: отладка в консоли (F12)", scope: "client", config: true, type: Boolean, default: false });
+});
+
 Hooks.once("ready", async () => {
   if (!game.user.isGM) return;
   for (const a of game.actors) for (const i of a.items) if (isWard(i)) await fixWard(i).catch(console.error);
@@ -212,5 +225,14 @@ globalThis.ArcaneWard = {
   /** Установить Хиты вручную: ArcaneWard.set(actor, 10) */
   set: async (actor, v) => { const w = wardOf(actor); if (w) { await w.setFlag(MID, "created", true); return setWardHP(w, v, { reason: "Мастер изменил щит", delta: v - hpOf(w).value }); } },
   /** Снять «создан» (как после долгого отдыха) */
+  /** Диагностика: ArcaneWard.debug(actor) или выделенный токен */
+  debug(actor = canvas.tokens?.controlled[0]?.actor ?? game.user.character) {
+    const w = wardOf(actor);
+    const info = { actor: actor?.name, ward: w?.name ?? "НЕ НАЙДЕН", identifier: w?.system.identifier, uses: w?.system.uses, created: w ? created(w) : null,
+      wizardLevel: actor?.classes?.wizard?.system.levels, int: actor?.system.abilities.int.mod,
+      abjSpells: actor?.items.filter(i => i.type === "spell" && i.system.school === "abj").map(i => i.name) };
+    console.table(info); ui.notifications.info(`Щит: ${info.ward} · ${w ? hpOf(w).value + "/" + hpOf(w).max : "—"} · создан: ${info.created}`);
+    return info;
+  },
   reset: async (actor) => { const w = wardOf(actor); if (w) { await w.setFlag(MID, "created", false); await w.update({ "system.uses.spent": hpOf(w).max }); } }
 };
