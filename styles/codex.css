@@ -584,3 +584,10 @@
 #ew-codex .ew-hpart-txt p b { color: var(--ep); font-weight: 700; }
 #ew-codex .ew-hpart-txt p.ew-line { font-style: italic; color: #f0d28a; border-left: 2px solid var(--ep); padding-left: 14px; }
 @media (max-width: 1000px) { #ew-codex .ew-hpart, #ew-codex .ew-hpart-r, #ew-codex .ew-herohead { grid-template-columns: 1fr; } #ew-codex .ew-hpart-r .ew-hpart-art { order: 0; } #ew-codex .ew-hpart-art img { max-width: 100%; max-height: 70vh; } }
+
+/* ---- переходы по якорям ---- */
+#ew-codex .ew-tl-go { cursor: pointer; border-radius: 10px; transition: background .2s; }
+#ew-codex .ew-tl-go:hover { background: color-mix(in srgb, var(--ep, #e0b553) 12%, transparent); }
+#ew-codex .ew-tl-go:hover .ew-tl-body b { color: var(--ep, #e0b553); }
+#ew-codex .ew-flash { animation: ew-flash 2.2s ease-out; border-radius: 16px; }
+@keyframes ew-flash { 0%, 25% { box-shadow: 0 0 0 2px var(--ep, #e0b553), 0 0 40px color-mix(in srgb, var(--ep, #e0b553) 45%, transparent); } 100% { box-shadow: 0 0 0 0 transparent; } }

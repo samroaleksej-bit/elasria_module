@@ -616,7 +616,7 @@ function epochCard(ep) {
 function viewChronicle() {
   const eps = DB.epochs;
   if (!eps.length) return `<section class="ew-pagehead"><h1 class="ew-title-l">Летопись</h1><p class="ew-lead">Эпохи пока не добавлены. Файл: chronicle/data/epochs.js</p></section>`;
-  const events = eps.flatMap(ep => (ep.keyEvents ?? []).map(x => { const e = evNorm(x); return { ep, t: e.title, y: e.year }; }));
+  const events = eps.flatMap(ep => (ep.keyEvents ?? []).map((x, k) => { const e = evNorm(x); return { ep, t: e.title, y: e.year, k }; }));
   return `<section class="ew-pagehead ew-pagehead-center">
       <div class="ew-eyebrow">${esc(DB.universe)}</div><h1 class="ew-title-l">Летопись</h1>
       <p class="ew-lead">Эпохи Эластрии от падения Вестарии до наших дней. Каждая эпоха — хроника, герои, лица и музыка.</p>
@@ -624,10 +624,10 @@ function viewChronicle() {
     </section>
     <section class="ew-sec"><div class="ew-epochs">${eps.map(epochCard).join("")}</div></section>
     ${events.length ? `<section class="ew-sec"><div class="ew-sec-head"><h2>Ключевые события</h2></div>
-      <ol class="ew-timeline">${events.map(({ ep, t, y }) => `<li style="--ep:${esc(ep.color || "#e0b553")}">
+      <ol class="ew-timeline">${events.map(({ ep, t, y, k }) => `<li class="ew-tl-go" data-go="epoch:${esc(ep.id)}@ew-ev-${k}" title="Открыть событие" style="--ep:${esc(ep.color || "#e0b553")}">
         <span class="ew-tl-year">${y ?? "✦"}</span><span class="ew-tl-dot"></span>
         <span class="ew-tl-body"><b>${esc(t)}</b>
-        <button type="button" class="ew-tl-ep" data-go="epoch:${esc(ep.id)}">${esc(ep.title)}</button></span></li>`).join("")}</ol></section>` : ""}`;
+        <button type="button" class="ew-tl-ep" data-go="epoch:${esc(ep.id)}@ew-ev-${k}">${esc(ep.title)}</button></span></li>`).join("")}</ol></section>` : ""}`;
 }
 
 function viewEpoch(id) {
@@ -653,14 +653,14 @@ function viewEpoch(id) {
       </div>
     </li>`).join("");
   const heroes = (ep.heroes ?? []).map((h, k) => `
-    <div class="ew-hero-row${k % 2 ? " ew-hero-row-r" : ""}">
+    <div class="ew-hero-row${k % 2 ? " ew-hero-row-r" : ""}" id="${esc(pid(h.name))}">
       ${portrait(h, "ew-portrait-lg")}
       <div class="ew-hero-row-txt"><div class="ew-eyebrow">${esc(h.role ?? "")}</div><h3>${esc(h.name)}</h3>
         ${paras(h.bio).map(t => `<p>${L(t)}</p>`).join("")}
         ${legendOf(h.name) ? `<button type="button" class="ew-tl-ep" data-go="hero:${esc(legendOf(h.name).id)}">✦ личная история →</button>` : ""}</div>
     </div>`).join("");
   const chars = (ep.characters ?? []).map(c => `
-    <div class="ew-person">${portrait(c)}
+    <div class="ew-person" id="${esc(pid(c.name))}">${portrait(c)}
       <div class="ew-person-txt"><b>${esc(c.name)}</b><span class="ew-eyebrow">${esc(c.role ?? "")}</span>
       ${c.description ? `<p>${L(c.description)}</p>` : ""}
       ${legendOf(c.name) ? `<button type="button" class="ew-tl-ep" data-go="hero:${esc(legendOf(c.name).id)}">✦ личная история →</button>` : ""}
@@ -668,9 +668,10 @@ function viewEpoch(id) {
   const gallery = (ep.gallery ?? []).map(g => `
     <figure class="ew-gal"><img class="ew-z" src="${esc(CP(g.image))}" alt="${esc(g.caption ?? "")}" loading="lazy"><figcaption>${esc(g.caption ?? "")}</figcaption></figure>`).join("");
   const evs = (ep.keyEvents ?? []).map(evNorm);
-  const events = evs.map(e => `<li><span class="ew-tl-year">${e.year ?? "✦"}</span><span class="ew-tl-dot"></span><span class="ew-tl-body"><b>${esc(e.title)}</b></span></li>`).join("");
+  const hasCards = evs.some(e => e.text || e.image);
+  const events = evs.map((e, k) => `<li${hasCards ? ` class="ew-tl-go" data-anchor="ew-ev-${k}" title="К событию"` : ""}><span class="ew-tl-year">${e.year ?? "✦"}</span><span class="ew-tl-dot"></span><span class="ew-tl-body"><b>${esc(e.title)}</b></span></li>`).join("");
   const evCards = evs.some(e => e.text || e.image) ? evs.map((e, k) => `
-    <article class="ew-evcard${k % 2 ? " ew-evcard-r" : ""}">
+    <article class="ew-evcard${k % 2 ? " ew-evcard-r" : ""}" id="ew-ev-${k}">
       <div class="ew-evcard-art">${e.image ? `<img class="ew-z" src="${esc(CP(e.image))}" alt="${esc(e.title)}" loading="lazy">` : `<div class="ew-evcard-ph"><span>${e.year ?? "✦"}</span></div>`}</div>
       <div class="ew-evcard-txt">
         <span class="ew-epoch-years">${e.year != null ? `${e.year} г.э.` : ""}</span>
@@ -718,6 +719,7 @@ function viewEpoch(id) {
 
 /* ================================================================ известные герои */
 
+const pid = (name) => "ew-p-" + String(name ?? "").replace(/[^\p{L}\p{N}]+/gu, "-");
 const legendOf = (name) => (DB.legends ?? []).find(h => h.name === name);
 function chronSub(cur) {
   const n = heroList().length;
@@ -739,7 +741,7 @@ function heroList() {
 }
 function viewHeroes() {
   const list = heroList();
-  const card = (h) => `<button type="button" class="ew-herocard${h.story ? " has-story" : ""}" data-go="${h.story ? `hero:${esc(h.id)}` : `epoch:${esc(h.ep?.id ?? "")}`}" style="--ep:${esc(h.color || h.ep?.color || "#e0b553")}">
+  const card = (h) => `<button type="button" class="ew-herocard${h.story ? " has-story" : ""}" data-go="${h.story ? `hero:${esc(h.id)}` : `epoch:${esc(h.ep?.id ?? "")}@${esc(pid(h.name))}`}" style="--ep:${esc(h.color || h.ep?.color || "#e0b553")}">
       <span class="ew-herocard-img">${CP(h.image) ? `<img src="${esc(CP(h.image))}" alt="" loading="lazy">` : `<span class="ew-portrait-ph">⚔</span>`}</span>
       <span class="ew-herocard-txt">
         ${h.ep ? `<span class="ew-epoch-years">${esc(h.ep.title)}</span>` : ""}
@@ -880,7 +882,7 @@ function parseGo(go) {
   if (v === "pantheon") return arg ? { v, dom: arg } : { v };
   if (v === "chronicle") return { v };
   if (v === "ties" || v === "landmap") return arg ? { v, sel: arg } : { v };
-  if (v === "epoch") return { v, id: arg };
+  if (v === "epoch") { const [id, at] = arg.split("@"); return at ? { v, id, at } : { v, id }; }
   if (v === "heroes") return { v };
   if (v === "hero") return { v, id: arg };
   return { v: "home" };
@@ -985,10 +987,23 @@ async function go(route, { replace = false, silent = false } = {}) {
   bindImages(view);
   main.scrollTop = 0;
   view.classList.remove("ew-swap");
+  if (route.at) scrollToAnchor(route.at, main);
   const tab = route.v === "list" ? `list-${route.kind}` : (route.v === "epoch" || route.v === "heroes" || route.v === "hero" ? "chronicle" : (route.v === "god" || route.v === "ties") ? "pantheon" : route.v === "landmap" ? "list-country" : (route.v === "entry" ? `list-${DB.entries[route.id]?.kind ?? "country"}` : route.v));
   root.querySelectorAll(".ew-tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
   root.querySelector(".ew-back").disabled = !state.history.length;
   if (!silent && isGM() && state.present) emit({ action: "route", route });
+}
+
+function scrollToAnchor(id, main, smooth = false) {
+  const t = document.getElementById(id);
+  if (!t || !main) return;
+  const go = () => {
+    const top = main.scrollTop + t.getBoundingClientRect().top - main.getBoundingClientRect().top - 24;
+    main.scrollTo({ top, behavior: smooth ? "smooth" : "auto" });
+  };
+  go(); if (!smooth) setTimeout(go, 350);
+  t.classList.remove("ew-flash"); void t.offsetWidth; t.classList.add("ew-flash");
+  setTimeout(() => t.classList.remove("ew-flash"), 2200);
 }
 
 function back() { const r = state.history.pop(); if (r) go(r, { replace: true }); }
@@ -1011,7 +1026,7 @@ async function onClick(ev) {
   if (!el) return;
   ev.preventDefault();
   if (el.dataset.anchor) {
-    document.getElementById(el.dataset.anchor)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    scrollToAnchor(el.dataset.anchor, document.querySelector(`#${ROOT_ID} .ew-main`), true);
     return;
   }
   if (el.dataset.go) return go(parseGo(el.dataset.go));
