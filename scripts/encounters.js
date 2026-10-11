@@ -15,6 +15,10 @@ export const GANGS = {
   heywood: ["Вудуисты", "6-я улица", "Игроки Прайм-Тайма"], rancho: ["Отступники", "Мусорщики"], pacifica: ["Пираньи", "Отступники", "Легион Красного Хрома"],
   norcal: [], morro: []
 };
+export const MOOKMAP = {"Местные законники": ["ncpd"], "Корпоративная охрана": ["ratsec"], "Техники за работой": ["civ"], "Частный детектив": ["iron"], "Корпораты ловят такси": ["civ", "gangsters"], "Местные жители": ["civ", "thugs"], "Репортаж": ["civ"], "Реставраторы": ["civ", "raffen"], "Trauma Team": ["tt", "GANG"], "Война банд": ["GANG", "gangsters"], "Ночной патруль NCPD": ["ncpd", "ncpd_units"], "Уличная торговля": ["civ", "GANG"], "Бездомные у огня": ["civ"], "Пьяные бустеры": ["GANG"], "Гонщики": ["raffen", "vaq"], "Органлеггеры": ["scav"], "Нетраннер на крыше": ["vdb", "arasaka"], "Засада": ["GANG"], "Киберпсих": ["nightmare", "maxtac"], "Ночь крови": ["GANG", "mael"], "Мусорщики": ["scav"], "Затопленная улица": [], "Радиационный карман": [], "Обрушение": ["scav"], "Мародёры Мальстрёма": ["mael"], "Дроны «Жирафа»": ["drones", "ratsec"]};
+/** Банда → группа противников в Mook Pack. */
+export const GANGKEY = { "Мальстрём": "mael", "Тигриные Когти": "tyger", "6-я улица": "g6", "Вудуисты": "vdb", "Вампиры Филармонии": "vamp", "Пираньи": "piranha",
+  "Игроки Прайм-Тайма": "prime", "Отступники": "reck", "Легион Красного Хрома": "rcl", "Железные Прицелы": "iron", "Инквизиторы": "inq", "Мусорщики": "scav", "Стальные Вакерос": "vaq" };
 const gangOf = (dist) => pick(GANGS[dist] ?? []) ?? "местная банда";
 
 /** Списки встреч к10: от мирных к смертельным. {g} — банда района, {n} — «по числу игроков». */
@@ -73,7 +77,7 @@ export function rollEncounter({ distId, threat, night }) {
   entry = list[idx];
   const sub = d(6), g = gangOf(distId);
   const fill = (s) => s.replaceAll("{g}", g);
-  return { roll, sub, title: entry[0], text: fill(entry[1]), stats: entry[2], twist: fill(entry[3][sub - 1]), gang: g, night, threat };
+  return { roll, sub, mooks: (MOOKMAP[entry[0]] ?? []).map(k => k === "GANG" ? GANGKEY[g] ?? "gangsters" : k), title: entry[0], text: fill(entry[1]), stats: entry[2], twist: fill(entry[3][sub - 1]), gang: g, night, threat };
 }
 
 /* ================================================================ генератор заказов */

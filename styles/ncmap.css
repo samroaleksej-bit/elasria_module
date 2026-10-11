@@ -222,3 +222,16 @@
 #ncm .ncm-steps li { margin: 3px 0; }
 #ncm .ncm-step-x { width: 18px; height: 18px; line-height: 14px; margin: 0 6px 0 0; padding: 0; border: 1px solid var(--line); border-radius: 0; background: none; color: var(--mut); font-size: 10px; }
 #ncm .ncm-step-x:hover { color: var(--m); border-color: var(--m); }
+
+/* противники из Mook Pack */
+#ncm .ncm-mooks { margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--line); }
+#ncm .ncm-mg { margin-bottom: 6px; }
+#ncm .ncm-mg > span { display: block; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--m); margin-bottom: 3px; }
+#ncm .ncm-mook { display: inline-flex; align-items: center; gap: 5px; width: auto; height: 26px; margin: 0 4px 4px 0; padding: 0 8px 0 2px; border: 1px solid var(--line); border-radius: 0;
+  background: rgba(255,255,255,.04); color: #fff; font-size: 12px; font-weight: 600; }
+#ncm .ncm-mook img { width: 22px; height: 22px; object-fit: cover; border: none; }
+#ncm .ncm-mook small { color: var(--y); font-weight: 800; }
+#ncm .ncm-mook:hover, #ncm .ncm-mook.on { border-color: var(--y); background: rgba(252,238,10,.12); }
+#ncm .ncm-mook-place { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 13px; }
+#ncm .ncm-mook-place input { width: 46px; height: 26px; background: rgba(0,0,0,.4); border: 1px solid var(--line); color: #fff; text-align: center; }
+#ncm .ncm-mook-place button { height: 28px; padding: 0 10px; border: 1px solid var(--y); border-radius: 0; background: none; color: var(--y); font-size: 12px; font-weight: 700; }

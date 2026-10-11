@@ -7,6 +7,7 @@
 import { MAP_SIZE, POIS, DISTRICTS, ZONES, STREETS } from "./data.js";
 import { CATALOG, SHOP_TYPES, TIERS, stockFor } from "./shops.js";
 import { rollEncounter, threatOf, THREAT_RU, rollGig } from "./encounters.js";
+import { MOOKS, MOOK_PACK } from "./mooks.js";
 
 const MID = "night-city-map";
 const SOCKET = `module.${MID}`;
@@ -571,8 +572,8 @@ const UI = {
     });
     vp.addEventListener("wheel", (ev) => { ev.preventDefault(); const r = vp.getBoundingClientRect(); this.zoomAt(ev.deltaY < 0 ? 1.18 : 1 / 1.18, ev.clientX - r.left, ev.clientY - r.top); }, { passive: false });
     vp.addEventListener("pointerdown", (ev) => {
-      if (ev.button !== 0 || ev.target.closest("button, .ncm-hint")) return;
-      this.drag = { x: ev.clientX, y: ev.clientY, vx: this.view.x, vy: this.view.y, moved: false };
+      if (ev.button !== 0 || ev.target.closest("button:not(.ncm-pin), .ncm-hint, .ncm-dist")) return;
+      this.drag = { x: ev.clientX, y: ev.clientY, vx: this.view.x, vy: this.view.y, moved: false, target: ev.target };
       vp.setPointerCapture(ev.pointerId);
     });
     vp.addEventListener("pointermove", (ev) => {
@@ -583,7 +584,7 @@ const UI = {
     });
     vp.addEventListener("pointerup", (ev) => {
       const d = this.drag; this.drag = null; vp.classList.remove("ncm-grab");
-      if (d && !d.moved && !ev.target.closest("button")) this.onMapClick(ev);
+      if (d && !d.moved && !d.target.closest("button:not(.ncm-pin)")) this.onMapClick(ev, d.target);
     });
     vp.addEventListener("contextmenu", (ev) => {
       ev.preventDefault();
@@ -633,8 +634,8 @@ const UI = {
     this.renderMarkers(); this.renderPanel();
     if (center && p) this.focus(p.x, p.y, Math.max(this.view.s, 0.9));
   },
-  async onMapClick(ev) {
-    const pin = ev.target.closest("[data-poi]");
+  async onMapClick(ev, target = ev.target) {
+    const pin = target.closest("[data-poi]");
     const f = this.toFrac(ev);
     if (this.mode === "route") {
       const p = pin ? poiById(pin.dataset.poi) : null;
@@ -650,11 +651,13 @@ const UI = {
       this.setMode("browse"); return;
     }
     if (pin) return this.select(pin.dataset.poi);
-    const dist = ev.target.closest("[data-dist]");
+    const dist = target.closest("[data-dist]");
     if (dist) return this.renderDistrict(dist.dataset.dist);
     if (this.sel) { this.sel = null; this.renderMarkers(); this.renderPanel(); }
   },
   async onClick(ev) {
+    const dl = ev.target.closest(".ncm-dist");
+    if (dl && this.mode === "browse") return this.renderDistrict(dl.dataset.dist);
     const b = ev.target.closest("[data-act], [data-cat], .ncm-list [data-poi], .ncm-qcard [data-poi]");
     if (!b) return;
     if (b.dataset.cat) {
@@ -718,6 +721,17 @@ const UI = {
       case "enc-again": { const e = this.lastEnc; if (!e) return; if (this.routeEnc?.includes(e)) return this.rollRoute(); await doEncounter(e.x, e.y, e.distId); return this.reopen(); }
       case "enc-chat": { const e = this.lastEnc; if (e) chatEnc(e, false); return ui.notifications.info("Встреча отправлена в чат."); }
       case "enc-route": return this.rollRoute();
+      case "mook": {
+        this.mookSel = b.dataset.id;
+        b.closest(".ncm-mooks")?.querySelectorAll(".ncm-mook").forEach(x => x.classList.toggle("on", x === b));
+        if (ev.shiftKey || ev.detail === 2) return; // двойной клик — только выбор
+        const a = await fromUuid(`Compendium.${MOOK_PACK}.Actor.${b.dataset.id}`); return a?.sheet?.render(true);
+      }
+      case "mook-spawn": {
+        const id = this.mookSel ?? b.closest(".ncm-mooks")?.querySelector(".ncm-mook")?.dataset.id; if (!id) return;
+        const n = Number(b.closest(".ncm-mooks").querySelector("[data-mookn]")?.value) || 1;
+        this.close(); return spawnMooks(id, n);
+      }
       case "gen-gig": {
         const g = rollGig(allPois().filter(p => !p.hidden && !p.shop), { distOf: (p) => districtAt(p.x, p.y)?.id });
         return this.editQuest(null, null, g);
@@ -759,10 +773,45 @@ function encCard(e) {
     <div class="ncm-enc-top"><span>к10: ${e.roll} · ${THREAT_RU[e.threat]} · ${e.night ? "ночь" : "день"}</span></div>
     <b>${esc(e.title)}</b><p>${esc(e.text)}</p>
     <div class="ncm-enc-tw"><i class="fas fa-dice-six"></i> к6: ${e.sub} — ${esc(e.twist)}</div>
-    ${e.stats && e.stats !== "—" ? `<div class="ncm-enc-st"><i class="fas fa-user-ninja"></i> Статы: ${esc(e.stats)}</div>` : ""}
+    ${e.stats && e.stats !== "—" ? `<div class="ncm-enc-st"><i class="fas fa-user-ninja"></i> По Корке: ${esc(e.stats)}</div>` : ""}
+    ${mookChips(e)}
     <div class="ncm-p-acts"><button data-act="enc-chat"><i class="fas fa-comment"></i> В чат всем</button><button data-act="enc-again"><i class="fas fa-rotate"></i> Перебросить</button></div>
   </div>`;
 }
+const MOOK_RU = { ncpd: "NCPD", ncpd_units: "Техника NCPD", ratsec: "Корп. охрана (RatSec)", civ: "Мирные", iron: "Железные Прицелы", gangsters: "Гангстеры", thugs: "Уличная шпана",
+  raffen: "Рафен (налётчики)", vaq: "Стальные Вакерос", tt: "Trauma Team", scav: "Мусорщики", vdb: "Вудуисты", arasaka: "Арасака", nightmare: "Кошмары НС", maxtac: "MaxTac",
+  mael: "Мальстрём", drones: "Дроны RatSec", tyger: "Тигриные Когти", g6: "6-я улица", vamp: "Вампиры Филармонии", piranha: "Пираньи", prime: "Игроки Прайм-Тайма",
+  reck: "Отступники", rcl: "Легион Красного Хрома", inq: "Инквизиторы", militech: "Милитех", biotech: "Биотехника", bozos: "Бозо" };
+const mookPackOk = () => !!game.packs?.get(MOOK_PACK);
+/** Противники встречи из Mook Pack: лист по клику, «на сцену» — токены у центра экрана. */
+function mookChips(e) {
+  if (!e.mooks?.length || !mookPackOk()) return "";
+  return `<div class="ncm-mooks">${[...new Set(e.mooks)].map(k => `<div class="ncm-mg"><span>${esc(MOOK_RU[k] ?? k)}</span>${(MOOKS[k] ?? []).map(m =>
+    `<button class="ncm-mook" data-act="mook" data-id="${m.id}" title="Открыть лист · ПЗ ${m.hp}"><img src="${esc(m.img ?? "")}" alt="" onerror="this.remove()">${esc(m.n)} <small>${m.hp}</small></button>`).join("")}</div>`).join("")}
+    <div class="ncm-mook-place"><label>На сцену: <input type="number" min="1" max="12" value="${Math.max(1, game.users?.filter(u => !u.isGM && u.active).length || 3)}" data-mookn></label>
+    <button data-act="mook-spawn"><i class="fas fa-person-rifle"></i> Выставить выбранного</button></div></div>`;
+}
+async function mookActor(id) {
+  const uuid = `Compendium.${MOOK_PACK}.Actor.${id}`;
+  let a = game.actors.find(x => x.getFlag(MID, "mook") === id);
+  if (a) return a;
+  const pack = game.packs.get(MOOK_PACK);
+  let folder = game.folders.find(f => f.type === "Actor" && f.name === "Найт-Сити · встречи");
+  folder ??= await Folder.create({ name: "Найт-Сити · встречи", type: "Actor", color: "#ff2a6d" });
+  a = await game.actors.importFromCompendium(pack, id, { folder: folder.id, [`flags.${MID}.mook`]: id });
+  await a?.setFlag(MID, "mook", id);
+  return a ?? fromUuid(uuid);
+}
+async function spawnMooks(id, n) {
+  if (!canvas?.scene) return ui.notifications.warn("Карта: нет активной сцены.");
+  const a = await mookActor(id); if (!a) return;
+  const g = canvas.grid.size, c = canvas.stage.pivot;
+  const base = (await a.getTokenDocument()).toObject();
+  const docs = Array.from({ length: n }, (_, i) => ({ ...base, x: Math.round((c.x + (i % 4) * g - g * 1.5) / g) * g, y: Math.round((c.y + Math.floor(i / 4) * g) / g) * g, hidden: true }));
+  await canvas.scene.createEmbeddedDocuments("Token", docs);
+  ui.notifications.info(`На сцену: ${a.name} ×${n} (скрыты — откройте, когда нужно).`);
+}
+
 async function doEncounter(x, y, distId, { toGM = true } = {}) {
   const dist = DISTRICTS.find(d => d.id === distId) ?? districtAt(x, y);
   const threat = threatOf(dist, zoneAt(x, y));
