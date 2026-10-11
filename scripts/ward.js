@@ -93,7 +93,7 @@ async function onActivity(activity, usageConfig, updates, source) {
   if (!actor) return;
   const ward = wardOf(actor);
   if (!ward) return log(source, "у персонажа нет предмета щита", actor.name);
-  const isRecharge = item.id === ward.id;
+  const isRecharge = item.id === ward.id;  // любая активность самого щита = подзарядка
   const isAbj = item.type === "spell" && item.system.school === "abj";
   if (!isRecharge && !isAbj) return;
   const lvl = slotLevel(actor, usageConfig, updates);
@@ -173,6 +173,27 @@ Hooks.on("dnd5e.restCompleted", async (actor, result, config) => {
 
 /* ---------------------------------------------------------------- настройка предмета */
 
+const MIDI_DEFAULTS = {
+  macroData: { name: "", command: "" },
+  midiProperties: { ignoreTraits: [], triggeredActivityId: "none", triggeredActivityConditionText: "", triggeredActivityTargets: "targets",
+    triggeredActivityRollAs: "self", autoConsume: false, forceConsumeDialog: "default", forceRollDialog: "default", forceDamageDialog: "default",
+    confirmTargets: "default", autoTargetType: "any", autoTargetAction: "default", automationOnly: false, otherActivityCompatible: true,
+    otherActivityAsParentType: true, identifier: "", displayActivityName: false, rollMode: "default", chooseEffects: false, toggleEffect: false,
+    ignoreFullCover: false, removeChatButtons: "default", magicEffect: false, magicDamage: false, noConcentrationCheck: false, autoCEEffects: "default" },
+  useConditionText: "", useConditionReason: "", effectConditionText: "", otherActivityId: "none", otherActivityAsParentType: true,
+  isOverTimeFlag: false, overTimeProperties: { saveRemoves: true, preRemoveConditionText: "", postRemoveConditionText: "" }
+};
+const RECHARGE = {
+  name: "Подзарядить щит",
+  activation: { type: "bonus", value: 1, condition: "Щит уже создан", override: false },
+  consumption: { scaling: { allowed: true, max: "9" }, spellSlot: false,
+    targets: [{ type: "spellSlots", value: "1", target: "1", scaling: { mode: "level", formula: "" } }] },
+  "description.chatFlavor": "Волшебник вливает ячейку в щит: +2 Хита за каждый уровень ячейки.",
+  "range.units": "self", "duration.units": "inst"
+};
+
+/** Правка предмета: формула Хитов, без восстановления на отдыхе, активность — подзарядка ячейкой.
+ *  Существующую активность правим на месте, чтобы не потерять поля midi-qol и других модулей. */
 function wardPatch(item) {
   const p = {};
   if (item.system.uses?.max !== MAX_FORMULA) p["system.uses.max"] = MAX_FORMULA;
@@ -180,19 +201,15 @@ function wardPatch(item) {
   if (item.system.identifier !== "arcane-ward") p["system.identifier"] = "arcane-ward";
   if (!item.getFlag(MID, "ward")) p[`flags.${MID}.ward`] = true;
   const acts = item.system.activities;
-  for (const a of acts ?? []) if (a.id !== RECHARGE_ID) p[`system.activities.-=${a.id}`] = null;
-  if (!acts?.get(RECHARGE_ID)) {
-    p[`system.activities.${RECHARGE_ID}`] = {
-      _id: RECHARGE_ID, type: "utility", name: "Подзарядить щит", sort: 0,
-      activation: { type: "bonus", value: 1, condition: "Щит уже создан" },
-      consumption: {
-        scaling: { allowed: true, max: "9" }, spellSlot: false,
-        targets: [{ type: "spellSlots", value: "1", target: "1", scaling: { mode: "level", formula: "" } }]
-      },
-      description: { chatFlavor: "Волшебник вливает ячейку в щит: +2 Хита за каждый уровень ячейки." },
-      duration: { units: "inst" }, range: { units: "self" },
-      target: { affects: { type: "self" }, prompt: false }
-    };
+  const act = acts?.get(RECHARGE_ID) ?? acts?.contents?.[0] ?? acts?.find?.(() => true);
+  const id = act?.id ?? RECHARGE_ID;
+  const src = act ? (item._source.system.activities?.[id] ?? {}) : null;
+  const need = !act || act.name !== RECHARGE.name || act.activation?.type !== "bonus"
+    || act.consumption?.targets?.[0]?.type !== "spellSlots" || src.macroData === undefined && game.modules.get("midi-qol")?.active;
+  if (need) {
+    const base = act ? {} : { _id: id, type: "utility", sort: 0, target: { affects: { type: "self" }, prompt: false } };
+    if (game.modules.get("midi-qol")?.active) for (const [k, v] of Object.entries(MIDI_DEFAULTS)) if (src?.[k] === undefined) base[k] = v;
+    for (const [k, v] of Object.entries({ ...base, ...RECHARGE })) p[`system.activities.${id}.${k}`] = v;
   }
   return p;
 }

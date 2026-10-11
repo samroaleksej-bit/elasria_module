@@ -35,10 +35,9 @@
     ],
     "requirements": "Волшебник 3 (Оградитель)",
     "activities": {
-      "vsRecharge000001": {
-        "_id": "vsRecharge000001",
+      "NH3h0o82tvJDaIN7": {
         "type": "utility",
-        "name": "Подзарядить щит",
+        "_id": "NH3h0o82tvJDaIN7",
         "sort": 0,
         "activation": {
           "type": "bonus",
@@ -72,25 +71,25 @@
           "concentration": false,
           "override": false
         },
+        "effects": [],
         "range": {
           "units": "self",
           "override": false,
           "special": ""
         },
         "target": {
-          "affects": {
-            "type": "self",
-            "choice": false
-          },
-          "prompt": false,
-          "override": false,
           "template": {
             "contiguous": false,
             "units": "ft",
             "type": ""
-          }
+          },
+          "affects": {
+            "choice": false,
+            "type": "self"
+          },
+          "override": false,
+          "prompt": false
         },
-        "effects": [],
         "uses": {
           "spent": 0,
           "recovery": [],
@@ -101,7 +100,58 @@
           "visible": false,
           "name": "",
           "formula": ""
-        }
+        },
+        "useConditionText": "",
+        "useConditionReason": "",
+        "effectConditionText": "",
+        "macroData": {
+          "name": "",
+          "command": ""
+        },
+        "ignoreTraits": {
+          "idi": false,
+          "idr": false,
+          "idv": false,
+          "ida": false,
+          "idm": false
+        },
+        "midiProperties": {
+          "ignoreTraits": [],
+          "triggeredActivityId": "none",
+          "triggeredActivityConditionText": "",
+          "triggeredActivityTargets": "targets",
+          "triggeredActivityRollAs": "self",
+          "autoConsume": false,
+          "forceConsumeDialog": "default",
+          "forceRollDialog": "default",
+          "forceDamageDialog": "default",
+          "confirmTargets": "default",
+          "autoTargetType": "any",
+          "autoTargetAction": "default",
+          "automationOnly": false,
+          "otherActivityCompatible": true,
+          "otherActivityAsParentType": true,
+          "identifier": "",
+          "displayActivityName": false,
+          "rollMode": "default",
+          "chooseEffects": false,
+          "toggleEffect": false,
+          "ignoreFullCover": false,
+          "removeChatButtons": "default",
+          "magicEffect": false,
+          "magicDamage": false,
+          "noConcentrationCheck": false,
+          "autoCEEffects": "default"
+        },
+        "isOverTimeFlag": false,
+        "overTimeProperties": {
+          "saveRemoves": true,
+          "preRemoveConditionText": "",
+          "postRemoveConditionText": ""
+        },
+        "otherActivityId": "none",
+        "otherActivityAsParentType": true,
+        "name": "Подзарядить щит"
       }
     },
     "identifier": "arcane-ward",
