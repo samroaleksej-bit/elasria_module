@@ -130,33 +130,50 @@ Hooks.on("dnd5e.postUseActivity", (activity, usageConfig, results) => {
 
 /* ---------------------------------------------------------------- поглощение урона */
 
-Hooks.on("preUpdateActor", (actor, changes, options, userId) => {
-  if (userId !== game.user.id || options.vsSkip || options.isRest) return;
-  const nv = getProperty(changes, "system.attributes.hp.value");
-  const nt = getProperty(changes, "system.attributes.hp.temp");
-  if (nv === undefined && nt === undefined) return;
+/** Пересчёт Хитов: щит забирает урон, остаток идёт во временные, потом в обычные Хиты.
+ *  Возвращает { temp, value } или null, если щит ничего не поглотил. */
+function absorb(actor, dmg, source) {
   const ward = wardOf(actor);
-  if (!ward || !created(ward)) return;
+  if (!ward) return null;
+  const { value: wv } = hpOf(ward);
+  log(source, actor.name, { dmg, ward: wv, created: created(ward) });
+  if (!created(ward) || wv <= 0 || !(dmg > 0)) return null;
+  const hp = actor.system.attributes.hp;
+  const value = hp.value ?? 0, temp = hp.temp ?? 0;
+  const absorbed = Math.min(wv, dmg), rest = dmg - absorbed;
+  setWardHP(ward, wv - absorbed, {
+    reason: rest > 0 ? `Щит поглотил урон и рассыпался — ${rest} урона проходит` : "Щит поглотил урон",
+    delta: -absorbed
+  }).catch(console.error);
+  return { temp: Math.max(0, temp - rest), value: value - Math.max(0, rest - temp), absorbed };
+}
+
+const HPV = "system.attributes.hp.value", HPT = "system.attributes.hp.temp";
+const readKey = (obj, k) => (k in obj ? obj[k] : getProperty(obj, k));
+function writeKey(obj, k, v) { if (k in obj) obj[k] = v; else foundry.utils.setProperty(obj, k, v); }
+
+// 1) Штатное применение урона dnd5e (кнопки урона в чате, midi-qol, Token Action HUD…)
+Hooks.on("dnd5e.preApplyDamage", (actor, amount, updates, options) => {
+  if (options?.vsSkip || !(amount > 0)) return;
+  const r = absorb(actor, amount, "preApplyDamage");
+  if (!r) return;
+  writeKey(updates, HPT, r.temp);
+  writeKey(updates, HPV, r.value);
+  options.vsHandled = true;
+});
+
+// 2) Любое другое снижение Хитов (ручная правка листа, макросы)
+Hooks.on("preUpdateActor", (actor, changes, options, userId) => {
+  if (userId !== game.user.id || options.vsSkip || options.vsHandled || options.isRest) return;
+  const nv = readKey(changes, HPV), nt = readKey(changes, HPT);
+  if (nv === undefined && nt === undefined) return;
   const hp = actor.system.attributes.hp;
   const value = hp.value ?? 0, temp = hp.temp ?? 0;
   const dmg = (value + temp) - ((nv ?? value) + (nt ?? temp));
-  if (!(dmg > 0)) return;
-  const { value: wv } = hpOf(ward);
-  if (wv <= 0) return;
-
-  const absorbed = Math.min(wv, dmg);
-  const rest = dmg - absorbed;
-  const newTemp = Math.max(0, temp - rest);
-  const newValue = value - Math.max(0, rest - temp);
-  foundry.utils.setProperty(changes, "system.attributes.hp.temp", newTemp);
-  foundry.utils.setProperty(changes, "system.attributes.hp.value", newValue);
-  options.vsAbsorbed = absorbed;
-
-  const left = wv - absorbed;
-  setWardHP(ward, left, {
-    reason: rest > 0 ? `Щит поглотил урон и рассыпался — ${rest} урона проходит` : "Щит поглотил урон",
-    delta: -absorbed
-  });
+  const r = absorb(actor, dmg, "preUpdateActor");
+  if (!r) return;
+  writeKey(changes, HPT, r.temp);
+  writeKey(changes, HPV, r.value);
 });
 
 /* ---------------------------------------------------------------- отдых */

@@ -2,7 +2,7 @@
   "id": "volshebnyj-shit",
   "title": "Волшебный щит (Arcane Ward) · автоматизация",
   "description": "Полная автоматизация «Волшебного щита» волшебника-Оградителя (PHB 2024) для dnd5e: создание щита при сотворении заклинания Ограждения ячейкой, подзарядка ×2 уровня ячейки, бонусное действие с тратой ячейки, поглощение урона после сопротивлений, сброс на Долгом отдыхе. Работает с midi-qol и без него.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "authors": [{ "name": "Verlierboy", "url": "https://t.me/circleofdms" }],
   "compatibility": { "minimum": "13", "verified": "13" },
   "relationships": { "systems": [{ "id": "dnd5e", "type": "system", "compatibility": { "minimum": "5.0.0" } }] },
