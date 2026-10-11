@@ -1,0 +1,148 @@
+{
+  "folder": null,
+  "name": "Волшебный щит",
+  "type": "feat",
+  "img": "modules/fifthpendium/assets/icons/abilities/paladin/barrier.webp",
+  "system": {
+    "description": {
+      "value": "<p>Вы умеете соткать вокруг себя магическую защиту. Когда вы сотворяете заклинание Ограждения с ячейкой заклинаний, можете использовать нить магии этого заклинания, чтобы в то же время создать на себе волшебный щит, существующий до завершения вами Долгого отдыха. Щит имеет максимум Хитов, равный вашему модификатору Интеллекта + ваш уровень Волшебника, умноженный на два. Всякий раз, когда вы получаете урон, вместо вас его получает щит; если у вас есть Сопротивления или Уязвимости, примените их, прежде чем уменьшить Хиты щита. Если урон уменьшает Хиты щита до 0, вы получаете весь оставшийся урон. Пока у щита 0 Хитов, он не может поглощать урон, но его магия сохраняется.</p><p>Всякий раз, когда вы сотворяете заклинание Ограждения с ячейкой заклинаний, щит восстанавливает Хиты в количестве, равном удвоенному уровню этой ячейки. Вы также можете Бонусным действием потратить ячейку заклинаний, восстанавливая щиту Хиты в количестве, равном уровню этой ячейки, умноженному на два.</p><p>Как только вы создадите щит, вы не сможете сделать это снова, пока не завершите Долгий отдых.</p>",
+      "chat": ""
+    },
+    "source": {
+      "custom": "",
+      "book": "PHB 2024",
+      "revision": 1,
+      "rules": "2024"
+    },
+    "cover": null,
+    "crewed": false,
+    "uses": {
+      "max": "@classes.wizard.levels * 2 + @abilities.int.mod",
+      "spent": 0,
+      "recovery": []
+    },
+    "type": {
+      "value": "",
+      "subtype": ""
+    },
+    "prerequisites": {
+      "level": null,
+      "repeatable": false,
+      "items": []
+    },
+    "properties": [
+      "mgc"
+    ],
+    "requirements": "Волшебник 3 (Оградитель)",
+    "activities": {
+      "vsRecharge000001": {
+        "_id": "vsRecharge000001",
+        "type": "utility",
+        "name": "Подзарядить щит",
+        "sort": 0,
+        "activation": {
+          "type": "bonus",
+          "value": 1,
+          "condition": "Щит уже создан",
+          "override": false
+        },
+        "consumption": {
+          "scaling": {
+            "allowed": true,
+            "max": "9"
+          },
+          "spellSlot": false,
+          "targets": [
+            {
+              "type": "spellSlots",
+              "value": "1",
+              "target": "1",
+              "scaling": {
+                "mode": "level",
+                "formula": ""
+              }
+            }
+          ]
+        },
+        "description": {
+          "chatFlavor": "Волшебник вливает ячейку в щит: +2 Хита за каждый уровень ячейки."
+        },
+        "duration": {
+          "units": "inst",
+          "concentration": false,
+          "override": false
+        },
+        "range": {
+          "units": "self",
+          "override": false,
+          "special": ""
+        },
+        "target": {
+          "affects": {
+            "type": "self",
+            "choice": false
+          },
+          "prompt": false,
+          "override": false,
+          "template": {
+            "contiguous": false,
+            "units": "ft",
+            "type": ""
+          }
+        },
+        "effects": [],
+        "uses": {
+          "spent": 0,
+          "recovery": [],
+          "max": ""
+        },
+        "roll": {
+          "prompt": false,
+          "visible": false,
+          "name": "",
+          "formula": ""
+        }
+      }
+    },
+    "identifier": "arcane-ward",
+    "advancement": [],
+    "enchant": {}
+  },
+  "effects": [],
+  "flags": {
+    "midi-qol": {
+      "rollAttackPerTarget": "default",
+      "removeAttackDamageButtons": "default",
+      "itemCondition": "",
+      "reactionCondition": "",
+      "otherCondition": "",
+      "effectCondition": ""
+    },
+    "midiProperties": {
+      "autoFailFriendly": false,
+      "autoSaveFriendly": false,
+      "magicdam": false,
+      "magiceffect": false,
+      "noConcentrationCheck": false,
+      "toggleEffect": false,
+      "ignoreTotalCover": false
+    },
+    "babele": {
+      "translated": true,
+      "hasTranslation": true,
+      "originalName": "Волшебный оберег"
+    },
+    "dnd5e": {
+      "sourceId": "Compendium.fifthpendium.classes.Item.SngJakd2zWZ9Oa6a",
+      "advancementOrigin": "XigqlOXjAQJL30bs.Wcnl36qBKU5T8p0X",
+      "advancementRoot": "XigqlOXjAQJL30bs.Wcnl36qBKU5T8p0X",
+      "riders": {
+        "activity": []
+      }
+    },
+    "volshebnyj-shit": {
+      "ward": true,
+      "created": false
+    }
+  }
+}
