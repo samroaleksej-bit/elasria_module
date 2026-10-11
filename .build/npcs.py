@@ -156,6 +156,8 @@ def make(npc):
         items.append(x)
     for x in items:
         x['_key'] = f"!actors.items!{aid}.{x['_id']}"; x['folder'] = None
+        for ef in x.get('effects', []):
+            ef['_id'] = rid(); ef['_key'] = f"!actors.items.effects!{aid}.{x['_id']}.{ef['_id']}"
         x.setdefault('_stats', {})['compendiumSource'] = None
     a['items'] = items; a['effects'] = []
     a.pop('_stats', None); a['flags'] = {'night-city-map': {'npc': True, 'tier': npc['tier']}}
