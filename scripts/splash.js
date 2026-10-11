@@ -18,6 +18,8 @@ Hooks.once("init", () => {
   reg("position", { name: "Где на экране", type: String, default: "top", choices: { top: "Сверху", center: "По центру", bottom: "Снизу" } });
   reg("duration", { name: "Сколько секунд держать кадр", type: Number, default: 3.5, range: { min: 1.5, max: 10, step: 0.5 } });
   reg("portrait", { name: "Картинка персонажа", type: String, default: "portrait", choices: { portrait: "Портрет актёра", token: "Изображение токена" } });
+  reg("bg", { name: "Фон кадра", type: String, default: "scene", choices: { scene: "Карта текущей сцены (место действия)", sceneFull: "Карта сцены целиком", dark: "Тёмный" } });
+  reg("bgZoom", { name: "Приближение карты на фоне", hint: "Чем больше, тем крупнее показано место, где стоят участники.", type: Number, default: 3, range: { min: 1, max: 8, step: 0.5 } });
   reg("waitDice", { name: "Ждать, пока докатятся кубики Dice So Nice", type: Boolean, default: true });
   reg("scale", { name: "Размер кадра", type: Number, default: 1, range: { min: 0.6, max: 1.6, step: 0.1 } });
   for (const [k, n] of [["usage", "атаки и заклинания (объявление)"], ["attack", "броски атаки"], ["damage", "урон и лечение"],
@@ -57,7 +59,8 @@ function targetsOf(message) {
   const add = (doc) => {
     const actor = doc?.actor ?? doc;
     if (!actor || out.some(t => t.uuid === (doc.uuid ?? actor.uuid))) return;
-    out.push({ uuid: doc.uuid ?? actor.uuid, name: doc.name ?? actor.name, img: portraitOf(actor, doc.document ?? (doc.documentName === "Token" ? doc : null)),
+    const td = doc.documentName === "Token" ? doc : doc.document?.documentName === "Token" ? doc.document : null;
+    out.push({ uuid: doc.uuid ?? actor.uuid, name: doc.name ?? actor.name, pos: tokenPos(td), img: portraitOf(actor, doc.document ?? (doc.documentName === "Token" ? doc : null)),
       ac: actor.system?.attributes?.ac?.value, hidden: doc.hidden ?? doc.document?.hidden });
   };
   for (const t of message.flags?.dnd5e?.targets ?? []) {
@@ -68,6 +71,26 @@ function targetsOf(message) {
   for (const u of midi?.targetUuids ?? midi?.targets ?? []) { const d = typeof u === "string" ? fromUuidSync(u) : null; if (d) add(d); }
   if (!out.length) for (const t of message.author?.targets ?? []) add(t.document ?? t);
   return out.slice(0, 5);
+}
+
+function tokenPos(td) {
+  if (!td || td.parent?.id !== canvas.scene?.id) return null;
+  const g = canvas.scene.grid.size;
+  return { x: td.x + (td.width * g) / 2, y: td.y + (td.height * g) / 2 };
+}
+
+/** Фон кадра: карта сцены, сфокусированная на участниках. */
+function backdrop(ev) {
+  const mode = S("bg");
+  const src = canvas.scene?.background?.src;
+  if (mode === "dark" || !src) return null;
+  if (mode === "sceneFull") return { src, size: "cover", pos: "center" };
+  const pts = [ev.actorPos, ...ev.targets.map(t => t.pos)].filter(Boolean);
+  if (!pts.length) return { src, size: "cover", pos: "center" };
+  const d = canvas.dimensions;
+  const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length, cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+  const px = Math.clamp(((cx - d.sceneX) / d.sceneWidth) * 100, 0, 100), py = Math.clamp(((cy - d.sceneY) / d.sceneHeight) * 100, 0, 100);
+  return { src, size: `${Math.round(S("bgZoom") * 100)}% auto`, pos: `${px.toFixed(1)}% ${py.toFixed(1)}%` };
 }
 
 function itemOf(message) {
@@ -104,7 +127,7 @@ function buildEvent(message, roll, kindHint) {
   if (!kind) return null;
   if (["ability", "skill", "tool", "check"].includes(kind)) kind = kind === "check" ? "check" : kind;
 
-  const ev = { id: message.id, group: f.originatingMessage ?? message.id, kind, actor: { name, img: portraitOf(actor, tokenDoc) },
+  const ev = { id: message.id, group: f.originatingMessage ?? message.id, kind, actor: { name, img: portraitOf(actor, tokenDoc) }, actorPos: tokenPos(tokenDoc),
     item: item ? { name: item.name, img: item.img } : null, targets, title: "", sub: "", total: null, verdict: null, tone: "neutral" };
   const blind = message.blind && !game.user.isGM;
   const d20 = roll?.dice?.[0]?.total;
@@ -281,7 +304,8 @@ function render(ev) {
   const face = (p, cls = "") => `<div class="as-face ${cls}"><div class="as-ring">${p.img ? `<img src="${esc(p.img)}" alt="">` : "<span>?</span>"}</div><b>${esc(p.name)}</b></div>`;
   const tg = ev.targets.length ? `<div class="as-vs">⚔</div><div class="as-targets">${ev.targets.map(t =>
     face(t, t.mark ? `as-t-${t.mark}` : "")).join("")}</div>` : "";
-  return `<div class="as-glow"></div>
+  const bg = backdrop(ev);
+  return `${bg ? `<div class="as-bg" style="background-image:url('${esc(bg.src)}');background-size:${bg.size};background-position:${bg.pos}"></div><div class="as-bgshade"></div>` : ""}<div class="as-glow"></div>
     ${face(ev.actor, "as-actor")}
     <div class="as-mid">
       ${ev.item?.img ? `<img class="as-icon" src="${esc(ev.item.img)}" alt="">` : ""}

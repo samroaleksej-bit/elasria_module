@@ -2,7 +2,7 @@
   "id": "action-splash",
   "title": "Кадры боя · картинка на каждое действие",
   "description": "На каждое действие в чате (атака, заклинание, урон, спасбросок, проверка, инициатива, спасбросок от смерти) на экране ведущего появляется кадр: портрет того, кто действует, иконка оружия/заклинания, портреты целей и итог броска — попал/промах/крит, успех/провал. Удобно для стрима. dnd5e 4–5, работает с midi-qol и Dice So Nice.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "authors": [{ "name": "Verlierboy", "url": "https://t.me/circleofdms" }],
   "compatibility": { "minimum": "13", "verified": "13" },
   "relationships": { "systems": [{ "id": "dnd5e", "type": "system", "compatibility": { "minimum": "4.0.0" } }] },

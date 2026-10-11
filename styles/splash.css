@@ -5,14 +5,18 @@
 #as-splash[data-pos="center"] { top: 50%; transform: translate(-50%, -50%) scale(var(--as-scale, 1)); transform-origin: center; }
 #as-splash[data-pos="bottom"] { bottom: 120px; transform-origin: bottom center; }
 
-#as-splash .as-card { pointer-events: auto; cursor: pointer; position: relative; display: flex; align-items: center; gap: 22px; min-width: 560px; max-width: 980px;
-  padding: 16px 30px 16px 18px; border-radius: 18px; overflow: hidden; color: #f4ecdc;
+#as-splash .as-card { pointer-events: auto; cursor: pointer; position: relative; display: flex; align-items: center; gap: 22px; min-width: 620px; max-width: 1020px; min-height: 170px;
+  padding: 20px 34px 20px 22px; border-radius: 18px; overflow: hidden; color: #f4ecdc;
   background: linear-gradient(100deg, rgba(14, 11, 20, .96), rgba(26, 20, 36, .94) 55%, rgba(14, 11, 20, .96));
   border: 1px solid var(--line); box-shadow: 0 18px 60px rgba(0, 0, 0, .7), 0 0 0 1px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(255, 255, 255, .06);
   opacity: 0; transform: translateY(-26px) scale(.96); transition: opacity .28s ease, transform .45s cubic-bezier(.16, .9, .3, 1.2); }
 #as-splash .as-card.as-in { opacity: 1; transform: none; }
 #as-splash .as-card.as-out { opacity: 0; transform: translateY(-14px) scale(.98); transition-duration: .22s; }
 #as-splash .as-card.as-merge.as-in { animation: as-bump .35s ease; }
+#as-splash .as-bg { position: absolute; inset: 0; background-repeat: no-repeat; filter: saturate(1.1) brightness(.85); transform: scale(1.06); animation: as-pan 6s ease-out both; }
+#as-splash .as-bgshade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10,8,16,.86) 0%, rgba(10,8,16,.45) 30%, rgba(10,8,16,.45) 70%, rgba(10,8,16,.86) 100%), linear-gradient(180deg, rgba(10,8,16,.25), rgba(10,8,16,.7)); }
+#as-splash .as-card > :not(.as-bg):not(.as-bgshade):not(.as-glow) { position: relative; z-index: 1; }
+@keyframes as-pan { from { transform: scale(1.14); } to { transform: scale(1.04); } }
 #as-splash .as-glow { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 120%, var(--tone, rgba(232,196,106,.18)), transparent 65%); }
 
 #as-splash .as-face { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; flex: none; width: 104px; }
