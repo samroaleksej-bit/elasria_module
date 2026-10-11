@@ -6,6 +6,7 @@
  */
 import { MAP_SIZE, POIS, DISTRICTS, ZONES, STREETS } from "./data.js";
 import { CATALOG, SHOP_TYPES, TIERS, stockFor } from "./shops.js";
+import { rollEncounter, threatOf, THREAT_RU, rollGig } from "./encounters.js";
 
 const MID = "night-city-map";
 const SOCKET = `module.${MID}`;
@@ -37,7 +38,7 @@ const QSTATUS = { hidden: "Скрыт", active: "Активен", done: "Вып�
 
 /* ================================================================ настройки и состояние */
 
-const DEFAULT_STATE = { quests: [], pins: [], poi: {}, party: null, route: null, visited: [], shops: [] };
+const DEFAULT_STATE = { quests: [], pins: [], poi: {}, party: null, route: null, visited: [], shops: [], night: false };
 
 Hooks.once("init", () => {
   game.settings.register(MID, "state", { scope: "world", config: false, type: Object, default: DEFAULT_STATE, onChange: () => UI.refresh() });
@@ -243,7 +244,8 @@ const UI = {
           <button data-act="mode-route" title="Проложить маршрут: кликайте точки на карте"><i class="fas fa-route"></i> Маршрут</button>
           <button data-act="quests" title="Список заказов"><i class="fas fa-scroll"></i> Заказы</button>
           <button data-act="mode-party" title="Поставить метку «Мы здесь» — видят все игроки"><i class="fas fa-users"></i> Мы здесь</button>
-          ${isGM() ? `<button data-act="gen-shops" title="Расставить случайные магазины по городу"><i class="fas fa-cart-shopping"></i> Магазины</button>
+          ${isGM() ? `<button data-act="night" title="День / ночь — влияет на встречи и вид карты"><i class="fas fa-moon"></i> <span class="ncm-dn">День</span></button>
+          <button data-act="gen-shops" title="Расставить случайные магазины по городу"><i class="fas fa-cart-shopping"></i> Магазины</button>
           <button data-act="mode-pin" title="Добавить свою точку"><i class="fas fa-location-dot"></i> Точка</button>
           <button data-act="share" title="Открыть карту у всех игроков на этом месте"><i class="fas fa-satellite-dish"></i> Показать всем</button>` : ""}
         </div>
@@ -333,6 +335,8 @@ const UI = {
   },
   renderMarkers() {
     const s = state(), q = this.query.toLowerCase();
+    this.el.classList.toggle("ncm-night", !!s.night);
+    const dn = this.el.querySelector(".ncm-dn"); if (dn) dn.textContent = s.night ? "Ночь" : "День";
     const qByPoi = {};
     for (const qu of questsVisible()) if (qu.status === "active" || (isGM() && qu.status === "hidden")) { if (qu.target) (qByPoi[qu.target] ??= []).push(qu); if (qu.giver) (qByPoi[qu.giver] ??= []).push(qu); }
     const html = allPois().filter(p => this.filter.has(p.cat)).map(p => {
@@ -392,9 +396,11 @@ const UI = {
         <button class="ncm-p-x" data-act="unsel"><i class="fas fa-xmark"></i></button>
       </div>
       <div class="ncm-p-body">
+        ${p.n ? `<img class="ncm-p-img" src="modules/${MID}/assets/poi/p${p.n}.webp" alt="" onerror="this.remove()">` : p.img ? `<img class="ncm-p-img" src="${esc(p.img)}" alt="" onerror="this.remove()">` : ""}
         <p>${esc(p.desc ?? "")}</p>
         ${isGM() && p.notes ? `<div class="ncm-gm"><b>Заметки мастера</b><p>${esc(p.notes)}</p></div>` : ""}
         ${qs.length ? `<h3><i class="fas fa-scroll"></i> Заказы</h3>${qs.map(qcard).join("")}` : ""}
+        ${encBlock(p.x, p.y, d?.id)}
         <div class="ncm-p-acts">
           <button data-act="route-from" data-id="${p.id}"><i class="fas fa-play"></i> Маршрут отсюда</button>
           <button data-act="route-to" data-id="${p.id}"><i class="fas fa-flag-checkered"></i> Маршрут сюда</button>
@@ -430,6 +436,7 @@ const UI = {
         ${Object.entries(byCat).map(([c, items]) => `<h3 style="color:${CATALOG[c].color}"><i class="fas ${CATALOG[c].icon}"></i> ${CATALOG[c].ru}</h3>
           <table class="ncm-stock">${items.map(it => `<tr><td><b>${esc(it.n)}</b>${it.note ? `<small>${esc(it.note)}</small>` : ""}</td>
             <td class="ncm-tier">${TIERS[it.tier].ru}</td><td class="ncm-eb">${Math.round(TIERS[it.tier].eb * mk / 5) * 5 || TIERS[it.tier].eb} eb</td></tr>`).join("")}</table>`).join("") || `<p class="ncm-muted">Ничего не найдено.</p>`}
+        ${encBlock(sh.x, sh.y, d?.id)}
         <div class="ncm-p-acts">
           <button data-act="route-to" data-id="${sh.id}"><i class="fas fa-flag-checkered"></i> Маршрут сюда</button>
           ${isGM() ? `<button data-act="shop-reroll" data-id="${sh.id}"><i class="fas fa-dice"></i> Новый товар</button>
@@ -453,13 +460,20 @@ const UI = {
         <button class="ncm-p-x" data-act="route-clear"><i class="fas fa-xmark"></i></button>
       </div>
       <div class="ncm-p-body">
+        <div class="ncm-rpick">
+          <input list="ncm-poilist" data-route-add placeholder="${pts.length ? "Добавить точку: место, магазин, район…" : "Откуда: место, магазин, район…"}">
+          <datalist id="ncm-poilist">${allPois().map(x => `<option value="${esc(x.name)}">`).join("")}${DISTRICTS.filter(x => !["delbay", "sanbay"].includes(x.id)).map(x => `<option value="${esc(x.ru)}">`).join("")}${state().party ? `<option value="Мы здесь">` : ""}</datalist>
+          ${state().party ? `<button data-act="route-party" title="Начать от метки «Мы здесь»"><i class="fas fa-users"></i></button>` : ""}
+        </div>
         ${pts.length > 1 ? `
         <label class="ncm-toggle"><input type="checkbox" data-act="streets" ${this.streets ? "checked" : ""}> По улицам (обход воды и кварталов)</label>
         <div class="ncm-stats"><div><b>${st.road.toFixed(1)}</b><span>км в пути</span></div><div><b>${routeStats(pts).dist.toFixed(1)}</b><span>км по прямой</span></div><div><b>${pts.length}</b><span>точек</span></div></div>
         ${st.hot > 0.05 ? `<div class="ncm-warn hot"><i class="fas fa-radiation"></i> Через Зону Поражения: ${st.hot.toFixed(1)} км</div>` : ""}
         ${st.combat > 0.05 ? `<div class="ncm-warn combat"><i class="fas fa-triangle-exclamation"></i> Через Боевую зону: ${st.combat.toFixed(1)} км — возможна встреча с бандой</div>` : ""}
         <div class="ncm-eta">${TRANSPORT.map(t => `<div><i class="fas ${t.icon}"></i><span>${t.ru}</span><b>${fmtTime((t.id === "av" ? st.dist : st.road) / t.kmh)}</b></div>`).join("")}</div>
-        <ol class="ncm-steps">${pts.map((p, i) => `<li>${esc(names[i] ?? ([streetNear(p.x, p.y)?.ru, districtAt(p.x, p.y)?.ru].filter(Boolean).join(", ") || "точка"))}</li>`).join("")}</ol>` :
+        ${isGM() ? `<button class="ncm-enc-roll" data-act="enc-route"><i class="fas fa-dice-d20"></i> Встречи по пути</button>
+        ${(this.routeEnc ?? []).map(encCard).join("")}` : ""}
+        <ol class="ncm-steps">${pts.map((p, i) => `<li><button class="ncm-step-x" data-act="route-rm" data-i="${i}" title="Убрать точку">✕</button>${esc(names[i] ?? ([streetNear(p.x, p.y)?.ru, districtAt(p.x, p.y)?.ru].filter(Boolean).join(", ") || "точка"))}</li>`).join("")}</ol>` :
         `<p class="ncm-muted">Кликните по карте или по точке, чтобы задать начало, потом — следующие точки пути.</p>`}
         <div class="ncm-p-acts">
           ${this.mode !== "route" ? `<button data-act="mode-route"><i class="fas fa-pen"></i> Дорисовать</button>` : ""}
@@ -469,6 +483,25 @@ const UI = {
           <button class="danger" data-act="route-clear"><i class="fas fa-trash"></i> Сбросить</button>
         </div>
       </div>`;
+    this.bindRoutePick(panel);
+  },
+  bindRoutePick(panel) {
+    const inp = panel.querySelector("[data-route-add]");
+    if (!inp) return;
+    inp.addEventListener("keydown", ev => ev.stopPropagation());
+    inp.addEventListener("change", () => {
+      const v = inp.value.trim().toLowerCase(); inp.value = ""; if (!v) return;
+      let pt = null;
+      if (v === "мы здесь" && state().party) pt = { ...state().party };
+      const p = allPois().find(x => x.name.toLowerCase() === v) ?? allPois().find(x => x.name.toLowerCase().includes(v));
+      const d = DISTRICTS.find(x => x.ru.toLowerCase() === v);
+      if (!pt && p) pt = { x: p.x, y: p.y, poi: p.id };
+      if (!pt && d) pt = { x: d.x, y: d.y };
+      if (!pt) return ui.notifications.warn("Карта: такое место не найдено.");
+      const last = this.route.at(-1);
+      if (last && Math.abs(last.x - pt.x) < 1e-6 && Math.abs(last.y - pt.y) < 1e-6) return;
+      this.route.push(pt); this.recalc().then(() => this.el.querySelector("[data-route-add]")?.focus());
+    });
   },
   renderDistrict(id) {
     const d = DISTRICTS.find(x => x.id === id);
@@ -485,6 +518,7 @@ const UI = {
         <button class="ncm-p-x" data-act="unsel"><i class="fas fa-xmark"></i></button>
       </div>
       <div class="ncm-p-body"><p>${esc(d.desc)}</p>
+        ${encBlock(d.x, d.y, d.id)}
         ${inside.length ? `<h3>Места района</h3><div class="ncm-list">${inside.map(p => `<button data-poi="${p.id}" style="--c:${(CATS[p.cat] ?? CATS.custom).color}"><span>${p.n ?? "•"}</span>${esc(p.name)}</button>`).join("")}</div>` : ""}
       </div>`;
     this.focus(d.x, d.y);
@@ -498,13 +532,13 @@ const UI = {
     qs.sort((a, b) => order[a.status] - order[b.status]);
     box.innerHTML = `
       <div class="ncm-q-head"><h2><i class="fas fa-scroll"></i> Заказы</h2>
-        ${isGM() ? `<button data-act="new-quest"><i class="fas fa-plus"></i> Новый</button>` : ""}
+        ${isGM() ? `<button data-act="gen-gig" title="Случайный заказ"><i class="fas fa-dice"></i> Сгенерировать</button><button data-act="new-quest"><i class="fas fa-plus"></i> Новый</button>` : ""}
         <button class="ncm-p-x" data-act="quests"><i class="fas fa-xmark"></i></button></div>
       <div class="ncm-q-body">${qs.length ? qs.map(qcard).join("") : `<p class="ncm-muted">Пока заказов нет. Фиксеры молчат.</p>`}</div>`;
   },
-  async editQuest(id = null, atPoi = null) {
+  async editQuest(id = null, atPoi = null, preset = null) {
     const s = state();
-    const q = s.quests.find(x => x.id === id) ?? { id: rid(), title: "", fixer: "", desc: "", reward: "", status: "hidden", target: atPoi, giver: null, notes: "" };
+    const q = s.quests.find(x => x.id === id) ?? { id: rid(), title: "", fixer: "", desc: "", reward: "", status: "hidden", target: atPoi, giver: null, notes: "", ...(preset ?? {}) };
     const opts = (sel) => `<option value="">—</option>` + allPois().sort((a, b) => a.name.localeCompare(b.name)).map(p => `<option value="${p.id}"${p.id === sel ? " selected" : ""}>${esc(p.name)}</option>`).join("");
     const html = `<form class="ncm-form">
       <label>Название<input name="title" value="${esc(q.title)}" placeholder="Например: Груз для Рога"></label>
@@ -562,6 +596,26 @@ const UI = {
     document.addEventListener("keydown", this.onKey, true);
     window.addEventListener("resize", () => this.el && this.fit());
   },
+  reopen() {
+    if (this.lastEncDist && !this.sel) return this.renderDistrict(this.lastEncDist);
+    this.renderPanel();
+  },
+  async rollRoute() {
+    const pts = this.path.length ? this.path : this.route, seen = new Set(), out = [];
+    // одна встреча на каждый «тип территории» по пути: начало, Боевая зона, Зона Поражения
+    for (let i = 0; i < pts.length; i++) {
+      const a = pts[i], b = pts[i + 1] ?? a;
+      for (let t = 0; t <= 1; t += 0.25) {
+        const x = a.x + (b.x - a.x) * t, y = a.y + (b.y - a.y) * t;
+        const key = zoneAt(x, y) ?? districtAt(x, y)?.id;
+        if (seen.has(key) || out.length >= 3) continue;
+        if (!zoneAt(x, y) && out.length) continue;
+        seen.add(key); out.push(await doEncounter(x, y, null, { toGM: true }));
+      }
+    }
+    this.routeEnc = out; this.lastEnc = out.at(-1);
+    this.renderPanel();
+  },
   async recalc() {
     if (this.streets && this.route.length > 1) { await loadGrid(); this.path = buildPath(this.route); }
     else this.path = [];
@@ -573,7 +627,7 @@ const UI = {
     this.renderHint(); this.renderPanel(); this.renderSvg();
   },
   select(id, center = false) {
-    if (this.sel !== id) this.shopQuery = "";
+    if (this.sel !== id) { this.shopQuery = ""; this.lastEncDist = null; }
     this.sel = id;
     const p = poiById(id);
     this.renderMarkers(); this.renderPanel();
@@ -632,8 +686,10 @@ const UI = {
         return this.recalc();
       }
       case "route-undo": this.route.pop(); return this.recalc();
+      case "route-rm": this.route.splice(Number(b.dataset.i), 1); return this.recalc();
+      case "route-party": { const pt = state().party; if (pt) this.route.unshift({ ...pt }); return this.recalc(); }
       case "streets": this.streets = b.checked; return this.recalc();
-      case "route-clear": this.route = []; this.path = []; this.mode = "browse"; this.renderHint(); this.renderSvg(); return this.renderPanel();
+      case "route-clear": this.route = []; this.path = []; this.routeEnc = []; this.mode = "browse"; this.renderHint(); this.renderSvg(); return this.renderPanel();
       case "route-share": return save(s => { s.route = { pts: clone(this.route), path: this.path.length ? clone(this.path) : null }; });
       case "route-unshare": return save(s => { s.route = null; });
       case "share": { const r = this.vp.getBoundingClientRect(), { w, h } = this.size(), v = this.view;
@@ -657,6 +713,15 @@ const UI = {
           else s.poi[id] = { ...(s.poi[id] ?? {}), ...data };
         });
       }
+      case "night": return save(s => { s.night = !s.night; });
+      case "enc": { await doEncounter(Number(b.dataset.x), Number(b.dataset.y), b.dataset.d || null); this.lastEncDist = b.dataset.d; return this.reopen(); }
+      case "enc-again": { const e = this.lastEnc; if (!e) return; if (this.routeEnc?.includes(e)) return this.rollRoute(); await doEncounter(e.x, e.y, e.distId); return this.reopen(); }
+      case "enc-chat": { const e = this.lastEnc; if (e) chatEnc(e, false); return ui.notifications.info("Встреча отправлена в чат."); }
+      case "enc-route": return this.rollRoute();
+      case "gen-gig": {
+        const g = rollGig(allPois().filter(p => !p.hidden && !p.shop), { distOf: (p) => districtAt(p.x, p.y)?.id });
+        return this.editQuest(null, null, g);
+      }
       case "to-party": { const pt = state().party; return pt ? this.focus(pt.x, pt.y, Math.max(this.view.s, 0.8)) : ui.notifications.info("Метка «Мы здесь» ещё не поставлена."); }
       case "gen-shops": return genShopsDialog();
       case "shop-reroll": return save(s => { const sh = s.shops.find(x => x.id === id); if (sh) sh.seed = Math.floor(Math.random() * 1e9); });
@@ -679,6 +744,38 @@ const UI = {
     }
   }
 };
+
+/** Блок «Случайная встреча» для карточек (только мастер). */
+function encBlock(x, y, distId) {
+  if (!isGM()) return "";
+  const e = UI.lastEnc;
+  const here = e && e.key === `${x.toFixed(4)},${y.toFixed(4)}`;
+  return `<div class="ncm-enc">
+    <button class="ncm-enc-roll" data-act="enc" data-x="${x}" data-y="${y}" data-d="${distId ?? ""}"><i class="fas fa-dice-d20"></i> Случайная встреча</button>
+    ${here ? encCard(e) : ""}</div>`;
+}
+function encCard(e) {
+  return `<div class="ncm-enc-card t-${e.threat}">
+    <div class="ncm-enc-top"><span>к10: ${e.roll} · ${THREAT_RU[e.threat]} · ${e.night ? "ночь" : "день"}</span></div>
+    <b>${esc(e.title)}</b><p>${esc(e.text)}</p>
+    <div class="ncm-enc-tw"><i class="fas fa-dice-six"></i> к6: ${e.sub} — ${esc(e.twist)}</div>
+    ${e.stats && e.stats !== "—" ? `<div class="ncm-enc-st"><i class="fas fa-user-ninja"></i> Статы: ${esc(e.stats)}</div>` : ""}
+    <div class="ncm-p-acts"><button data-act="enc-chat"><i class="fas fa-comment"></i> В чат всем</button><button data-act="enc-again"><i class="fas fa-rotate"></i> Перебросить</button></div>
+  </div>`;
+}
+async function doEncounter(x, y, distId, { toGM = true } = {}) {
+  const dist = DISTRICTS.find(d => d.id === distId) ?? districtAt(x, y);
+  const threat = threatOf(dist, zoneAt(x, y));
+  const e = rollEncounter({ distId: dist?.id, threat, night: !!state().night });
+  e.key = `${x.toFixed(4)},${y.toFixed(4)}`; e.x = x; e.y = y; e.distId = dist?.id; e.where = streetNear(x, y)?.ru ?? dist?.ru ?? "";
+  UI.lastEnc = e;
+  if (toGM) chatEnc(e, true);
+  return e;
+}
+function chatEnc(e, gmOnly) {
+  const content = `<div class="ncm-chat"><div class="ncm-chat-k">СЛУЧАЙНАЯ ВСТРЕЧА · ${esc(e.where)}</div><b>${esc(e.title)}</b><p>${esc(e.text)}</p><p><i>${esc(e.twist)}</i></p>${gmOnly && e.stats !== "—" ? `<small>Статы: ${esc(e.stats)}</small>` : ""}</div>`;
+  return ChatMessage.create({ content, speaker: { alias: "Найт-Сити" }, whisper: gmOnly ? ChatMessage.getWhisperRecipients("GM").map(u => u.id) : [] });
+}
 
 function qcard(q) {
   const t = q.target && poiById(q.target), g = q.giver && poiById(q.giver);
