@@ -50,6 +50,10 @@ Hooks.once("init", () => {
   game.settings.register(MID, "widthKm", {
     name: "Ширина карты, км", hint: "Для расчёта расстояний и времени в пути.", scope: "world", config: true, type: Number, default: 14, range: { min: 4, max: 60, step: 1 }
   });
+  game.settings.register(MID, "redtime", {
+    name: "Эффект «Красного времени»", hint: "Красный смог, дымка и помехи поверх карты (у каждого игрока своя настройка).",
+    scope: "client", config: true, type: String, default: "full", choices: { full: "Полный", soft: "Мягкий", off: "Выключен" }, onChange: () => UI.rebuild()
+  });
   game.settings.register(MID, "notify", { name: "Уведомлять игроков о новых квестах", scope: "world", config: true, type: Boolean, default: true });
   game.keybindings.register(MID, "open", {
     name: "Открыть карту Найт-Сити", editable: [{ key: "KeyM", modifiers: ["Shift"] }],
@@ -256,10 +260,14 @@ const UI = {
       <div class="ncm-viewport">
         <div class="ncm-world">
           <img class="ncm-img" src="${esc(game.settings.get(MID, "image"))}" alt="" draggable="false">
+          <div class="ncm-red ncm-redmap ncm-red-${game.settings.get(MID, "redtime")}" aria-hidden="true"><div class="ncm-red-tint"></div><div class="ncm-red-smog a"></div><div class="ncm-red-smog b"></div></div>
           <svg class="ncm-svg" viewBox="0 0 1000 ${Math.round(1000 * aspect)}" preserveAspectRatio="none"></svg>
           <div class="ncm-streets"></div>
           <div class="ncm-labels"></div>
           <div class="ncm-markers"></div>
+        </div>
+        <div class="ncm-red ncm-red-${game.settings.get(MID, "redtime")}" aria-hidden="true">
+          <div class="ncm-red-grain"></div><div class="ncm-red-glitch"></div><div class="ncm-red-vig"></div>
         </div>
         <div class="ncm-hint"></div>
         <div class="ncm-zoom"><button data-act="to-party" title="К метке «Мы здесь»"><i class="fas fa-crosshairs"></i></button><button data-act="zin">+</button><button data-act="zout">−</button><button data-act="fit" title="Вся карта"><i class="fas fa-expand"></i></button></div>
