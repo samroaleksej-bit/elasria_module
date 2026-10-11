@@ -15,7 +15,8 @@ Hooks.once("init", () => {
   const reg = (k, o) => game.settings.register(MID, k, { scope: "world", config: true, ...o });
   reg("audience", { name: "Кому показывать кадры", type: String, default: "gm",
     choices: { gm: "Только ведущему (для стрима)", all: "Всем игрокам", off: "Выключено" } });
-  reg("position", { name: "Где на экране", type: String, default: "top", choices: { top: "Сверху", center: "По центру", bottom: "Снизу" } });
+  reg("layout", { name: "Вид кадра", type: String, default: "big", choices: { big: "Крупный — в центре, на пол-экрана", compact: "Компактный баннер" } });
+  reg("position", { name: "Где на экране (для компактного)", type: String, default: "top", choices: { top: "Сверху", center: "По центру", bottom: "Снизу" } });
   reg("duration", { name: "Сколько секунд держать кадр", type: Number, default: 3.5, range: { min: 1.5, max: 10, step: 0.5 } });
   reg("portrait", { name: "Картинка персонажа", type: String, default: "portrait", choices: { portrait: "Портрет актёра", token: "Изображение токена" } });
   reg("bg", { name: "Фон кадра", type: String, default: "scene", choices: { scene: "Карта текущей сцены (место действия)", sceneFull: "Карта сцены целиком", dark: "Тёмный" } });
@@ -275,8 +276,12 @@ const Splash = {
   },
   root() {
     let el = document.getElementById("as-splash");
-    if (!el) { el = document.createElement("div"); el.id = "as-splash"; document.body.appendChild(el); el.addEventListener("click", () => this.skip()); }
-    el.dataset.pos = S("position");
+    if (!el) {
+      el = document.createElement("div"); el.id = "as-splash"; document.body.appendChild(el); el.addEventListener("click", () => this.skip());
+      const veil = document.createElement("div"); veil.id = "as-veil"; document.body.appendChild(veil);
+    }
+    el.dataset.layout = S("layout");
+    el.dataset.pos = S("layout") === "big" ? "center" : S("position");
     el.style.setProperty("--as-scale", S("scale"));
     return el;
   },
@@ -289,11 +294,13 @@ const Splash = {
     const old = el.querySelector(".as-card");
     if (old) { old.classList.add("as-out"); setTimeout(() => old.remove(), 260); }
     el.appendChild(card);
+    document.getElementById("as-veil")?.classList.toggle("on", S("layout") === "big");
     requestAnimationFrame(() => card.classList.add("as-in"));
     clearTimeout(this.timer);
     this.timer = setTimeout(() => this.next(), S("duration") * 1000);
   },
   hide() {
+    document.getElementById("as-veil")?.classList.remove("on");
     const c = document.querySelector("#as-splash .as-card");
     if (c) { c.classList.add("as-out"); setTimeout(() => c.remove(), 300); }
   },

@@ -64,3 +64,30 @@
 @keyframes as-shake { 0%,100% { translate: 0 0; } 20% { translate: -6px 2px; } 40% { translate: 6px -2px; } 60% { translate: -4px 1px; } 80% { translate: 3px 0; } }
 @keyframes as-flash { 0% { opacity: 1; filter: brightness(2.2); } 100% { opacity: 1; filter: none; } }
 @media (prefers-reduced-motion: reduce) { #as-splash * { animation: none !important; transition: none !important; } }
+
+/* ================================================================ крупный кадр: центр, пол-экрана */
+#as-veil { position: fixed; inset: 0; z-index: 9499; pointer-events: none; opacity: 0; transition: opacity .35s ease;
+  background: radial-gradient(ellipse at center, rgba(8, 6, 12, .35), rgba(8, 6, 12, .78) 75%); }
+#as-veil.on { opacity: 1; }
+#as-splash[data-layout="big"] { top: 50%; left: 50%; transform: translate(-50%, -50%); transform-origin: center; }
+#as-splash[data-layout="big"] .as-card { width: min(calc(68vw * var(--as-scale, 1)), 1500px); height: calc(50vh * var(--as-scale, 1)); min-height: 380px; max-width: none;
+  gap: 3vw; padding: 3vh 4vw; border-radius: 28px; border-width: 2px; justify-content: space-between;
+  transform: scale(.82); box-shadow: 0 40px 140px rgba(0, 0, 0, .85), 0 0 0 1px rgba(0, 0, 0, .6), 0 0 80px var(--tone, rgba(232,196,106,.25)); }
+#as-splash[data-layout="big"] .as-card.as-in { transform: none; }
+#as-splash[data-layout="big"] .as-card.as-out { transform: scale(1.05); }
+#as-splash[data-layout="big"] .as-face { width: auto; gap: 1.2vh; }
+#as-splash[data-layout="big"] .as-actor .as-ring { width: 24vh; height: 24vh; border-width: 5px; }
+#as-splash[data-layout="big"] .as-ring { width: 18vh; height: 18vh; border-width: 4px; }
+#as-splash[data-layout="big"] .as-targets { gap: 1.4vw; flex-wrap: wrap; justify-content: center; max-width: 30vw; }
+#as-splash[data-layout="big"] .as-targets .as-face { width: auto; }
+#as-splash[data-layout="big"] .as-targets .as-ring { width: 18vh; height: 18vh; }
+#as-splash[data-layout="big"] .as-targets:has(.as-face:nth-child(3)) .as-ring { width: 12vh; height: 12vh; }
+#as-splash[data-layout="big"] .as-face b { font-size: 2.3vh; max-width: 22vh; }
+#as-splash[data-layout="big"] .as-actor b { font-size: 2.8vh; }
+#as-splash[data-layout="big"] .as-icon { width: 8vh; height: 8vh; border-radius: 1.4vh; margin-bottom: 1vh; }
+#as-splash[data-layout="big"] .as-title { font-size: 5.4vh; }
+#as-splash[data-layout="big"] .as-sub { font-size: 1.9vh; margin-top: .4vh; }
+#as-splash[data-layout="big"] .as-result { gap: 2vw; margin-top: 2vh; flex-direction: column; }
+#as-splash[data-layout="big"] .as-total { font-size: 13vh; }
+#as-splash[data-layout="big"] .as-verdict { font-size: 3vh; padding: 1vh 2.4vw; letter-spacing: .2em; }
+#as-splash[data-layout="big"] .as-vs { font-size: 7vh; }
