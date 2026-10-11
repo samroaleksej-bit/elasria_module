@@ -53,7 +53,7 @@
 #ncm .ncm-labels, #ncm .ncm-markers { position: absolute; inset: 0; }
 #ncm .ncm-dist { position: absolute; transform: translate(-50%, -50%) scale(var(--inv)); padding: 3px 9px; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap;
   color: #fff; background: rgba(5, 5, 12, .62); border-left: 3px solid var(--dc, var(--c)); cursor: pointer; opacity: 0; transition: opacity .2s; pointer-events: auto; }
-#ncm.ncm-far .ncm-dist { opacity: .95; }
+#ncm .ncm-dist:hover { opacity: .95; }
 #ncm .ncm-dist.d0 { --dc: #4aa3ff; } #ncm .ncm-dist.d1 { --dc: #2fbf4a; } #ncm .ncm-dist.d2 { --dc: #7bd88f; } #ncm .ncm-dist.d3 { --dc: #ff9f43; } #ncm .ncm-dist.d4 { --dc: #ff4d4d; } #ncm .ncm-dist.d5 { --dc: #ff2a6d; }
 
 /* точки */
@@ -166,3 +166,28 @@
 .ncm-dir-btn { flex: 1 0 100%; margin-top: 4px; }
 #ncm .ncm-toggle { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 14px; color: var(--c); cursor: pointer; }
 #ncm .ncm-toggle input { accent-color: var(--y); width: 16px; height: 16px; margin: 0; }
+
+/* улицы (названия из Cyberpunk 2077) — видны при приближении */
+#ncm .ncm-streets { position: absolute; inset: 0; pointer-events: none; }
+#ncm .ncm-street { position: absolute; transform: translate(-50%, -50%) rotate(var(--a)) scale(var(--inv)); white-space: nowrap; font-size: 12px; font-weight: 800;
+  letter-spacing: .06em; color: #0b0b12; text-shadow: 0 0 3px #fffbe6, 0 0 3px #fffbe6, 0 0 2px #fffbe6; opacity: 0; transition: opacity .2s; text-transform: uppercase; }
+#ncm .ncm-street.hw { color: #c00; }
+#ncm.ncm-near .ncm-street { opacity: .95; }
+#ncm .ncm-p-en { font-size: 13px; color: var(--mut); letter-spacing: .04em; margin-bottom: 4px; }
+#ncm .ncm-p-street { margin-top: 4px; font-size: 14px; color: #fff; }
+#ncm .ncm-p-street i { color: var(--y); margin-right: 4px; }
+
+/* магазины */
+#ncm .ncm-dot.shop { min-width: 24px; height: 22px; font-size: 11px; border-radius: 50%; clip-path: none; border-width: 2px; }
+#ncm.ncm-far .ncm-pin:has(.ncm-dot.shop) { opacity: .55; }
+#ncm .ncm-mk { margin-top: 6px; font-size: 13px; color: var(--y); letter-spacing: .04em; }
+#ncm .ncm-shopsearch { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; margin-bottom: 6px; border: 1px solid var(--line); background: rgba(0,240,255,.05); }
+#ncm .ncm-shopsearch i { color: var(--c); }
+#ncm .ncm-shopsearch input { flex: 1; background: none; border: none; outline: none; color: var(--txt); font: 600 14px var(--font); box-shadow: none; height: 100%; }
+#ncm .ncm-stock { width: 100%; border-collapse: collapse; margin: 0 0 6px; font-size: 14px; background: none; border: none; }
+#ncm .ncm-stock tr { border-bottom: 1px solid rgba(0,240,255,.1); }
+#ncm .ncm-stock td { padding: 5px 4px; vertical-align: top; border: none; }
+#ncm .ncm-stock td b { color: #fff; font-weight: 600; }
+#ncm .ncm-stock td small { display: block; color: var(--mut); font-size: 12px; line-height: 1.25; }
+#ncm .ncm-stock .ncm-tier { color: var(--mut); font-size: 12px; white-space: nowrap; text-align: right; }
+#ncm .ncm-stock .ncm-eb { color: var(--y); font-weight: 800; white-space: nowrap; text-align: right; }
