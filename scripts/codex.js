@@ -668,9 +668,9 @@ function viewEpoch(id) {
   const gallery = (ep.gallery ?? []).map(g => `
     <figure class="ew-gal"><img class="ew-z" src="${esc(CP(g.image))}" alt="${esc(g.caption ?? "")}" loading="lazy"><figcaption>${esc(g.caption ?? "")}</figcaption></figure>`).join("");
   const evs = (ep.keyEvents ?? []).map(evNorm);
-  const hasCards = evs.some(e => e.text || e.image);
-  const events = evs.map((e, k) => `<li${hasCards ? ` class="ew-tl-go" data-anchor="ew-ev-${k}" title="К событию"` : ""}><span class="ew-tl-year">${e.year ?? "✦"}</span><span class="ew-tl-dot"></span><span class="ew-tl-body"><b>${esc(e.title)}</b></span></li>`).join("");
-  const evCards = evs.some(e => e.text || e.image) ? evs.map((e, k) => `
+  const events = evs.map((e, k) => `<li class="ew-tl-go" data-anchor="ew-ev-${k}" title="К событию"><span class="ew-tl-year">${e.year ?? "✦"}</span><span class="ew-tl-dot"></span><span class="ew-tl-body"><b>${esc(e.title)}</b></span></li>`).join("");
+  const evCards = evs.map((e, k) => !(e.text || e.image) ? `
+    <article class="ew-evmini" id="ew-ev-${k}"><span class="ew-evmini-y">${e.year ?? "✦"}</span><h3>${esc(e.title)}</h3></article>` : `
     <article class="ew-evcard${k % 2 ? " ew-evcard-r" : ""}" id="ew-ev-${k}">
       <div class="ew-evcard-art">${e.image ? `<img class="ew-z" src="${esc(CP(e.image))}" alt="${esc(e.title)}" loading="lazy">` : `<div class="ew-evcard-ph"><span>${e.year ?? "✦"}</span></div>`}</div>
       <div class="ew-evcard-txt">
@@ -678,7 +678,7 @@ function viewEpoch(id) {
         <h3>${esc(e.title)}</h3>
         ${paras(e.text).map(t => `<p>${L(t)}</p>`).join("")}
       </div>
-    </article>`).join("") : "";
+    </article>`).join("");
   return `<article class="ew-epoch" style="--ep:${esc(ep.color || "#e0b553")}">
     <section class="ew-epochhero">
       ${bg ? `<img class="ew-epochhero-bg" src="${esc(bg)}" alt="">` : ""}

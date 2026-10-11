@@ -591,3 +591,6 @@
 #ew-codex .ew-tl-go:hover .ew-tl-body b { color: var(--ep, #e0b553); }
 #ew-codex .ew-flash { animation: ew-flash 2.2s ease-out; border-radius: 16px; }
 @keyframes ew-flash { 0%, 25% { box-shadow: 0 0 0 2px var(--ep, #e0b553), 0 0 40px color-mix(in srgb, var(--ep, #e0b553) 45%, transparent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+#ew-codex .ew-evmini { display: flex; align-items: center; gap: 20px; padding: 18px 24px; border: 1px solid var(--line); border-left: 3px solid var(--ep, #e0b553); border-radius: 14px; background: linear-gradient(90deg, color-mix(in srgb, var(--ep, #e0b553) 10%, transparent), transparent 60%); }
+#ew-codex .ew-evmini-y { font-family: "EW Serif", Georgia, serif; font-size: 30px; color: var(--ep, #e0b553); min-width: 64px; text-align: center; }
+#ew-codex .ew-evmini h3 { margin: 0; font-size: 22px; color: #f3ede2; }
