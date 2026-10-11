@@ -1,0 +1,14 @@
+{
+  "id": "night-city-map",
+  "title": "Найт-Сити · интерактивная карта",
+  "description": "Интерактивная карта Найт-Сити 2045 для Cyberpunk RED: 65 мест и 21 район, опасные зоны, прокладка маршрутов со временем в пути, заказы от фиксеров с уведомлениями, метка «Мы здесь», свои точки мастера и показ карты игрокам. Открывается по Shift+M или кнопкой в журналах.",
+  "version": "0.1.0",
+  "authors": [{ "name": "Verlierboy", "url": "https://t.me/circleofdms" }],
+  "compatibility": { "minimum": "12", "verified": "12" },
+  "esmodules": ["scripts/ncmap.js"],
+  "styles": ["styles/ncmap.css"],
+  "socket": true,
+  "url": "https://github.com/samroaleksej-bit/elasria_module/tree/night-city-map",
+  "manifest": "https://raw.githubusercontent.com/samroaleksej-bit/elasria_module/night-city-map/module.json",
+  "download": "https://github.com/samroaleksej-bit/elasria_module/archive/refs/heads/night-city-map.zip"
+}
