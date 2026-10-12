@@ -405,7 +405,7 @@ const UI = {
         <button class="ncm-p-x" data-act="unsel"><i class="fas fa-xmark"></i></button>
       </div>
       <div class="ncm-p-body">
-        ${p.n ? `<img class="ncm-p-img" src="modules/${MID}/assets/poi/p${p.n}.webp" alt="" onerror="this.remove()">` : p.img ? `<img class="ncm-p-img" src="${esc(p.img)}" alt="" onerror="this.remove()">` : ""}
+        ${poiArt(p) ? `<button class="ncm-p-imgbtn" data-act="dossier" data-id="${p.id}" title="Открыть досье"><img class="ncm-p-img" src="${esc(poiArt(p))}" alt="" onerror="this.parentElement.remove()"><span><i class="fas fa-expand"></i> ДОСЬЕ</span></button>` : ""}
         <p>${esc(p.desc ?? "")}</p>
         ${isGM() && p.notes ? `<div class="ncm-gm"><b>Заметки мастера</b><p>${esc(p.notes)}</p></div>` : ""}
         ${qs.length ? `<h3><i class="fas fa-scroll"></i> Заказы</h3>${qs.map(qcard).join("")}` : ""}
@@ -725,6 +725,7 @@ const UI = {
         });
       }
       case "night": return save(s => { s.night = !s.night; });
+      case "dossier": return openDossier(id);
       case "enc": { await doEncounter(Number(b.dataset.x), Number(b.dataset.y), b.dataset.d || null); this.lastEncDist = b.dataset.d; return this.reopen(); }
       case "enc-again": { const e = this.lastEnc; if (!e) return; if (this.routeEnc?.includes(e)) return this.rollRoute(); await doEncounter(e.x, e.y, e.distId); return this.reopen(); }
       case "enc-chat": { const e = this.lastEnc; if (e) chatEnc(e, false); return ui.notifications.info("Встреча отправлена в чат."); }
@@ -832,6 +833,54 @@ async function doEncounter(x, y, distId, { toGM = true } = {}) {
 function chatEnc(e, gmOnly) {
   const content = `<div class="ncm-chat"><div class="ncm-chat-k">СЛУЧАЙНАЯ ВСТРЕЧА · ${esc(e.where)}</div><b>${esc(e.title)}</b><p>${esc(e.text)}</p><p><i>${esc(e.twist)}</i></p>${gmOnly && e.stats !== "—" ? `<small>Статы: ${esc(e.stats)}</small>` : ""}</div>`;
   return ChatMessage.create({ content, speaker: { alias: "Найт-Сити" }, whisper: gmOnly ? ChatMessage.getWhisperRecipients("GM").map(u => u.id) : [] });
+}
+
+/* ================================================================ досье места: арт + текст в стиле терминала */
+
+const poiArt = (p) => p?.n ? `modules/${MID}/assets/poi/p${p.n}.webp` : (p?.img ?? "");
+const hex = (n) => (n * 2654435761 >>> 0).toString(16).toUpperCase().padStart(8, "0");
+
+function openDossier(id, { remote = false } = {}) {
+  const p = poiById(id) ?? POIS.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById("ncm-dossier")?.remove();
+  const d = districtAt(p.x, p.y), st = streetNear(p.x, p.y), z = zoneAt(p.x, p.y);
+  const threat = threatOf(d, z), c = (CATS[p.cat] ?? CATS.custom).color;
+  const qs = questsVisible().filter(q => (q.target === p.id || q.giver === p.id) && q.status === "active");
+  const el = document.createElement("div");
+  el.id = "ncm-dossier";
+  el.style.setProperty("--c", c);
+  el.innerHTML = `
+    <div class="nd-back"></div>
+    <div class="nd-frame">
+      <div class="nd-bar"><span>NCNET://CITY.DB/POI/${String(p.n ?? "X").padStart(3, "0")}</span><span class="nd-blink">● LIVE</span><span>ID ${hex(p.n ?? 7)}</span>
+        ${isGM() && !remote ? `<button data-nd="share" title="Показать всем игрокам"><i class="fas fa-satellite-dish"></i> ВСЕМ</button>` : ""}<button data-nd="close" title="Закрыть (Esc)">✕</button></div>
+      <div class="nd-art"><img src="${esc(poiArt(p))}" alt=""><div class="nd-scan"></div><div class="nd-corner tl"></div><div class="nd-corner tr"></div><div class="nd-corner bl"></div><div class="nd-corner br"></div>
+        <div class="nd-tag">${esc((CATS[p.cat] ?? CATS.custom).ru)}${p.n ? ` · №${p.n}` : ""}</div></div>
+      <div class="nd-body">
+        <div class="nd-title"><h1 data-text="${esc(p.name)}">${esc(p.name)}</h1>${p.en ? `<small>${esc(p.en)}</small>` : ""}</div>
+        <div class="nd-meta">
+          ${d ? `<div><span>РАЙОН</span><b>${esc(d.ru)}</b></div>` : ""}
+          ${st ? `<div><span>АДРЕС</span><b>${esc(st.ru)}</b></div>` : ""}
+          <div class="th-${threat}"><span>УГРОЗА</span><b>${esc(THREAT_RU[threat])}</b></div>
+        </div>
+        <div class="nd-text"><span class="nd-prompt">&gt;_</span> <span class="nd-type"></span><span class="nd-cursor">█</span></div>
+        ${qs.length ? `<div class="nd-jobs"><span>// ДОСТУПНЫЕ ЗАКАЗЫ</span>${qs.map(q => `<div>▸ ${esc(q.title)}${q.reward ? ` <em>${esc(q.reward)}</em>` : ""}</div>`).join("")}</div>` : ""}
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add("on"));
+  // печать текста
+  const text = p.desc ?? "", out = el.querySelector(".nd-type");
+  let i = 0; const t = setInterval(() => { i += 2; out.textContent = text.slice(0, i); if (i >= text.length) clearInterval(t); }, 14);
+  const close = () => { clearInterval(t); el.classList.remove("on"); setTimeout(() => el.remove(), 300); document.removeEventListener("keydown", key, true); };
+  const key = (ev) => { if (ev.key === "Escape") { ev.stopPropagation(); close(); } };
+  document.addEventListener("keydown", key, true);
+  el.addEventListener("click", (ev) => {
+    const b = ev.target.closest("[data-nd]");
+    if (b?.dataset.nd === "share") { emit({ action: "dossier", id }); return ui.notifications.info("Досье показано игрокам."); }
+    if (b?.dataset.nd === "close" || ev.target.classList.contains("nd-back")) close();
+  });
 }
 
 function qcard(q) {
@@ -951,6 +1000,7 @@ Hooks.once("ready", () => {
     }
     if (isGM()) return;
     if (d.action === "open") { UI.open(); setTimeout(() => { UI.focus(d.x, d.y, d.s); if (d.sel) UI.select(d.sel); }, 120); }
+    if (d.action === "dossier") return openDossier(d.id, { remote: true });
     if (d.action === "quest") { const q = state().quests.find(x => x.id === d.id); if (q) questToast(q); }
   });
   game.modules.get(MID).api = { open: () => UI.open(), close: () => UI.close(), ui: UI };
