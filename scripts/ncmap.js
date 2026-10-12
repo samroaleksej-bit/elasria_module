@@ -60,6 +60,10 @@ Hooks.once("init", () => {
     name: "Синхронизация с Simple Calendar", hint: "Часы карты идут по календарю «Найт-Сити 2045» в Simple Calendar (мировое время Foundry). Кнопка 📅 на часах карты настраивает календарь.",
     scope: "world", config: true, type: Boolean, default: true, onChange: () => onTime(true)
   });
+  game.settings.register(MID, "agentAuto", {
+    name: "Агент при запуске", hint: "Телефон «Агент» открывается сам, когда вы входите в игру (у каждого игрока своя настройка).",
+    scope: "client", config: true, type: Boolean, default: true
+  });
   game.settings.register(MID, "scAsked", { scope: "world", config: false, type: Boolean, default: false });
   game.settings.register(MID, "notify", { name: "Уведомлять игроков о новых квестах", scope: "world", config: true, type: Boolean, default: true });
   game.keybindings.register(MID, "agent", { name: "Агент (телефон)", editable: [{ key: "KeyA", modifiers: ["Shift"] }], onDown: () => { Agent.toggle(); return true; } });
@@ -340,25 +344,49 @@ const fmtTime = (h) => h < 1 / 60 ? "<1 мин" : h < 1 ? `${Math.round(h * 60)}
 
 /* ================================================================ интерфейс */
 
+/** clip-path, вырезающий из блока box прямоугольник r (экран телефона). */
+function clipTo(r, box) {
+  const t = Math.max(0, r.top - box.top), l = Math.max(0, r.left - box.left);
+  const rt = Math.max(0, box.right - r.right), bt = Math.max(0, box.bottom - r.bottom);
+  return `inset(${t}px ${rt}px ${bt}px ${l}px round 24px)`;
+}
+
 const UI = {
   el: null, view: { x: 0, y: 0, s: 0.5 }, sel: null, mode: "browse", route: [], filter: new Set(Object.keys(CATS)), query: "", tab: "info",
   drag: null, streets: true, path: [],
 
   toggle() { this.el ? this.close() : this.open(); },
   open(focus = null) {
-    if (!this.el) this.build();
+    if (!this.el) {
+      // Телефон «Агента» на экране — переворачиваем его и раскрываем карту из экрана телефона
+      if (Agent.el && !Agent.docked && !Agent.busy) {
+        return Agent.flip().then((r) => { this.build(r); if (focus) this.focus(focus.x, focus.y, focus.s); });
+      }
+      this.build();
+    }
     if (focus) this.focus(focus.x, focus.y, focus.s);
+    return Promise.resolve();
   },
   close() {
     if (!this.el) return;
-    this.el.classList.remove("ncm-in");
     const el = this.el; this.el = null;
+    if (Agent.el && Agent.docked) {
+      // Обратно в телефон: карта сжимается в его экран, телефон поворачивается вертикально
+      const r = Agent.el.getBoundingClientRect(), b = el.getBoundingClientRect();
+      el.classList.add("ncm-zoom");
+      el.style.clipPath = "inset(0 0 0 0 round 0px)";
+      void el.offsetWidth;
+      el.style.clipPath = clipTo(r, b);
+      setTimeout(() => { el.remove(); Agent.unflip(); }, 480);
+      return;
+    }
+    el.classList.remove("ncm-in");
     setTimeout(() => el.remove(), 250);
   },
   rebuild() { if (this.el) { this.el.remove(); this.el = null; this.build(); } },
   refresh() { if (this.el) { this.renderMarkers(); this.renderSvg(); this.renderPanel(); this.renderQuestList(); } },
 
-  build() {
+  build(fromRect = null) {
     const el = document.createElement("div");
     el.id = ROOT;
     el.innerHTML = `
@@ -410,7 +438,13 @@ const UI = {
     this.renderPanel();
     this.renderQuestList();
     loadGrid();
-    requestAnimationFrame(() => el.classList.add("ncm-in"));
+    if (fromRect) {
+      el.classList.add("ncm-zoom", "ncm-in");
+      el.style.clipPath = clipTo(fromRect, el.getBoundingClientRect());
+      void el.offsetWidth;
+      requestAnimationFrame(() => { el.style.clipPath = "inset(0 0 0 0 round 0px)"; });
+      setTimeout(() => { el.classList.remove("ncm-zoom"); el.style.clipPath = ""; }, 650);
+    } else requestAnimationFrame(() => el.classList.add("ncm-in"));
   },
 
   /** Карта не перекрывает боковую панель Foundry (чат, журналы), а окна Foundry всегда поверх карты. */
@@ -1366,7 +1400,7 @@ function questToast(q) {
   const t = document.createElement("div");
   t.className = "ncm-toast";
   t.innerHTML = `<div class="ncm-toast-k">НОВЫЙ ЗАКАЗ</div><b>${esc(q.title)}</b>${q.fixer ? `<span>от ${esc(q.fixer)}</span>` : ""}${q.reward ? `<em>${esc(q.reward)}</em>` : ""}`;
-  t.addEventListener("click", () => { UI.open(); const p = poiById(q.target ?? q.giver); if (p) setTimeout(() => UI.select(p.id, true), 300); t.remove(); });
+  t.addEventListener("click", () => { const p = poiById(q.target ?? q.giver); UI.open().then(() => { if (p) setTimeout(() => UI.select(p.id, true), 300); }); t.remove(); });
   document.body.appendChild(t);
   requestAnimationFrame(() => t.classList.add("on"));
   setTimeout(() => { t.classList.remove("on"); setTimeout(() => t.remove(), 400); }, 7000);
@@ -1378,12 +1412,13 @@ Hooks.once("ready", () => {
     if (d.action === "op") { if (game.user === game.users.activeGM) applyOp(d.op, d.data, game.users.get(d.user)); return; }
     if (d.action === "party") { if (game.user === game.users.activeGM) save(s => { s.party = { x: d.x, y: d.y }; }); return; }
     if (isGM()) return;
-    if (d.action === "open") { UI.open(); setTimeout(() => { UI.focus(d.x, d.y, d.s); if (d.sel) UI.select(d.sel); }, 120); }
+    if (d.action === "open") { UI.open().then(() => setTimeout(() => { UI.focus(d.x, d.y, d.s); if (d.sel) UI.select(d.sel); }, 120)); }
     if (d.action === "dossier") return openDossier(d.id, { remote: true });
     if (d.action === "quest") { const q = state().quests.find(x => x.id === d.id); if (q) questToast(q); }
   });
   game.modules.get(MID).api = { open: () => UI.open(), close: () => UI.close(), ui: UI, agent: () => Agent.toggle() };
   Agent.seen = new Set(state().messages.map(m => m.id));
+  if (game.settings.get(MID, "agentAuto")) setTimeout(() => Agent.open(), 1200);
   globalThis.NightCityMap = game.modules.get(MID).api;
   game.modules.get(MID).api.setupCalendar = setupCalendar;
   // Мастеру — один раз предложить настроить Simple Calendar
@@ -1452,10 +1487,42 @@ async function genGigsDialog() {
 /* ================================================================ Агент — телефон эджраннера */
 
 const Agent = {
-  el: null, tab: "msg", seen: new Set(), unread: 0, chatWith: null,
-  toggle() { this.el ? this.close() : this.open(); },
+  el: null, tab: "msg", seen: new Set(), unread: 0, chatWith: null, docked: false, busy: false,
+  toggle() { this.el && !this.docked ? this.close() : this.open(); },
+  /** Повернуть телефон горизонтально и спрятать — карта раскроется из его экрана. */
+  flip() {
+    const el = this.el; this.busy = true;
+    el.classList.add("ag-flip");
+    return new Promise(res => setTimeout(() => {
+      const r = el.getBoundingClientRect();
+      el.classList.add("ag-docked"); this.docked = true; this.busy = false;
+      res(r);
+    }, 380));
+  },
+  /** Карта закрылась — телефон возвращается и поворачивается вертикально. */
+  unflip() {
+    const el = this.el; if (!el) return;
+    this.docked = false;
+    el.classList.remove("ag-docked");
+    void el.offsetWidth;
+    requestAnimationFrame(() => el.classList.remove("ag-flip"));
+    this.render();
+  },
+  mini() {
+    this.close();
+    if (document.getElementById("ncm-agent-pill")) return;
+    const p = document.createElement("button");
+    p.id = "ncm-agent-pill"; p.title = "Агент (Shift+A)";
+    p.innerHTML = `<i class="fas fa-mobile-screen"></i> AGENT<span class="ncm-agent-badge" hidden></span>`;
+    p.addEventListener("click", () => this.open());
+    document.body.appendChild(p);
+    requestAnimationFrame(() => p.classList.add("on"));
+    this.badge();
+  },
   open(tab) {
     if (tab) this.tab = tab;
+    document.getElementById("ncm-agent-pill")?.remove();
+    if (this.el && this.docked) this.unflip();
     if (!this.el) {
       const el = document.createElement("div");
       el.id = "ncm-agent";
@@ -1468,10 +1535,10 @@ const Agent = {
     }
     this.markSeen(); this.render();
   },
-  close() { if (!this.el) return; const el = this.el; this.el = null; el.classList.remove("on"); setTimeout(() => el.remove(), 250); },
+  close() { if (!this.el) return; const el = this.el; this.el = null; this.docked = false; el.classList.remove("on"); setTimeout(() => el.remove(), 250); },
   makeDraggable(el) {
     let d = null;
-    el.addEventListener("pointerdown", (ev) => { if (!ev.target.closest(".ag-top")) return; const r = el.getBoundingClientRect(); d = { x: ev.clientX - r.left, y: ev.clientY - r.top }; el.setPointerCapture(ev.pointerId); });
+    el.addEventListener("pointerdown", (ev) => { if (!ev.target.closest(".ag-top") || ev.target.closest("button")) return; const r = el.getBoundingClientRect(); d = { x: ev.clientX - r.left, y: ev.clientY - r.top }; el.setPointerCapture(ev.pointerId); });
     el.addEventListener("pointermove", (ev) => { if (!d) return; el.style.left = `${ev.clientX - d.x}px`; el.style.top = `${ev.clientY - d.y}px`; el.style.right = "auto"; el.style.bottom = "auto"; });
     el.addEventListener("pointerup", () => { d = null; });
   },
@@ -1502,7 +1569,7 @@ const Agent = {
     const { time } = fmtClock();
     const body = this.tab === "msg" ? this.renderMsgs() : this.tab === "jobs" ? this.renderJobs() : this.renderMe();
     this.el.innerHTML = `<div class="ag-phone">
-      <div class="ag-top"><span>${time}</span><span class="ag-net">NCNET ▮▮▮▯ 5G</span><button data-ag="close">✕</button></div>
+      <div class="ag-top"><span>${time}</span><span class="ag-net">NCNET ▮▮▮▯ 5G</span><button data-ag="mini" title="Свернуть">▁</button><button data-ag="close" title="Закрыть">✕</button></div>
       <div class="ag-head"><b>AGENT</b><small>${esc(game.user.character?.name ?? game.user.name)}</small></div>
       <div class="ag-body">${body}</div>
       <nav class="ag-nav">
@@ -1560,14 +1627,15 @@ const Agent = {
     const b = ev.target.closest("[data-ag]"); if (!b) return;
     switch (b.dataset.ag) {
       case "close": return this.close();
+      case "mini": return this.mini();
       case "tab": this.tab = b.dataset.t; if (this.tab === "msg") this.markSeen(); return this.render();
       case "send": return this.send();
       case "map": return UI.open();
       case "take": return act("take", { id: b.dataset.id });
-      case "set-me": UI.open(); return setTimeout(() => UI.setMode("me"), 150);
+      case "set-me": return UI.open().then(() => setTimeout(() => UI.setMode("me"), 150));
       case "clear-me": return act("me-clear", {});
       case "job-map": {
-        UI.open(); const q = state().quests.find(x => x.id === b.dataset.id); if (!q) return;
+        const q = state().quests.find(x => x.id === b.dataset.id); await UI.open(); if (!q) return;
         return setTimeout(() => { if (q.x != null) { UI.focus(q.x, q.y, 0.9); UI.selectGig(q.id); } else { const p = poiById(q.target ?? q.giver); if (p) UI.select(p.id, true); } }, 200);
       }
     }

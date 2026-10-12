@@ -353,6 +353,18 @@
 #ncm-agent { --y: #fcee0a; --c: #00f0ff; --m: #ff2a6d; position: fixed; right: 330px; bottom: 60px; z-index: 99; width: 340px; height: min(640px, 80vh);
   font-family: "Rajdhani", "Bahnschrift", "Signika", sans-serif; color: #e6f6ff; opacity: 0; transform: translateY(30px); transition: opacity .25s, transform .3s cubic-bezier(.2,.9,.3,1.2); }
 #ncm-agent.on { opacity: 1; transform: none; }
+#ncm-agent.on.ag-flip { transform: rotate(-90deg) scale(1.08); transition: transform .38s cubic-bezier(.6,0,.3,1); }
+#ncm-agent.ag-docked { visibility: hidden; opacity: 0; pointer-events: none; transition: none; }
+#ncm.ncm-zoom { opacity: 1; transform: none; transition: clip-path .48s cubic-bezier(.7,0,.25,1); }
+#ncm.ncm-zoom .ncm-viewport { animation: ncm-zoomin .65s cubic-bezier(.2,.8,.2,1); }
+@keyframes ncm-zoomin { from { transform: scale(.72); filter: brightness(1.7) saturate(1.4); } to { transform: none; filter: none; } }
+#ncm-agent-pill { position: fixed; right: 330px; bottom: 16px; z-index: 99; display: flex; align-items: center; gap: 8px; width: auto; height: 36px; margin: 0; padding: 0 16px;
+  font: 800 15px/1 "Rajdhani", "Bahnschrift", sans-serif; letter-spacing: .25em; color: #fcee0a; background: #07070d; border: 2px solid #2a2a38; border-radius: 18px;
+  box-shadow: 0 0 0 4px #111, 0 10px 30px rgba(0,0,0,.7), 0 0 20px rgba(0,240,255,.2); cursor: pointer; opacity: 0; transform: translateY(20px); transition: opacity .25s, transform .3s; }
+#ncm-agent-pill.on { opacity: 1; transform: none; }
+#ncm-agent-pill:hover { border-color: #00f0ff; }
+#ncm-agent-pill .ncm-agent-badge { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #ff2a6d; color: #fff; font-size: 11px; line-height: 18px; letter-spacing: 0; text-align: center; }
+#ncm-agent .ag-top button + button { margin-left: 2px; }
 #ncm-agent .ag-phone { height: 100%; display: flex; flex-direction: column; background: #07070d; border: 2px solid #2a2a38; border-radius: 26px; overflow: hidden;
   box-shadow: 0 0 0 6px #111, 0 0 0 7px #333, 0 30px 80px rgba(0,0,0,.8), 0 0 40px rgba(0,240,255,.15); }
 #ncm-agent .ag-top { display: flex; align-items: center; gap: 10px; padding: 8px 16px 4px; font-size: 12px; font-weight: 700; color: #9fb3c4; cursor: move; }
