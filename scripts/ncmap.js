@@ -5,8 +5,8 @@
  * хранится в настройке мира и сразу расходится всем клиентам.
  */
 import { MAP_SIZE, POIS, DISTRICTS, ZONES, STREETS } from "./data.js";
-import { CATALOG, SHOP_TYPES, TIERS, stockFor } from "./shops.js";
-import { rollEncounter, threatOf, THREAT_RU, rollGig } from "./encounters.js";
+import { CATALOG, SHOP_TYPES, TIERS, stockFor, MARKET_CATS, MARKET_NAMES, marketStock } from "./shops.js";
+import { rollEncounter, threatOf, THREAT_RU, rollGig, FIXERS } from "./encounters.js";
 import { MOOKS, MOOK_PACK } from "./mooks.js";
 import { SCID, SC_NAME, NC_HOLIDAYS, buildCalendar } from "./calendar.js";
 
@@ -27,6 +27,7 @@ const CATS = {
   food: { ru: "Отели, бары, еда", color: "#20c4c0", icon: "fa-martini-glass" },
   other: { ru: "Прочее", color: "#e0303a", icon: "fa-star" },
   shop: { ru: "Магазины", color: "#ff5fd2", icon: "fa-cart-shopping" },
+  market: { ru: "Ночные рынки", color: "#9b6bff", icon: "fa-moon" },
   custom: { ru: "Метки мастера", color: "#f5e663", icon: "fa-location-dot" }
 };
 const DANGER = ["Вода", "Корпоративная", "Умеренная", "Переполненные пригороды", "Боевая зона", "Зона Поражения"];
@@ -40,7 +41,7 @@ const QSTATUS = { hidden: "Скрыт", offer: "Слух / предложени�
 
 /* ================================================================ настройки и состояние */
 
-const DEFAULT_STATE = { quests: [], pins: [], poi: {}, party: null, route: null, visited: [], shops: [], night: false, clock: 0, players: {}, messages: [] };
+const DEFAULT_STATE = { quests: [], pins: [], poi: {}, party: null, route: null, visited: [], shops: [], markets: [], night: false, clock: 0, players: {}, messages: [] };
 
 Hooks.once("init", () => {
   game.settings.register(MID, "state", { scope: "world", config: false, type: Object, default: DEFAULT_STATE, onChange: () => { UI.refresh(); Agent.onState(); } });
@@ -52,8 +53,8 @@ Hooks.once("init", () => {
     name: "Ширина карты, км", hint: "Для расчёта расстояний и времени в пути.", scope: "world", config: true, type: Number, default: 14, range: { min: 4, max: 60, step: 1 }
   });
   game.settings.register(MID, "redtime", {
-    name: "Эффект «Красного времени»", hint: "Красный смог, дымка и помехи поверх карты (у каждого игрока своя настройка).",
-    scope: "client", config: true, type: String, default: "full", choices: { full: "Полный", soft: "Мягкий", off: "Выключен" }, onChange: () => UI.rebuild()
+    name: "Синяя полоса сканера", hint: "Синяя полоса, которая пробегает по карте сверху вниз (у каждого игрока своя настройка).",
+    scope: "client", config: true, type: String, default: "full", choices: { full: "Яркая", soft: "Тусклая", off: "Выключена" }, onChange: () => UI.rebuild()
   });
   game.settings.register(MID, "scSync", {
     name: "Синхронизация с Simple Calendar", hint: "Часы карты идут по календарю «Найт-Сити 2045» в Simple Calendar (мировое время Foundry). Кнопка 📅 на часах карты настраивает календарь.",
@@ -155,6 +156,8 @@ function fmtClock(min = nowMin()) {
   return { day: `${DOW[d.getUTCDay()]} ${z(d.getUTCDate())}.${z(d.getUTCMonth() + 1)}.${d.getUTCFullYear()}`, time: `${z(d.getUTCHours())}:${z(d.getUTCMinutes())}` };
 }
 const isNight = (s = state()) => { const h = clockDate(nowMin(s)).getUTCHours(); return s.night || h >= 21 || h < 6; };
+/** Репутация персонажа игрока (Cyberpunk RED: system.reputation.value). */
+const repOf = (u) => Number(u?.character?.system?.reputation?.value ?? 0) || 0;
 const fmtMin = (m) => m < 60 ? `${Math.round(m)} мин` : `${Math.floor(m / 60)} ч${Math.round(m % 60) ? ` ${Math.round(m % 60)} мин` : ""}`;
 
 /* ================================================================ запросы игроков через мастера */
@@ -193,7 +196,8 @@ function allPois() {
   const base = POIS.map(p => ({ ...p, ...(s.poi[p.id] ?? {}) }));
   const pins = s.pins.map(p => ({ cat: "custom", ...p }));
   const shops = (s.shops ?? []).map(sh => ({ ...sh, cat: "shop", desc: SHOP_TYPES[sh.type]?.ru ?? "Магазин", shop: true }));
-  return [...base, ...pins, ...shops].filter(p => isGM() || !p.hidden);
+  const markets = (s.markets ?? []).map(m => ({ ...m, cat: "market", desc: "Ночной рынок", market: true }));
+  return [...base, ...pins, ...shops, ...markets].filter(p => isGM() || !p.hidden);
 }
 const poiById = (id) => allPois().find(p => p.id === id);
 const questsVisible = () => state().quests.filter(q => isGM() || q.status !== "hidden");
@@ -369,6 +373,7 @@ const UI = {
           <button data-act="agent" title="Агент: заказы и сообщения (Shift+A)"><i class="fas fa-mobile-screen"></i> Агент<span class="ncm-agent-badge" hidden></span></button>
           ${isGM() ? `<button data-act="gen-gigs" title="Разбросать случайные заказы по карте"><i class="fas fa-circle-question"></i> Заказы на карту</button>
           <button data-act="gen-shops" title="Расставить случайные магазины по городу"><i class="fas fa-cart-shopping"></i> Магазины</button>
+          <button data-act="gen-markets" title="Расставить Ночные рынки: репутация и фиксер для входа"><i class="fas fa-moon"></i> Ночные рынки</button>
           <button data-act="mode-pin" title="Добавить свою точку"><i class="fas fa-location-dot"></i> Точка</button>
           <button data-act="share" title="Открыть карту у всех игроков на этом месте"><i class="fas fa-satellite-dish"></i> Показать всем</button>` : ""}
         </div>
@@ -379,15 +384,13 @@ const UI = {
       <div class="ncm-viewport">
         <div class="ncm-world">
           <img class="ncm-img" src="${esc(game.settings.get(MID, "image"))}" alt="" draggable="false">
-          <div class="ncm-red ncm-redmap ncm-red-${game.settings.get(MID, "redtime")}" aria-hidden="true"><div class="ncm-red-tint"></div><div class="ncm-red-smog a"></div><div class="ncm-red-smog b"></div></div>
+          <div class="ncm-nightfx" aria-hidden="true"></div>
           <svg class="ncm-svg" viewBox="0 0 1000 ${Math.round(1000 * aspect)}" preserveAspectRatio="none"></svg>
           <div class="ncm-streets"></div>
           <div class="ncm-labels"></div>
           <div class="ncm-markers"></div>
         </div>
-        <div class="ncm-red ncm-red-${game.settings.get(MID, "redtime")}" aria-hidden="true">
-          <div class="ncm-red-grain"></div><div class="ncm-red-glitch"></div><div class="ncm-red-vig"></div>
-        </div>
+        <div class="ncm-fx ncm-fx-${game.settings.get(MID, "redtime")}" aria-hidden="true"><div class="ncm-fx-line"></div></div>
         <div class="ncm-hint"></div>
         <div class="ncm-zoom"><button data-act="to-party" title="К метке «Мы здесь»"><i class="fas fa-crosshairs"></i></button><button data-act="zin">+</button><button data-act="zout">−</button><button data-act="fit" title="Вся карта"><i class="fas fa-expand"></i></button></div>
       </div>
@@ -488,7 +491,7 @@ const UI = {
       const qs = qByPoi[p.id];
       return `<button class="ncm-pin${this.sel === p.id ? " sel" : ""}${hit ? "" : " dim"}${p.hidden ? " secret" : ""}${qs ? " has-q" : ""}${s.visited.includes(p.id) ? " visited" : ""}"
         data-poi="${p.id}" style="left:${p.x * 100}%;top:${p.y * 100}%;--c:${c.color}" title="${esc(p.name)}">
-        <span class="ncm-dot${p.shop ? " shop" : ""}">${p.n ?? `<i class="fas ${c.icon}"></i>`}</span>
+        <span class="ncm-dot${p.shop ? " shop" : p.market ? " market" : ""}">${p.n ?? `<i class="fas ${c.icon}"></i>`}</span>
         ${qs ? `<span class="ncm-qmark">!</span>` : ""}
         <span class="ncm-name">${esc(p.name)}</span></button>`;
     }).join("");
@@ -532,6 +535,7 @@ const UI = {
     const p = this.sel && poiById(this.sel);
     if (!p) { panel.classList.remove("on"); panel.innerHTML = ""; return; }
     if (p.shop) return this.renderShop(panel, p);
+    if (p.market) return this.renderMarket(panel, p);
     const c = CATS[p.cat] ?? CATS.custom, d = districtAt(p.x, p.y), z = zoneAt(p.x, p.y);
     const s = state();
     const qs = questsVisible().filter(q => q.target === p.id || q.giver === p.id);
@@ -599,6 +603,58 @@ const UI = {
     const inp = panel.querySelector("[data-shopq]");
     inp.addEventListener("keydown", ev => ev.stopPropagation());
     inp.addEventListener("input", () => { this.shopQuery = inp.value; const pos = inp.selectionStart; this.renderShop(panel, sh); const n = panel.querySelector("[data-shopq]"); n.focus(); n.setSelectionRange(pos, pos); });
+  },
+  renderMarket(panel, m) {
+    const d = districtAt(m.x, m.y), st = streetNear(m.x, m.y), z = zoneAt(m.x, m.y), gm = isGM(), c = CATS.market;
+    const open = isNight(), rep = repOf(game.user), need = m.rep ?? 0, access = m.access ?? [];
+    const okRep = rep >= need, okFix = access.includes(game.user.id), can = gm || (okRep && okFix);
+    const mk = m.markup ?? 1, q = (this.shopQuery ?? "").toLowerCase();
+    const byCat = {};
+    if (can && (open || gm)) for (const it of marketStock(m.cats ?? [], m.seed)) if (!q || `${it.n} ${it.note ?? ""}`.toLowerCase().includes(q)) (byCat[it.cat] ??= []).push(it);
+    const players = game.users.filter(u => !u.isGM);
+    const lock = !can ? `<div class="ncm-mlock"><i class="fas fa-lock"></i><b>Вход только по рекомендации</b><span>Без репутации и фиксера охрана развернёт тебя ещё на подходе.</span></div>`
+      : !open && !gm ? `<div class="ncm-mlock"><i class="fas fa-moon"></i><b>Рынок свёрнут</b><span>Торговцы появятся с наступлением ночи — после 21:00.</span></div>` : "";
+    panel.classList.add("on");
+    panel.innerHTML = `
+      <div class="ncm-p-head" style="--c:${c.color}">
+        <span class="ncm-p-cat"><i class="fas fa-moon"></i> Ночной рынок</span>
+        <h2>${esc(m.name)}</h2>
+        ${d ? `<button class="ncm-p-dist" data-act="dist" data-id="${d.id}">${esc(d.ru)}</button>` : ""}
+        ${st ? `<div class="ncm-p-street"><i class="fas fa-signs-post"></i> ${esc(st.ru)}</div>` : ""}
+        ${z ? `<div class="ncm-warn ${z}"><i class="fas fa-triangle-exclamation"></i> ${z === "hot" ? "Зона Поражения" : "Боевая зона"}</div>` : ""}
+        <div class="ncm-mk">${open ? "● Открыт сейчас" : "○ Закрыт · работает ночью, 21:00–06:00"}</div>
+        <button class="ncm-p-x" data-act="unsel"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="ncm-p-body">
+        <div class="ncm-req">
+          <div class="${gm || okRep ? "ok" : "no"}"><i class="fas fa-star"></i><span>Репутация <b>${need}+</b></span><small>${gm ? "условие для игроков" : `у тебя ${rep}`}</small></div>
+          <div class="${gm || okFix ? "ok" : "no"}"><i class="fas fa-handshake"></i><span>Фиксер <b>${esc(m.fixer ?? "—")}</b></span><small>${gm ? "сводит с организаторами" : okFix ? "свёл тебя с организаторами" : "нужно знакомство"}</small></div>
+        </div>
+        <div class="ncm-msecs">${(m.cats ?? []).map(k => `<span>${esc(MARKET_CATS[k]?.ru ?? k)}</span>`).join("")}</div>
+        ${gm ? `<h3><i class="fas fa-user-check"></i> Кого пускают</h3><div class="ncm-mpl">${players.map(u => { const r = repOf(u), on = access.includes(u.id);
+          return `<button data-act="market-grant" data-id="${m.id}" data-u="${u.id}" class="${on ? "on" : ""}" title="${on ? "Закрыть доступ" : `Фиксер сводит — придёт сообщение от ${esc(m.fixer ?? "фиксера")}`}"><i class="fas fa-${on ? "check" : "plus"}"></i> ${esc(u.character?.name ?? u.name)} <small class="${r >= need ? "ok" : "no"}">реп. ${r}</small></button>`; }).join("") || `<p class="ncm-muted">Нет игроков.</p>`}</div>
+          ${m.notes ? `<p class="ncm-muted">${esc(m.notes)}</p>` : ""}` : ""}
+        ${lock}
+        ${Object.keys(byCat).length || (can && (open || gm)) ? `<label class="ncm-shopsearch"><i class="fas fa-magnifying-glass"></i><input type="search" data-shopq placeholder="Найти товар…" value="${esc(this.shopQuery ?? "")}"></label>
+        <div class="ncm-mk">Цены: ${mk === 1 ? "по книге" : mk > 1 ? `+${Math.round((mk - 1) * 100)}% к книге` : `−${Math.round((1 - mk) * 100)}% к книге`}</div>` : ""}
+        ${Object.entries(byCat).map(([k, items]) => `<h3 style="color:${CATALOG[k].color}"><i class="fas ${CATALOG[k].icon}"></i> ${CATALOG[k].ru}</h3>
+          <table class="ncm-stock">${items.map(it => `<tr><td><b>${esc(it.n)}</b>${it.note ? `<small>${esc(it.note)}</small>` : ""}</td>
+            <td class="ncm-tier">${TIERS[it.tier].ru}</td><td class="ncm-eb">${Math.round(TIERS[it.tier].eb * mk / 5) * 5 || TIERS[it.tier].eb} eb</td></tr>`).join("")}</table>`).join("")}
+        ${encBlock(m.x, m.y, d?.id)}
+        <div class="ncm-p-acts">
+          <button data-act="route-to" data-id="${m.id}"><i class="fas fa-flag-checkered"></i> Маршрут сюда</button>
+          ${!gm && !okFix ? `<button data-act="market-ask" data-id="${m.id}"><i class="fas fa-mobile-screen"></i> Написать фиксеру</button>` : ""}
+          ${gm ? `<button data-act="market-reroll" data-id="${m.id}"><i class="fas fa-dice"></i> Новый товар</button>
+          <button data-act="market-edit" data-id="${m.id}"><i class="fas fa-pen"></i> Править</button>
+          <button data-act="toggle-hide" data-id="${m.id}"><i class="fas fa-${m.hidden ? "eye" : "eye-slash"}"></i> ${m.hidden ? "Показать игрокам" : "Скрыть"}</button>
+          <button class="danger" data-act="market-del" data-id="${m.id}"><i class="fas fa-trash"></i></button>` : ""}
+        </div>
+      </div>`;
+    const inp = panel.querySelector("[data-shopq]");
+    if (inp) {
+      inp.addEventListener("keydown", ev => ev.stopPropagation());
+      inp.addEventListener("input", () => { this.shopQuery = inp.value; const pos = inp.selectionStart; this.renderMarket(panel, m); const n = panel.querySelector("[data-shopq]"); n?.focus(); n?.setSelectionRange(pos, pos); });
+    }
   },
   renderRoutePanel(panel) {
     const pts = this.route, st = routeStats(this.path.length ? this.path : pts, this.path.length > 1);
@@ -912,7 +968,8 @@ const UI = {
         emit({ action: "open", x: cx, y: cy, s: v.s, sel: this.sel }); return ui.notifications.info("Карта открыта у игроков."); }
       case "visit": return save(s => { s.visited = s.visited.includes(id) ? s.visited.filter(x => x !== id) : [...s.visited, id]; });
       case "toggle-hide": return save(s => {
-        if (id.startsWith("s")) { const p = s.shops.find(x => x.id === id); if (p) p.hidden = !p.hidden; }
+        if (id.startsWith("nm")) { const p = s.markets.find(x => x.id === id); if (p) p.hidden = !p.hidden; }
+        else if (id.startsWith("s")) { const p = s.shops.find(x => x.id === id); if (p) p.hidden = !p.hidden; }
         else if (id.startsWith("c")) { const p = s.pins.find(x => x.id === id); if (p) p.hidden = !p.hidden; }
         else { s.poi[id] = { ...(s.poi[id] ?? {}), hidden: !(s.poi[id]?.hidden) }; }
       });
@@ -961,11 +1018,41 @@ const UI = {
         this.close(); return spawnMooks(id, n);
       }
       case "gen-gig": {
-        const g = rollGig(allPois().filter(p => !p.hidden && !p.shop), { distOf: (p) => districtAt(p.x, p.y)?.id });
+        const g = rollGig(allPois().filter(p => !p.hidden && !p.shop && !p.market), { distOf: (p) => districtAt(p.x, p.y)?.id });
         return this.editQuest(null, null, g);
       }
       case "to-party": { const pt = state().party; return pt ? this.focus(pt.x, pt.y, Math.max(this.view.s, 0.8)) : ui.notifications.info("Метка «Мы здесь» ещё не поставлена."); }
       case "gen-shops": return genShopsDialog();
+      case "gen-markets": return genMarketsDialog();
+      case "market-reroll": return save(s => { const m = s.markets.find(x => x.id === id); if (m) m.seed = Math.floor(Math.random() * 1e9); });
+      case "market-del": this.sel = null; return save(s => { s.markets = s.markets.filter(x => x.id !== id); });
+      case "market-grant": {
+        const u = game.users.get(b.dataset.u);
+        return save(s => {
+          const m = s.markets.find(x => x.id === id); if (!m || !u) return;
+          m.access ??= [];
+          if (m.access.includes(u.id)) { m.access = m.access.filter(x => x !== u.id); return; }
+          m.access.push(u.id);
+          s.messages.push({ id: rid(), to: u.id, from: m.fixer ?? "Фиксер", text: `Слышал, ты ищешь, где закупиться. «${m.name}» — открываются после девяти вечера. Скажешь на входе, что от меня. И не светись там с NCPD.`, t: nowMin(s), ts: Date.now() });
+        });
+      }
+      case "market-ask": {
+        const m = state().markets.find(x => x.id === id); if (!m) return;
+        await act("msg", { to: "gm", text: `Хочу попасть на Ночной рынок «${m.name}». ${m.fixer ?? "Фиксер"}, сведёшь? (моя репутация ${repOf(game.user)}, нужно ${m.rep ?? 0}+)` });
+        return ui.notifications.info(`Сообщение для ${m.fixer ?? "фиксера"} отправлено в «Агент».`);
+      }
+      case "market-edit": {
+        const m = state().markets.find(x => x.id === id); if (!m) return;
+        const opt = (sel) => Object.entries(MARKET_CATS).map(([k, v]) => `<option value="${k}"${k === sel ? " selected" : ""}>${v.ru}</option>`).join("");
+        const data = await formDialog(m.name, `<form class="ncm-form"><label>Название<input name="name" value="${esc(m.name)}"></label>
+          <div class="ncm-row"><label>Фиксер<input name="fixer" list="ncm-fixers" value="${esc(m.fixer ?? "")}"><datalist id="ncm-fixers">${FIXERS.map(f => `<option value="${esc(f)}">`).join("")}</datalist></label>
+          <label>Нужна репутация<input name="rep" type="number" min="0" max="10" value="${m.rep ?? 0}"></label></div>
+          <div class="ncm-row"><label>Раздел 1<select name="c1">${opt(m.cats?.[0])}</select></label><label>Раздел 2<select name="c2">${opt(m.cats?.[1])}</select></label></div>
+          <label>Цены, % к книге<input name="pct" type="number" step="5" value="${Math.round((m.markup ?? 1) * 100)}"></label>
+          <label>Заметки мастера<textarea name="notes" rows="3">${esc(m.notes ?? "")}</textarea></label></form>`);
+        if (!data) return;
+        return save(s => { const x = s.markets.find(y => y.id === id); Object.assign(x, { name: data.name, fixer: data.fixer, rep: Math.max(0, Math.min(10, Number(data.rep) || 0)), cats: [...new Set([data.c1, data.c2])], notes: data.notes, markup: (Number(data.pct) || 100) / 100 }); });
+      }
       case "shop-reroll": return save(s => { const sh = s.shops.find(x => x.id === id); if (sh) sh.seed = Math.floor(Math.random() * 1e9); });
       case "shop-del": this.sel = null; return save(s => { s.shops = s.shops.filter(x => x.id !== id); });
       case "shop-edit": {
@@ -1173,9 +1260,56 @@ async function setParty(f) {
   ui.notifications.info("Метка «Мы здесь» отправлена.");
 }
 
-const SHOP_WEIGHTS = { food: 6, clothes: 4, guns: 3, tech: 3, gear: 2, med: 2, ripper: 3, armor: 1, night: 2 };
+const SHOP_WEIGHTS = { food: 6, clothes: 4, guns: 3, tech: 3, gear: 2, med: 2, ripper: 3, armor: 1 };
 const NO_SHOPS = new Set(["norcal", "morro", "oldcorp", "delbay", "sanbay"]);
 const PRICEY = { exec: 1.3, westbrook: 1.2, marina: 1.1, glen: 1.05 };
+
+/** Случайные точки на настоящих улицах (не пустыри, не Зона Поражения), не ближе minD к занятым. */
+function streetSpots(n, taken, minD = 0.022) {
+  const { w, h, cell } = GRID, out = [];
+  let tries = 0;
+  while (out.length < n && tries++ < n * 400) {
+    const i = Math.floor(Math.random() * cell.length);
+    if (cell[i] !== 1) continue;
+    const x = (i % w) / (w - 1), y = ((i / w) | 0) / (h - 1);
+    if (x > 0.93 || y > 0.965 || x < 0.03 || y < 0.03) continue; // края карты и трасса I-101
+    let open = 0; const cx = i % w, cy = (i / w) | 0;
+    for (let dy = -4; dy <= 4; dy += 2) for (let dx = -4; dx <= 4; dx += 2) if (cell[(cy + dy) * w + cx + dx] === 1) open++;
+    if (open > 17) continue;
+    const d = districtAt(x, y);
+    if (!d || NO_SHOPS.has(d.id) || zoneAt(x, y) === "hot") continue;
+    if (taken.some(p => Math.hypot(p.x - x, (p.y - y) * aspect) < minD)) continue;
+    out.push({ x, y, d }); taken.push({ x, y });
+  }
+  return out;
+}
+
+async function genMarketsDialog() {
+  const data = await formDialog("Ночные рынки", `<form class="ncm-form">
+    <p>Ночной рынок — не магазин: его устраивает фиксер, работает он только ночью, а пускают туда по репутации и рекомендации. Товар — два раздела из таблицы Корки (1к6 дважды).</p>
+    <div class="ncm-row"><label>Сколько рынков<input name="count" type="number" min="1" max="20" value="6"></label>
+    <label>Репутация от<input name="rmin" type="number" min="0" max="10" value="2"></label><label>до<input name="rmax" type="number" min="0" max="10" value="7"></label></div>
+    <label class="ncm-check"><input type="checkbox" name="replace" checked> Заменить уже расставленные</label>
+    <label class="ncm-check"><input type="checkbox" name="hidden"> Скрыть от игроков</label></form>`);
+  if (!data) return;
+  await loadGrid();
+  const n = Math.max(1, Math.min(20, Number(data.count) || 6));
+  let lo = Math.max(0, Math.min(10, Number(data.rmin) || 0)), hi = Math.max(0, Math.min(10, Number(data.rmax) || 0)); if (hi < lo) [lo, hi] = [hi, lo];
+  const existing = data.replace ? [] : (state().markets ?? []);
+  const taken = [...allPois().filter(p => !p.market), ...existing].map(p => ({ x: p.x, y: p.y }));
+  const keys = Object.keys(MARKET_CATS), names = [...MARKET_NAMES].sort(() => Math.random() - 0.5), out = [];
+  const roll = (a) => a[Math.floor(Math.random() * a.length)];
+  for (const { x, y, d } of streetSpots(n, taken, 0.05)) {
+    const c1 = roll(keys); let c2 = roll(keys); while (c2 === c1) c2 = roll(keys);
+    const rich = PRICEY[d.id] ? 2 : zoneAt(x, y) === "combat" ? -1 : 0;
+    const rep = Math.max(lo, Math.min(hi, lo + Math.floor(Math.random() * (hi - lo + 1)) + rich));
+    out.push({ id: `nm${rid()}`, name: names.pop() ?? `Ночной рынок · ${streetNear(x, y)?.ru ?? d.ru}`, x, y, fixer: roll(FIXERS), rep, cats: [c1, c2],
+      seed: Math.floor(Math.random() * 1e9), markup: Math.round((0.85 + Math.random() * 0.3) * 20) / 20, access: [], hidden: !!data.hidden });
+  }
+  await save(s => { s.markets = [...existing, ...out]; });
+  ui.notifications.info(`Ночных рынков: ${out.length}.`);
+  UI.filter.add("market");
+}
 
 async function genShopsDialog() {
   const data = await formDialog("Случайные магазины", `<form class="ncm-form">
@@ -1189,20 +1323,8 @@ async function genShopsDialog() {
   const st = state(), existing = data.replace ? [] : st.shops;
   const taken = [...allPois().filter(p => !p.shop), ...existing].map(p => ({ x: p.x, y: p.y }));
   const bag = Object.entries(SHOP_WEIGHTS).flatMap(([k, w]) => Array(w).fill(k));
-  const { w, h, cell } = GRID, out = [], usedNames = new Set(existing.map(x => x.name));
-  let tries = 0;
-  while (out.length < n && tries++ < n * 400) {
-    const i = Math.floor(Math.random() * cell.length);
-    if (cell[i] !== 1) continue;
-    const x = (i % w) / (w - 1), y = ((i / w) | 0) / (h - 1);
-    if (x > 0.93 || y > 0.965 || x < 0.03 || y < 0.03) continue; // края карты и трасса I-101
-    // только настоящие улицы: рядом должны быть кварталы, а не пустырь
-    let open = 0; const cx = i % w, cy = (i / w) | 0;
-    for (let dy = -4; dy <= 4; dy += 2) for (let dx = -4; dx <= 4; dx += 2) if (cell[(cy + dy) * w + cx + dx] === 1) open++;
-    if (open > 17) continue;
-    const d = districtAt(x, y);
-    if (!d || NO_SHOPS.has(d.id) || zoneAt(x, y) === "hot") continue;
-    if (taken.some(p => Math.hypot(p.x - x, (p.y - y) * aspect) < 0.022)) continue;
+  const out = [], usedNames = new Set(existing.map(x => x.name));
+  for (const { x, y, d } of streetSpots(n, taken)) {
     const type = bag[Math.floor(Math.random() * bag.length)], t = SHOP_TYPES[type];
     let name = t.names[Math.floor(Math.random() * t.names.length)];
     if (usedNames.has(name)) name = `${name} · ${(streetNear(x, y)?.ru ?? d.ru)}`;
@@ -1210,7 +1332,6 @@ async function genShopsDialog() {
     const base = PRICEY[d.id] ?? (zoneAt(x, y) === "combat" ? 1.15 : 1);
     const markup = Math.round(base * (0.9 + Math.random() * 0.25) * 20) / 20;
     out.push({ id: `s${rid()}`, type, name, x, y, seed: Math.floor(Math.random() * 1e9), markup, hidden: !!data.hidden });
-    taken.push({ x, y });
   }
   await save(s => { s.shops = [...existing, ...out]; });
   ui.notifications.info(`Расставлено магазинов: ${out.length}.`);
@@ -1303,7 +1424,7 @@ async function genGigsDialog() {
   if (!data) return;
   await loadGrid();
   const n = Math.max(1, Math.min(30, Number(data.count) || 6));
-  const pois = allPois().filter(p => !p.hidden && !p.shop);
+  const pois = allPois().filter(p => !p.hidden && !p.shop && !p.market);
   const { w, h, cell } = GRID, out = [];
   const taken = [...allPois(), ...state().quests.filter(q => q.x != null)].map(p => ({ x: p.x, y: p.y }));
   let tries = 0;

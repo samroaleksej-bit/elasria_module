@@ -240,21 +240,16 @@
 #ncm .ncm-mook-place button { height: 28px; padding: 0 10px; border: 1px solid var(--y); border-radius: 0; background: none; color: var(--y); font-size: 12px; font-weight: 700; }
 
 /* ================================================================ «Красное время» (лёгкая версия: без blend-mode, blur и анимации шума) */
-#ncm .ncm-red { position: absolute; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; contain: strict; }
-#ncm .ncm-red-off { display: none; }
-#ncm .ncm-red > div { position: absolute; inset: 0; }
-#ncm .ncm-redmap { z-index: 0; }
-#ncm .ncm-red-tint { background: linear-gradient(180deg, rgba(150, 25, 25, .34), rgba(120, 30, 30, .2) 45%, rgba(150, 40, 20, .3)); }
-#ncm .ncm-red-smog { background: radial-gradient(ellipse at 25% 30%, rgba(255, 90, 60, .14), transparent 40%), radial-gradient(ellipse at 75% 65%, rgba(255, 60, 90, .1), transparent 45%), radial-gradient(ellipse at 50% 100%, rgba(255, 120, 60, .12), transparent 50%); }
-#ncm .ncm-red-smog.b { display: none; }
-#ncm .ncm-red-grain { opacity: .07; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
-/* полоса помех — один тонкий элемент, двигается transform'ом (дёшево для GPU) */
-#ncm .ncm-red-glitch { inset: auto 0 auto 0 !important; top: 0; height: 3px; background: linear-gradient(90deg, transparent, rgba(255, 42, 109, .35), rgba(0, 240, 255, .25), transparent); will-change: transform; animation: ncm-scanline 9s linear infinite; }
-@keyframes ncm-scanline { 0% { transform: translateY(-10px); opacity: 0; } 3% { opacity: 1; } 25% { transform: translateY(100vh); opacity: 0; } 100% { transform: translateY(100vh); opacity: 0; } }
-#ncm .ncm-red-vig { background: radial-gradient(ellipse at center, transparent 50%, rgba(30, 0, 8, .5) 100%); }
-#ncm .ncm-red-soft .ncm-red-tint { opacity: .5; }
-#ncm .ncm-red-soft .ncm-red-smog, #ncm .ncm-red-soft .ncm-red-glitch, #ncm .ncm-red-soft .ncm-red-grain { display: none; }
-#ncm.ncm-night .ncm-red-tint { background: linear-gradient(180deg, rgba(70, 0, 35, .5), rgba(20, 0, 30, .35) 50%, rgba(90, 10, 40, .45)); }
+/* синяя полоса сканера */
+#ncm .ncm-fx { position: absolute; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; contain: strict; }
+#ncm .ncm-fx-off { display: none; }
+#ncm .ncm-fx-line { position: absolute; left: 0; right: 0; top: 0; height: 56px; will-change: transform;
+  background: linear-gradient(180deg, transparent 0, rgba(40, 120, 255, .10) 60%, rgba(70, 170, 255, .55) 96%, rgba(170, 225, 255, .9) 98%, transparent 100%);
+  animation: ncm-bluescan 7s linear infinite; }
+#ncm .ncm-fx-soft .ncm-fx-line { opacity: .45; animation-duration: 11s; }
+@keyframes ncm-bluescan { 0% { transform: translateY(-60px); } 100% { transform: translateY(110vh); } }
+#ncm .ncm-nightfx { position: absolute; inset: 0; pointer-events: none; z-index: 0; background: rgba(0, 8, 40, .38); display: none; }
+#ncm.ncm-night .ncm-nightfx { display: block; }
 
 /* кнопка-превью в карточке */
 #ncm .ncm-p-imgbtn { position: relative; display: block; width: 100%; height: auto; margin: 0 0 12px; padding: 0; border: none; border-radius: 0; background: none; cursor: zoom-in; overflow: hidden; }
@@ -411,3 +406,21 @@
 #ncm .ncm-brand span { font-size: 22px; }
 #ncm .ncm-modes button { height: 30px; padding: 0 10px; font-size: 12px; letter-spacing: .05em; }
 #ncm .ncm-search { flex: 0 1 260px; }
+
+/* ночные рынки */
+#ncm .ncm-dot.market { border-radius: 12px; box-shadow: 0 0 0 2px #000, 0 0 12px rgba(155, 107, 255, .8); }
+#ncm .ncm-req { display: grid; gap: 6px; margin: 4px 0 10px; }
+#ncm .ncm-req > div { display: grid; grid-template-columns: 22px 1fr; align-items: center; column-gap: 6px; padding: 7px 9px; border: 1px solid rgba(155, 107, 255, .4); background: rgba(155, 107, 255, .07); }
+#ncm .ncm-req > div i { grid-row: span 2; font-size: 16px; text-align: center; }
+#ncm .ncm-req > div small { color: var(--mut); font-size: 12px; }
+#ncm .ncm-req .ok { border-color: rgba(47, 191, 74, .6); } #ncm .ncm-req .ok i { color: #2fbf4a; }
+#ncm .ncm-req .no { border-color: rgba(255, 42, 109, .6); } #ncm .ncm-req .no i { color: #ff2a6d; }
+#ncm .ncm-msecs { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+#ncm .ncm-msecs span { padding: 2px 8px; font-size: 12px; color: #d9c8ff; border: 1px solid rgba(155, 107, 255, .55); }
+#ncm .ncm-mpl { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+#ncm .ncm-mpl button { width: auto; margin: 0; padding: 3px 8px; font-size: 13px; border: 1px solid var(--line); background: none; color: #fff; }
+#ncm .ncm-mpl button.on { border-color: #2fbf4a; background: rgba(47, 191, 74, .15); }
+#ncm .ncm-mpl small.ok { color: #2fbf4a; } #ncm .ncm-mpl small.no { color: #ff2a6d; }
+#ncm .ncm-mlock { display: grid; grid-template-columns: 28px 1fr; column-gap: 8px; padding: 12px; margin: 6px 0 10px; border: 1px dashed rgba(155, 107, 255, .6); background: rgba(20, 0, 40, .4); }
+#ncm .ncm-mlock i { grid-row: span 2; font-size: 20px; color: #9b6bff; align-self: center; }
+#ncm .ncm-mlock span { color: var(--mut); font-size: 13px; }

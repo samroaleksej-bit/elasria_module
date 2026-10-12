@@ -147,3 +147,33 @@ export function stockFor(type, seed) {
   return out;
 }
 function tierByRu(ru) { return Object.entries(TIERS).find(([, v]) => v.ru.replace("ё", "е").toLowerCase() === String(ru).replace("ё", "е").toLowerCase())?.[0] ?? "everyday"; }
+
+/* ================================================================ ночные рынки */
+
+/** Разделы Ночного рынка по Корке Cyberpunk RED (бросок 1к6 дважды). */
+export const MARKET_CATS = {
+  food: { ru: "Еда и наркотики", cats: ["food", "med"] },
+  tech: { ru: "Личная электроника", cats: ["tech"] },
+  arms: { ru: "Оружие и броня", cats: ["weapons", "armor", "ammo"] },
+  cyber: { ru: "Киберимпланты", cats: ["cyber"] },
+  fashion: { ru: "Одежда и фэшнвэр", cats: ["clothes"] },
+  survival: { ru: "Снаряжение для выживания", cats: ["gear"] }
+};
+export const MARKET_NAMES = ["Рынок под эстакадой", "Чёрный базар", "Ночной рынок у доков", "Барахолка «Полночь»", "Рынок на крытой парковке",
+  "Базар у старого моста", "Контейнерный рынок", "Рынок «Красная луна»", "Рынок в туннелях метро", "Рынок на крыше молла", "Неоновый развал", "Рынок в заброшенном цеху"];
+
+/** Товар Ночного рынка: два раздела, из каждого — случайная часть. */
+export function marketStock(keys, seed) {
+  const r = rng(seed), out = [];
+  for (const k of keys) for (const c of MARKET_CATS[k]?.cats ?? []) {
+    const cat = CATALOG[c];
+    if (cat.groups) {
+      const groups = [...cat.groups].sort(() => r() - 0.5).slice(0, 3);
+      for (const [g, prices] of groups) {
+        const ps = prices.split(" ").map(x => x.replace("_", " "));
+        cat.pieces.forEach((p, i) => out.push({ cat: c, n: `${p} — ${g.split(" — ")[0]}`, tier: tierByRu(ps[i]), note: g.split(" — ")[1] }));
+      }
+    } else for (const it of cat.items) if (r() < 0.5) out.push({ cat: c, n: it.n, tier: it.t, note: it.note });
+  }
+  return out;
+}
