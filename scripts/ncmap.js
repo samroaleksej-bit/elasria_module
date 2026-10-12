@@ -64,6 +64,7 @@ Hooks.once("init", () => {
     name: "Агент при запуске", hint: "Телефон «Агент» открывается сам, когда вы входите в игру (у каждого игрока своя настройка).",
     scope: "client", config: true, type: Boolean, default: true
   });
+  game.settings.register(MID, "autoPlaced", { scope: "world", config: false, type: Boolean, default: false });
   game.settings.register(MID, "scAsked", { scope: "world", config: false, type: Boolean, default: false });
   game.settings.register(MID, "notify", { name: "Уведомлять игроков о новых квестах", scope: "world", config: true, type: Boolean, default: true });
   game.keybindings.register(MID, "agent", { name: "Агент (телефон)", editable: [{ key: "KeyA", modifiers: ["Shift"] }], onDown: () => { Agent.toggle(); return true; } });
@@ -1326,10 +1327,14 @@ async function genMarketsDialog() {
     <label class="ncm-check"><input type="checkbox" name="replace" checked> Заменить уже расставленные</label>
     <label class="ncm-check"><input type="checkbox" name="hidden"> Скрыть от игроков</label></form>`);
   if (!data) return;
-  await loadGrid();
-  const n = Math.max(1, Math.min(20, Number(data.count) || 6));
-  let lo = Math.max(0, Math.min(10, Number(data.rmin) || 0)), hi = Math.max(0, Math.min(10, Number(data.rmax) || 0)); if (hi < lo) [lo, hi] = [hi, lo];
-  const existing = data.replace ? [] : (state().markets ?? []);
+  return placeMarkets({ n: Number(data.count) || 6, lo: Number(data.rmin) || 0, hi: Number(data.rmax) || 0, replace: !!data.replace, hidden: !!data.hidden });
+}
+async function placeMarkets({ n = 6, lo = 2, hi = 7, replace = true, hidden = false, quiet = false } = {}) {
+  if (!(await loadGrid())) return ui.notifications.error("Карта: не загрузилась сетка улиц (assets/roads.png).");
+  n = Math.max(1, Math.min(20, n));
+  lo = Math.max(0, Math.min(10, lo)); hi = Math.max(0, Math.min(10, hi)); if (hi < lo) [lo, hi] = [hi, lo];
+  const data = { hidden };
+  const existing = replace ? [] : (state().markets ?? []);
   const taken = [...allPois().filter(p => !p.market), ...existing].map(p => ({ x: p.x, y: p.y }));
   const keys = Object.keys(MARKET_CATS), names = [...MARKET_NAMES].sort(() => Math.random() - 0.5), out = [];
   const roll = (a) => a[Math.floor(Math.random() * a.length)];
@@ -1341,7 +1346,7 @@ async function genMarketsDialog() {
       seed: Math.floor(Math.random() * 1e9), markup: Math.round((0.85 + Math.random() * 0.3) * 20) / 20, access: [], hidden: !!data.hidden });
   }
   await save(s => { s.markets = [...existing, ...out]; });
-  ui.notifications.info(`Ночных рынков: ${out.length}.`);
+  if (!quiet) ui.notifications.info(`Ночных рынков: ${out.length}.`);
   UI.filter.add("market");
 }
 
@@ -1352,9 +1357,13 @@ async function genShopsDialog() {
     <label class="ncm-check"><input type="checkbox" name="replace" checked> Заменить уже расставленные</label>
     <label class="ncm-check"><input type="checkbox" name="hidden"> Скрыть от игроков (откроете по одному)</label></form>`);
   if (!data) return;
-  await loadGrid();
-  const n = Math.max(1, Math.min(120, Number(data.count) || 30));
-  const st = state(), existing = data.replace ? [] : st.shops;
+  return placeShops({ n: Number(data.count) || 30, replace: !!data.replace, hidden: !!data.hidden });
+}
+async function placeShops({ n = 30, replace = true, hidden = false, quiet = false } = {}) {
+  if (!(await loadGrid())) return ui.notifications.error("Карта: не загрузилась сетка улиц (assets/roads.png).");
+  n = Math.max(1, Math.min(120, n));
+  const data = { hidden };
+  const st = state(), existing = replace ? [] : (st.shops ?? []);
   const taken = [...allPois().filter(p => !p.shop), ...existing].map(p => ({ x: p.x, y: p.y }));
   const bag = Object.entries(SHOP_WEIGHTS).flatMap(([k, w]) => Array(w).fill(k));
   const out = [], usedNames = new Set(existing.map(x => x.name));
@@ -1368,7 +1377,7 @@ async function genShopsDialog() {
     out.push({ id: `s${rid()}`, type, name, x, y, seed: Math.floor(Math.random() * 1e9), markup, hidden: !!data.hidden });
   }
   await save(s => { s.shops = [...existing, ...out]; });
-  ui.notifications.info(`Расставлено магазинов: ${out.length}.`);
+  if (!quiet) ui.notifications.info(`Расставлено магазинов: ${out.length}.`);
   if (!UI.filter.has("shop")) UI.filter.add("shop");
 }
 
@@ -1419,6 +1428,16 @@ Hooks.once("ready", () => {
   game.modules.get(MID).api = { open: () => UI.open(), close: () => UI.close(), ui: UI, agent: () => Agent.toggle() };
   Agent.seen = new Set(state().messages.map(m => m.id));
   if (game.settings.get(MID, "agentAuto")) setTimeout(() => Agent.open(), 1200);
+  // Первый запуск у мастера: город сразу с магазинами и Ночными рынками
+  if (game.user === game.users.activeGM && !game.settings.get(MID, "autoPlaced")) setTimeout(async () => {
+    try {
+      const s = state();
+      if (!(s.shops ?? []).length) await placeShops({ n: 30, quiet: true });
+      if (!(s.markets ?? []).length) await placeMarkets({ n: 6, quiet: true });
+      await game.settings.set(MID, "autoPlaced", true);
+      ui.notifications.info("Карта Найт-Сити: расставлены магазины и Ночные рынки. Перегенерировать — кнопками «Магазины» и «Ночные рынки» на карте.");
+    } catch (e) { console.error(MID, e); }
+  }, 2000);
   globalThis.NightCityMap = game.modules.get(MID).api;
   game.modules.get(MID).api.setupCalendar = setupCalendar;
   // Мастеру — один раз предложить настроить Simple Calendar
