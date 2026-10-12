@@ -8,6 +8,7 @@ import { MAP_SIZE, POIS, DISTRICTS, ZONES, STREETS } from "./data.js";
 import { CATALOG, SHOP_TYPES, TIERS, stockFor } from "./shops.js";
 import { rollEncounter, threatOf, THREAT_RU, rollGig } from "./encounters.js";
 import { MOOKS, MOOK_PACK } from "./mooks.js";
+import { SCID, SC_NAME, NC_HOLIDAYS, buildCalendar } from "./calendar.js";
 
 const MID = "night-city-map";
 const SOCKET = `module.${MID}`;
@@ -54,6 +55,11 @@ Hooks.once("init", () => {
     name: "Эффект «Красного времени»", hint: "Красный смог, дымка и помехи поверх карты (у каждого игрока своя настройка).",
     scope: "client", config: true, type: String, default: "full", choices: { full: "Полный", soft: "Мягкий", off: "Выключен" }, onChange: () => UI.rebuild()
   });
+  game.settings.register(MID, "scSync", {
+    name: "Синхронизация с Simple Calendar", hint: "Часы карты идут по календарю «Найт-Сити 2045» в Simple Calendar (мировое время Foundry). Кнопка 📅 на часах карты настраивает календарь.",
+    scope: "world", config: true, type: Boolean, default: true, onChange: () => onTime(true)
+  });
+  game.settings.register(MID, "scAsked", { scope: "world", config: false, type: Boolean, default: false });
   game.settings.register(MID, "notify", { name: "Уведомлять игроков о новых квестах", scope: "world", config: true, type: Boolean, default: true });
   game.keybindings.register(MID, "agent", { name: "Агент (телефон)", editable: [{ key: "KeyA", modifiers: ["Shift"] }], onDown: () => { Agent.toggle(); return true; } });
   game.keybindings.register(MID, "open", {
@@ -66,6 +72,7 @@ const state = () => foundry.utils.mergeObject(clone(DEFAULT_STATE), clone(game.s
 async function save(mut) {
   if (!isGM()) return ui.notifications.warn("Карта: изменять может только мастер.");
   const s = state();
+  if (scLinked()) s.clock = nowMin(s);
   mut(s);
   await game.settings.set(MID, "state", s);
 }
@@ -74,12 +81,80 @@ async function save(mut) {
 
 const T0 = Date.UTC(2045, 6, 14, 20, 0); // старт часов: пт 14.07.2045, 20:00
 const DOW = ["ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
-function clockDate(min = state().clock) { return new Date(T0 + min * 60000); }
-function fmtClock(min = state().clock) {
+/* Simple Calendar: если календарь «Найт-Сити 2045» активен, часы карты = мировое время Foundry. */
+const scApi = () => game.modules.get(SCID)?.active ? globalThis.SimpleCalendar?.api ?? null : null;
+function scLinked() {
+  const a = scApi();
+  try { return !!a && game.settings.get(MID, "scSync") && a.getCurrentCalendar?.()?.name === SC_NAME; } catch (e) { return false; }
+}
+/** Текущее время карты в минутах от T0. */
+function nowMin(s) {
+  if (scLinked()) {
+    const d = scApi().timestampToDate(game.time.worldTime);
+    if (d && Number.isFinite(d.year)) return Math.floor((Date.UTC(d.year, d.month, d.day + 1, d.hour, d.minute) - T0) / 60000);
+  }
+  return (s ?? state()).clock ?? 0;
+}
+/** Сдвинуть время на min минут (мастер). С календарём — через мировое время, без него — часы карты. */
+async function advanceTime(min) {
+  min = Math.round(min); if (!min || !isGM()) return;
+  if (scLinked()) return game.time.advance(min * 60);
+  await save(s => { s.clock = (s.clock ?? 0) + min; });
+  game.time?.advance?.(min * 60);
+}
+/** Поставить время карты на дату (мс UTC). */
+async function setTimeMs(ms) {
+  if (!isGM()) return;
+  if (scLinked()) {
+    const d = new Date(ms), a = scApi();
+    const ts = a.dateToTimestamp({ year: d.getUTCFullYear(), month: d.getUTCMonth(), day: d.getUTCDate() - 1, hour: d.getUTCHours(), minute: d.getUTCMinutes(), seconds: 0 });
+    return game.time.advance(ts - game.time.worldTime);
+  }
+  return save(s => { s.clock = Math.round((ms - T0) / 60000); });
+}
+/** Настроить Simple Calendar под Найт-Сити и выставить дату по часам карты. */
+async function setupCalendar({ holidays = true } = {}) {
+  const a = scApi();
+  if (!a) return ui.notifications.warn("Simple Calendar не включён в этом мире.");
+  if (!isGM()) return;
+  const base = await fetch(`modules/${SCID}/predefined-calendars/gregorian.json`).then(r => r.json()).catch(() => null);
+  if (!base?.calendar) return ui.notifications.error("Не нашёл gregorian.json в Simple Calendar — обнови модуль.");
+  const ms = T0 + (state().clock ?? 0) * 60000;
+  const ok = await a.configureCalendar(buildCalendar(base.calendar, new Date(ms)));
+  if (!ok) return ui.notifications.error("Simple Calendar не принял настройки.");
+  await new Promise(r => setTimeout(r, 300));
+  await setTimeMs(ms);
+  if (holidays && a.addNote) {
+    const have = new Set((a.getNotes?.() ?? []).map(n => n.name));
+    for (const h of NC_HOLIDAYS) {
+      if (have.has(h.title)) continue;
+      const day = { year: 2045, month: h.m - 1, day: h.d - 1, hour: 0, minute: 0, seconds: 0 };
+      try { await a.addNote(h.title, `<p>${h.text}</p>`, day, day, true, 3, ["Праздник"]); } catch (e) { console.warn(MID, e); }
+    }
+  }
+  await game.settings.set(MID, "scAsked", true);
+  onTime(true);
+  ui.notifications.info(`Simple Calendar: «${SC_NAME}», ${fmtClock().day} ${fmtClock().time}.`);
+}
+let lastMin = null, lastNight = null;
+/** Время изменилось — обновить часы, ночь и телефон. */
+function onTime(force = false) {
+  const m = nowMin(), n = isNight();
+  if (!force && m === lastMin) return;
+  const flip = n !== lastNight; lastMin = m; lastNight = n;
+  if (UI.el) { if (flip || force) UI.refresh(); else UI.renderClock(); }
+  if (Agent.el && Agent.tab === "me") Agent.render();
+}
+Hooks.on("updateWorldTime", () => onTime());
+Hooks.on("simple-calendar-date-time-change", () => onTime());
+Hooks.on("simple-calendar-ready", () => onTime(true));
+
+function clockDate(min = nowMin()) { return new Date(T0 + min * 60000); }
+function fmtClock(min = nowMin()) {
   const d = clockDate(min), z = (n) => String(n).padStart(2, "0");
   return { day: `${DOW[d.getUTCDay()]} ${z(d.getUTCDate())}.${z(d.getUTCMonth() + 1)}.${d.getUTCFullYear()}`, time: `${z(d.getUTCHours())}:${z(d.getUTCMinutes())}` };
 }
-const isNight = (s = state()) => { const h = clockDate(s.clock).getUTCHours(); return s.night || h >= 21 || h < 6; };
+const isNight = (s = state()) => { const h = clockDate(nowMin(s)).getUTCHours(); return s.night || h >= 21 || h < 6; };
 const fmtMin = (m) => m < 60 ? `${Math.round(m)} мин` : `${Math.floor(m / 60)} ч${Math.round(m % 60) ? ` ${Math.round(m % 60)} мин` : ""}`;
 
 /* ================================================================ запросы игроков через мастера */
@@ -96,13 +171,14 @@ async function applyOp(op, d, user) {
     case "party": return save(s => { s.party = { x: d.x, y: d.y }; });
     case "me": return save(s => { s.players[user.id] = { x: d.x, y: d.y }; });
     case "me-clear": return save(s => { delete s.players[user.id]; });
-    case "travel": return save(s => {
-      s.clock = (s.clock ?? 0) + Math.round(d.min);
-      if (d.who === "party") s.party = { x: d.x, y: d.y }; else s.players[d.who] = { x: d.x, y: d.y };
-    }).then(() => { if (isGM()) game.time?.advance?.(Math.round(d.min) * 60); chatTravel(d, name); });
+    case "travel": {
+      await advanceTime(d.min);
+      await save(s => { if (d.who === "party") s.party = { x: d.x, y: d.y }; else s.players[d.who] = { x: d.x, y: d.y }; });
+      return chatTravel(d, name);
+    }
     case "take": return save(s => { const q = s.quests.find(x => x.id === d.id); if (q && q.status === "offer") { q.status = "active"; q.takenBy = name; } })
       .then(() => ChatMessage.create({ speaker: { alias: "Агент" }, content: `<div class="ncm-chat"><div class="ncm-chat-k">ЗАКАЗ ПРИНЯТ</div><b>${esc(name)}</b> берёт заказ «${esc(state().quests.find(x => x.id === d.id)?.title ?? "")}»</div>` }));
-    case "msg": return save(s => { s.messages.push({ id: rid(), to: d.to ?? "gm", from: d.from ?? name, fromUser: user?.id, text: String(d.text ?? "").slice(0, 2000), t: s.clock ?? 0, ts: Date.now() }); if (s.messages.length > 300) s.messages = s.messages.slice(-300); });
+    case "msg": return save(s => { s.messages.push({ id: rid(), to: d.to ?? "gm", from: d.from ?? name, fromUser: user?.id, text: String(d.text ?? "").slice(0, 2000), t: nowMin(s), ts: Date.now() }); if (s.messages.length > 300) s.messages = s.messages.slice(-300); });
   }
 }
 function chatTravel(d, name) {
@@ -719,7 +795,7 @@ const UI = {
   renderClock() {
     const c = this.el?.querySelector(".ncm-clock"); if (!c) return;
     const { day, time } = fmtClock(), n = isNight();
-    c.innerHTML = `<i class="fas fa-${n ? "moon" : "sun"}"></i><b>${time}</b><small>${day}</small>${isGM() ? `<span class="ncm-tadd"><button data-act="time" data-m="10">+10м</button><button data-act="time" data-m="60">+1ч</button><button data-act="time" data-m="480">+8ч</button><button data-act="time-set" title="Установить время">⏱</button></span>` : ""}`;
+    c.innerHTML = `<i class="fas fa-${n ? "moon" : "sun"}"></i><b>${time}</b><small>${day}</small>${isGM() ? `<span class="ncm-tadd"><button data-act="time" data-m="10">+10м</button><button data-act="time" data-m="60">+1ч</button><button data-act="time" data-m="480">+8ч</button><button data-act="time-set" title="Установить время">⏱</button>${scApi() ? `<button data-act="sc-setup" class="${scLinked() ? "on" : ""}" title="${scLinked() ? `Simple Calendar: «${SC_NAME}» подключён. Нажми, чтобы перенастроить` : "Настроить Simple Calendar под Найт-Сити"}">📅</button>` : ""}</span>` : ""}${scLinked() ? `<span class="ncm-sc" title="Время идёт по Simple Calendar">SC</span>` : ""}`;
   },
   async travel(tid) {
     const pts = this.path.length ? this.path : this.route; if (pts.length < 2) return;
@@ -855,13 +931,14 @@ const UI = {
       case "night": return save(s => { s.night = !s.night; });
       case "mode-me": return this.setMode("me");
       case "agent": return Agent.toggle();
-      case "time": return save(s => { s.clock = (s.clock ?? 0) + Number(b.dataset.m); }).then(() => game.time?.advance?.(Number(b.dataset.m) * 60));
+      case "time": return advanceTime(Number(b.dataset.m));
+      case "sc-setup": return Dialog.confirm({ title: "Simple Calendar", content: `<p>Настроить Simple Calendar под Найт-Сити?</p><p>Календарь «${SC_NAME}»: григорианский, месяцы и дни недели по-русски, дата и время — как на часах карты (${fmtClock().day} ${fmtClock().time}). Добавлю праздники года.</p>`, yes: () => setupCalendar() });
       case "time-set": {
         const d = clockDate(), z = (n) => String(n).padStart(2, "0");
         const data = await formDialog("Время в Найт-Сити", `<form class="ncm-form"><div class="ncm-row"><label>Дата<input type="date" name="d" value="${d.getUTCFullYear()}-${z(d.getUTCMonth() + 1)}-${z(d.getUTCDate())}"></label><label>Время<input type="time" name="t" value="${z(d.getUTCHours())}:${z(d.getUTCMinutes())}"></label></div></form>`);
         if (!data) return;
         const ms = Date.parse(`${data.d}T${data.t}:00Z`); if (isNaN(ms)) return;
-        return save(s => { s.clock = Math.round((ms - T0) / 60000); });
+        return setTimeMs(ms);
       }
       case "travel": return this.travel(b.dataset.t);
       case "take": return act("take", { id });
@@ -1187,6 +1264,15 @@ Hooks.once("ready", () => {
   game.modules.get(MID).api = { open: () => UI.open(), close: () => UI.close(), ui: UI, agent: () => Agent.toggle() };
   Agent.seen = new Set(state().messages.map(m => m.id));
   globalThis.NightCityMap = game.modules.get(MID).api;
+  game.modules.get(MID).api.setupCalendar = setupCalendar;
+  // Мастеру — один раз предложить настроить Simple Calendar
+  if (game.user === game.users.activeGM && scApi() && !game.settings.get(MID, "scAsked")) {
+    setTimeout(() => !scLinked() && Dialog.confirm({
+      title: "Карта Найт-Сити · Simple Calendar",
+      content: `<p>Найден Simple Calendar. Настроить его под Найт-Сити?</p><p>Календарь «${SC_NAME}»: григорианские месяцы и дни недели по-русски, 2045 год, дата и время — как на часах карты. Потом это можно сделать кнопкой 📅 на часах карты.</p>`,
+      yes: () => setupCalendar(), no: () => game.settings.set(MID, "scAsked", true)
+    }), 2500);
+  }
 });
 
 /* ================================================================ кнопки запуска */
