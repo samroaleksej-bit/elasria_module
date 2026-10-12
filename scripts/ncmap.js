@@ -293,9 +293,16 @@ const UI = {
   /* ------------------------------------------------ вид */
   size() { const img = this.el.querySelector(".ncm-img"); return { w: img.naturalWidth || MAP_SIZE.w, h: img.naturalHeight || MAP_SIZE.h }; },
   apply() {
+    if (this._raf) return;
+    this._raf = requestAnimationFrame(() => { this._raf = 0; this._apply(); });
+    this.el.classList.add("ncm-moving");
+    clearTimeout(this._mv); this._mv = setTimeout(() => this.el?.classList.remove("ncm-moving"), 160);
+  },
+  _apply() {
+    if (!this.el) return;
     const { x, y, s } = this.view;
     this.world.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
-    this.world.style.setProperty("--inv", 1 / s);
+    if (this._lastS !== s) { this._lastS = s; this.world.style.setProperty("--inv", 1 / s); }
     this.el.classList.toggle("ncm-far", s < 0.42);
     this.el.classList.toggle("ncm-near", s >= 0.62);
   },
@@ -840,6 +847,42 @@ function chatEnc(e, gmOnly) {
 const poiArt = (p) => p?.n ? `modules/${MID}/assets/poi/p${p.n}.webp` : (p?.img ?? "");
 const hex = (n) => (n * 2654435761 >>> 0).toString(16).toUpperCase().padStart(8, "0");
 
+/** Арт на весь экран: клик — увеличить ×2.5 в точке клика, тянуть — двигать, колесо — масштаб, Esc/✕ — закрыть. */
+function openZoom(src) {
+  document.getElementById("ncm-zoom")?.remove();
+  const el = document.createElement("div");
+  el.id = "ncm-zoom";
+  el.innerHTML = `<img src="${esc(src)}" alt="" draggable="false"><div class="nz-x">✕</div><div class="nz-h">клик — увеличить · колесо — масштаб · тяни — двигай · Esc — закрыть</div>`;
+  document.body.appendChild(el);
+  const img = el.querySelector("img");
+  let s = 1, x = 0, y = 0, drag = null, raf = 0;
+  const apply = () => { raf = 0; img.style.transform = `translate(${x}px, ${y}px) scale(${s})`; el.classList.toggle("z", s > 1); };
+  const sched = () => { if (!raf) raf = requestAnimationFrame(apply); };
+  const zoomTo = (ns, cx, cy) => {
+    ns = Math.min(6, Math.max(1, ns));
+    const r = el.getBoundingClientRect(), ox = cx - r.width / 2, oy = cy - r.height / 2;
+    x = ox - (ox - x) * (ns / s); y = oy - (oy - y) * (ns / s); s = ns;
+    if (s === 1) { x = 0; y = 0; }
+    sched();
+  };
+  const close = () => { el.classList.remove("on"); setTimeout(() => el.remove(), 200); document.removeEventListener("keydown", key, true); };
+  const key = (ev) => { if (ev.key === "Escape") { ev.stopPropagation(); close(); } };
+  document.addEventListener("keydown", key, true);
+  el.addEventListener("wheel", (ev) => { ev.preventDefault(); zoomTo(s * (ev.deltaY < 0 ? 1.2 : 1 / 1.2), ev.clientX, ev.clientY); }, { passive: false });
+  el.addEventListener("pointerdown", (ev) => { if (ev.target.closest(".nz-x")) return; drag = { x: ev.clientX, y: ev.clientY, ox: x, oy: y, moved: false }; el.setPointerCapture(ev.pointerId); });
+  el.addEventListener("pointermove", (ev) => {
+    if (!drag) return; const dx = ev.clientX - drag.x, dy = ev.clientY - drag.y;
+    if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true;
+    if (drag.moved && s > 1) { x = drag.ox + dx; y = drag.oy + dy; sched(); }
+  });
+  el.addEventListener("pointerup", (ev) => {
+    const d = drag; drag = null;
+    if (ev.target.closest(".nz-x")) return close();
+    if (d && !d.moved) zoomTo(s > 1 ? 1 : 2.5, ev.clientX, ev.clientY);
+  });
+  requestAnimationFrame(() => el.classList.add("on"));
+}
+
 function openDossier(id, { remote = false } = {}) {
   const p = poiById(id) ?? POIS.find(x => x.id === id);
   if (!p) return;
@@ -856,7 +899,7 @@ function openDossier(id, { remote = false } = {}) {
       <div class="nd-bar"><span>NCNET://CITY.DB/POI/${String(p.n ?? "X").padStart(3, "0")}</span><span class="nd-blink">● LIVE</span><span>ID ${hex(p.n ?? 7)}</span>
         ${isGM() && !remote ? `<button data-nd="share" title="Показать всем игрокам"><i class="fas fa-satellite-dish"></i> ВСЕМ</button>` : ""}<button data-nd="close" title="Закрыть (Esc)">✕</button></div>
       <div class="nd-art"><img src="${esc(poiArt(p))}" alt=""><div class="nd-scan"></div><div class="nd-corner tl"></div><div class="nd-corner tr"></div><div class="nd-corner bl"></div><div class="nd-corner br"></div>
-        <div class="nd-tag">${esc((CATS[p.cat] ?? CATS.custom).ru)}${p.n ? ` · №${p.n}` : ""}</div></div>
+        <div class="nd-zoomhint">⊕ УВЕЛИЧИТЬ</div><div class="nd-tag">${esc((CATS[p.cat] ?? CATS.custom).ru)}${p.n ? ` · №${p.n}` : ""}</div></div>
       <div class="nd-body">
         <div class="nd-title"><h1 data-text="${esc(p.name)}">${esc(p.name)}</h1>${p.en ? `<small>${esc(p.en)}</small>` : ""}</div>
         <div class="nd-meta">
@@ -879,7 +922,8 @@ function openDossier(id, { remote = false } = {}) {
   el.addEventListener("click", (ev) => {
     const b = ev.target.closest("[data-nd]");
     if (b?.dataset.nd === "share") { emit({ action: "dossier", id }); return ui.notifications.info("Досье показано игрокам."); }
-    if (b?.dataset.nd === "close" || ev.target.classList.contains("nd-back")) close();
+    if (b?.dataset.nd === "close" || ev.target.classList.contains("nd-back")) return close();
+    if (ev.target.closest(".nd-art")) openZoom(poiArt(p));
   });
 }
 

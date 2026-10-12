@@ -6,7 +6,7 @@
 #ncm.ncm-in { opacity: 1; transform: none; }
 #ncm *, #ncm *::before, #ncm *::after { box-sizing: border-box; }
 #ncm button { font-family: var(--font); cursor: pointer; }
-#ncm .ncm-scan { position: absolute; inset: 0; pointer-events: none; z-index: 5; background: repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 1px, transparent 1px 3px); mix-blend-mode: multiply; }
+#ncm .ncm-scan { position: absolute; inset: 0; pointer-events: none; z-index: 5; background: repeating-linear-gradient(0deg, rgba(0,0,0,.1) 0 1px, transparent 1px 3px); }
 
 /* шапка */
 #ncm .ncm-top { display: flex; align-items: center; gap: 14px; padding: 10px 16px; background: linear-gradient(90deg, #0b0b14, #120a18 60%, #0b0b14); border-bottom: 2px solid var(--y); box-shadow: 0 0 24px rgba(252,238,10,.18); position: relative; z-index: 6; }
@@ -39,11 +39,13 @@
 #ncm .ncm-viewport { position: relative; overflow: hidden; cursor: grab; background: radial-gradient(ellipse at center, #0d1420, #05050a 70%); touch-action: none; }
 #ncm .ncm-viewport.ncm-grab { cursor: grabbing; }
 #ncm .ncm-viewport.ncm-pick { cursor: crosshair; }
-#ncm .ncm-world { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+#ncm .ncm-world { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; backface-visibility: hidden; }
+#ncm.ncm-moving .ncm-streets, #ncm.ncm-moving .ncm-name, #ncm.ncm-moving .ncm-dist { visibility: hidden; }
+#ncm.ncm-moving .ncm-pin { pointer-events: none; }
 #ncm .ncm-world.ncm-anim { transition: transform .45s cubic-bezier(.2,.8,.3,1); }
-#ncm .ncm-img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; border: none; user-select: none; filter: saturate(1.15) contrast(1.05); }
+#ncm .ncm-img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; border: none; user-select: none; }
 #ncm .ncm-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
-#ncm .ncm-rt { fill: none; stroke: var(--y); stroke-width: 6; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 12 8; filter: drop-shadow(0 0 2px #000) drop-shadow(0 0 6px var(--y)); animation: ncm-dash 1s linear infinite; }
+#ncm .ncm-rt { fill: none; stroke: var(--y); stroke-width: 6; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 12 8; }
 #ncm .ncm-rt-shared { stroke: var(--m); }
 #ncm [class^="ncm-rt-pt"], #ncm [class*=" ncm-rt-pt"] { fill: #111; stroke: var(--y); stroke-width: 2; vector-effect: non-scaling-stroke; }
 #ncm .ncm-rt-pt.start { fill: var(--c); } #ncm .ncm-rt-pt.end { fill: var(--y); }
@@ -59,7 +61,7 @@
 /* точки */
 #ncm .ncm-pin { position: absolute; transform: translate(-50%, -50%) scale(var(--inv)); width: auto; height: auto; padding: 0; margin: 0; border: none; background: none; display: flex; align-items: center; z-index: 1; }
 #ncm .ncm-dot { display: grid; place-items: center; min-width: 30px; height: 24px; padding: 0 5px; font-size: 13px; font-weight: 800; color: #fff; background: var(--c);
-  border: 2px solid #fff; box-shadow: 0 0 0 2px rgba(0,0,0,.6), 0 0 14px var(--c); clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px); transition: transform .15s; }
+  border: 2px solid #fff; box-shadow: 0 0 0 2px rgba(0,0,0,.6); clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px); transition: transform .15s; }
 #ncm .ncm-name { position: absolute; left: calc(100% + 6px); white-space: nowrap; padding: 2px 8px; font-size: 13px; font-weight: 700; color: #fff; background: rgba(5,5,12,.85); border-left: 2px solid var(--c);
   opacity: 0; transform: translateX(-6px); transition: all .15s; pointer-events: none; }
 #ncm .ncm-pin:hover { z-index: 3; } #ncm .ncm-pin:hover .ncm-dot { transform: scale(1.2); }
@@ -69,8 +71,8 @@
 #ncm .ncm-pin.secret .ncm-dot { border-style: dashed; opacity: .7; }
 #ncm .ncm-pin.visited .ncm-dot::after { content: "✓"; position: absolute; right: -8px; top: -9px; font-size: 11px; color: #000; background: var(--y); border-radius: 50%; width: 14px; height: 14px; display: grid; place-items: center; }
 #ncm .ncm-qmark { position: absolute; left: 50%; top: -24px; transform: translateX(-50%); width: 20px; height: 20px; display: grid; place-items: center; font-weight: 900; color: #111; background: var(--y);
-  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); animation: ncm-bob 1.4s ease-in-out infinite; filter: drop-shadow(0 0 6px var(--y)); }
-@keyframes ncm-bob { 50% { transform: translate(-50%, -4px); } }
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); animation: ncm-bob 1.4s ease-in-out infinite; }
+@keyframes ncm-bob { 50% { translate: 0 -4px; } }
 
 #ncm .ncm-party { position: absolute; transform: translate(-50%, -50%) scale(var(--inv)); pointer-events: none; z-index: 5; display: flex; flex-direction: column; align-items: center; }
 #ncm .ncm-party span { width: 22px; height: 22px; border-radius: 50%; background: var(--m); border: 3px solid #fff; box-shadow: 0 0 0 4px rgba(255,42,109,.35), 0 0 22px var(--m); animation: ncm-ping 1.6s ease-out infinite; }
@@ -209,8 +211,9 @@
 #ncm .ncm-enc-card .ncm-p-acts { margin-top: 8px; }
 @keyframes ncm-glitch { 0% { transform: translateX(-4px); filter: hue-rotate(90deg); } 50% { transform: translateX(3px); } 100% { transform: none; filter: none; } }
 /* ночь */
-#ncm.ncm-night .ncm-img { filter: brightness(.55) saturate(1.3) hue-rotate(-12deg) contrast(1.1); }
-#ncm.ncm-night .ncm-viewport::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 40%, rgba(40,0,60,.45)); }
+#ncm.ncm-night .ncm-img { opacity: .55; }
+#ncm.ncm-night .ncm-world { background: #05020a; }
+
 /* чат */
 .ncm-chat { border-left: 3px solid #ff2a6d; padding-left: 8px; }
 .ncm-chat-k { font-size: 11px; letter-spacing: .14em; color: #ff2a6d; font-weight: 700; }
@@ -236,40 +239,22 @@
 #ncm .ncm-mook-place input { width: 46px; height: 26px; background: rgba(0,0,0,.4); border: 1px solid var(--line); color: #fff; text-align: center; }
 #ncm .ncm-mook-place button { height: 28px; padding: 0 10px; border: 1px solid var(--y); border-radius: 0; background: none; color: var(--y); font-size: 12px; font-weight: 700; }
 
-/* ================================================================ «Красное время»: смог, дымка, помехи */
-#ncm .ncm-red { position: absolute; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; }
+/* ================================================================ «Красное время» (лёгкая версия: без blend-mode, blur и анимации шума) */
+#ncm .ncm-red { position: absolute; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; contain: strict; }
 #ncm .ncm-red-off { display: none; }
 #ncm .ncm-red > div { position: absolute; inset: 0; }
-/* красный тон неба над всей картой */
-#ncm .ncm-red-tint { background: linear-gradient(180deg, rgba(200, 60, 50, .55), rgba(170, 70, 60, .35) 45%, rgba(190, 70, 40, .5)); mix-blend-mode: multiply; }
-#ncm .ncm-red-tint::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% -10%, rgba(255, 80, 40, .14), transparent 55%), radial-gradient(ellipse at 10% 110%, rgba(255, 40, 80, .1), transparent 50%); mix-blend-mode: screen; }
-/* дрейфующий смог (SVG-шум) */
-#ncm .ncm-red-smog { inset: -20%; opacity: .2; mix-blend-mode: screen; filter: blur(2px);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.006' numOctaves='3' seed='7'/><feColorMatrix values='0 0 0 0 0.75  0 0 0 0 0.12  0 0 0 0 0.10  0 0 0 1.1 -0.45'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>");
-  background-size: 900px 900px; animation: ncm-smog 90s linear infinite; }
-#ncm .ncm-red-smog.b { opacity: .12; background-size: 1400px 1400px; animation-duration: 140s; animation-direction: reverse; }
-@keyframes ncm-smog { from { background-position: 0 0; } to { background-position: -900px -300px; } }
-/* зерно плёнки */
-#ncm .ncm-red-grain { opacity: .14; mix-blend-mode: overlay; animation: ncm-grain .9s steps(3) infinite;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
-@keyframes ncm-grain { 0% { transform: translate(0, 0); } 33% { transform: translate(-30px, 20px); } 66% { transform: translate(20px, -25px); } }
-/* редкие помехи — полоса пробегает по экрану */
-#ncm .ncm-red-glitch { background: linear-gradient(180deg, transparent 0 48%, rgba(255, 42, 109, .16) 49%, rgba(0, 240, 255, .10) 50%, transparent 51%); background-size: 100% 300%;
-  animation: ncm-scanline 7s linear infinite; mix-blend-mode: screen; }
-@keyframes ncm-scanline { 0% { background-position: 0 -100%; opacity: 0; } 8% { opacity: 1; } 30% { background-position: 0 200%; opacity: 0; } 100% { background-position: 0 200%; opacity: 0; } }
-/* виньетка и мерцание */
-#ncm .ncm-red-vig { background: radial-gradient(ellipse at center, transparent 45%, rgba(40, 0, 10, .55) 100%); animation: ncm-flick 6s infinite; }
-@keyframes ncm-flick { 0%, 93%, 100% { opacity: 1; } 94% { opacity: .75; } 95% { opacity: 1; } 97% { opacity: .85; } }
-/* мягкий вариант */
-#ncm .ncm-red-soft .ncm-red-tint { opacity: .55; }
-#ncm .ncm-red-soft .ncm-red-smog { opacity: .1; }
-#ncm .ncm-red-soft .ncm-red-glitch, #ncm .ncm-red-soft .ncm-red-grain { display: none; }
-/* ночь + красное время */
-#ncm.ncm-night .ncm-red-tint { background: linear-gradient(180deg, rgba(90, 0, 40, .45), rgba(20, 0, 30, .25) 50%, rgba(120, 10, 40, .4)); }
-/* метки и подписи — поверх эффекта */
 #ncm .ncm-redmap { z-index: 0; }
-#ncm .ncm-red-smog { inset: 0 !important; background-repeat: repeat; }
-@media (prefers-reduced-motion: reduce) { #ncm .ncm-red * { animation: none !important; } }
+#ncm .ncm-red-tint { background: linear-gradient(180deg, rgba(150, 25, 25, .34), rgba(120, 30, 30, .2) 45%, rgba(150, 40, 20, .3)); }
+#ncm .ncm-red-smog { background: radial-gradient(ellipse at 25% 30%, rgba(255, 90, 60, .14), transparent 40%), radial-gradient(ellipse at 75% 65%, rgba(255, 60, 90, .1), transparent 45%), radial-gradient(ellipse at 50% 100%, rgba(255, 120, 60, .12), transparent 50%); }
+#ncm .ncm-red-smog.b { display: none; }
+#ncm .ncm-red-grain { opacity: .07; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+/* полоса помех — один тонкий элемент, двигается transform'ом (дёшево для GPU) */
+#ncm .ncm-red-glitch { inset: auto 0 auto 0 !important; top: 0; height: 3px; background: linear-gradient(90deg, transparent, rgba(255, 42, 109, .35), rgba(0, 240, 255, .25), transparent); will-change: transform; animation: ncm-scanline 9s linear infinite; }
+@keyframes ncm-scanline { 0% { transform: translateY(-10px); opacity: 0; } 3% { opacity: 1; } 25% { transform: translateY(100vh); opacity: 0; } 100% { transform: translateY(100vh); opacity: 0; } }
+#ncm .ncm-red-vig { background: radial-gradient(ellipse at center, transparent 50%, rgba(30, 0, 8, .5) 100%); }
+#ncm .ncm-red-soft .ncm-red-tint { opacity: .5; }
+#ncm .ncm-red-soft .ncm-red-smog, #ncm .ncm-red-soft .ncm-red-glitch, #ncm .ncm-red-soft .ncm-red-grain { display: none; }
+#ncm.ncm-night .ncm-red-tint { background: linear-gradient(180deg, rgba(70, 0, 35, .5), rgba(20, 0, 30, .35) 50%, rgba(90, 10, 40, .45)); }
 
 /* кнопка-превью в карточке */
 #ncm .ncm-p-imgbtn { position: relative; display: block; width: 100%; height: auto; margin: 0 0 12px; padding: 0; border: none; border-radius: 0; background: none; cursor: zoom-in; overflow: hidden; }
@@ -281,7 +266,7 @@
 #ncm-dossier { --y: #fcee0a; --cy: #00f0ff; --m: #ff2a6d; --font: "Rajdhani", "Bahnschrift", "Barlow Condensed", "Signika", "Arial Narrow", sans-serif;
   position: fixed; inset: 0; z-index: 9300; display: grid; place-items: center; font-family: var(--font); color: #e6f6ff; opacity: 0; transition: opacity .25s; }
 #ncm-dossier.on { opacity: 1; }
-#ncm-dossier .nd-back { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(40,0,15,.75), rgba(0,0,0,.94)); backdrop-filter: blur(6px); }
+#ncm-dossier .nd-back { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(40,0,15,.85), rgba(0,0,0,.96)); }
 #ncm-dossier .nd-frame { position: relative; width: min(1180px, 94vw); max-height: 94vh; display: flex; flex-direction: column; background: #07070d; border: 1px solid var(--c);
   box-shadow: 0 0 0 1px #000, 0 0 60px color-mix(in srgb, var(--c) 35%, transparent), 0 40px 120px rgba(0,0,0,.9);
   clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 28px 100%, 0 calc(100% - 28px)); transform: translateY(18px) scale(.97); transition: transform .4s cubic-bezier(.2,.9,.3,1.2); }
@@ -326,3 +311,13 @@
 #ncm-dossier .nd-jobs span { display: block; font-size: 12px; letter-spacing: .25em; color: var(--m); margin-bottom: 4px; }
 #ncm-dossier .nd-jobs em { font-style: normal; color: var(--y); font-weight: 800; margin-left: 6px; }
 @media (prefers-reduced-motion: reduce) { #ncm-dossier * { animation: none !important; } }
+
+#ncm-dossier .nd-art { cursor: zoom-in; }
+#ncm-dossier .nd-art .nd-zoomhint { position: absolute; z-index: 2; right: 46px; top: 16px; padding: 3px 10px; font-size: 12px; font-weight: 800; letter-spacing: .18em; color: #111; background: var(--y); }
+/* просмотр арта на весь экран */
+#ncm-zoom { position: fixed; inset: 0; z-index: 9400; background: #000; display: grid; place-items: center; overflow: hidden; cursor: zoom-in; opacity: 0; transition: opacity .2s; }
+#ncm-zoom.on { opacity: 1; }
+#ncm-zoom img { max-width: 100vw; max-height: 100vh; width: auto; height: auto; border: none; transform-origin: 50% 50%; transition: transform .25s ease; will-change: transform; user-select: none; }
+#ncm-zoom.z { cursor: grab; } #ncm-zoom.z img { transition: none; }
+#ncm-zoom .nz-x { position: absolute; right: 16px; top: 16px; z-index: 1; padding: 6px 14px; font: 800 14px "Rajdhani", sans-serif; letter-spacing: .15em; color: #111; background: #fcee0a; cursor: pointer; }
+#ncm-zoom .nz-h { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); padding: 4px 12px; font: 600 13px "Rajdhani", sans-serif; color: #c8f8ff; background: rgba(0,0,0,.6); pointer-events: none; }
