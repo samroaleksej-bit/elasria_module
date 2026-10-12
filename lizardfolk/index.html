@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="img/ch8.webp">
+<title>Скрытые земли · нулевая сессия</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@500;700;800&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya:ital@1&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+html { color-scheme: light; } body { margin: 0; } img { max-width: 100%; }
+/* Макет: одна колонка-досье Ордена Симори: титул с годом → «если коротко» → мир → Орден → корабль → слухи → герой → анкета */
+:root {
+  --bg: #eef1ea; --paper: #f8faf5; --ink: #1c2620; --mute: #5b6a60; --line: #cbd5c9;
+  --jade: #2d7357; --seal: #9c2f35; --brass: #a8781f; --spore: #6f8f2c;
+  --display: "Alegreya SC", Georgia, serif; --body: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  --letter: "Alegreya", Georgia, serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0e1511; --paper: #151f19; --ink: #e3ebe4; --mute: #95a69a; --line: #2a3a30;
+  --jade: #5ab98d; --seal: #e06a70; --brass: #dca94a; --spore: #a9c95a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0e1511; --paper: #151f19; --ink: #e3ebe4; --mute: #95a69a; --line: #2a3a30;
+  --jade: #5ab98d; --seal: #e06a70; --brass: #dca94a; --spore: #a9c95a; color-scheme: dark }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+.music { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 20; display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 8px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); box-shadow: 0 6px 20px rgba(0,0,0,.18); }
+.music button { display: inline-flex; align-items: center; gap: 8px; font: 700 14px/1 var(--body); color: var(--ink); background: none; border: 0; cursor: pointer; padding: 0; }
+.music .knob { width: 40px; height: 24px; border-radius: 12px; background: var(--line); position: relative; transition: background .2s; flex: none; }
+.music .knob::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--paper); box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: transform .2s; }
+.music button[aria-pressed="true"] .knob { background: var(--jade); }
+.music button[aria-pressed="true"] .knob::after { transform: translateX(16px); }
+.music .bars { display: inline-flex; gap: 2px; align-items: flex-end; height: 14px; }
+.music .bars i { width: 3px; height: 4px; background: var(--jade); border-radius: 1px; }
+.music.on .bars i { animation: eq 1s ease-in-out infinite; }
+.music.on .bars i:nth-child(2) { animation-delay: .2s; } .music.on .bars i:nth-child(3) { animation-delay: .4s; }
+@keyframes eq { 0%, 100% { height: 4px; } 50% { height: 14px; } }
+.music input[type=range] { width: 80px; accent-color: var(--jade); }
+@media (max-width: 480px) { .music input[type=range] { display: none; } }
+@media (prefers-reduced-motion: reduce) { .music.on .bars i { animation: none; height: 10px; } }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.banner { margin: 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); }
+.banner img { display: block; width: 100%; height: auto; }
+img.ill { display: block; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); background: var(--line); }
+img.ill.wide { aspect-ratio: 21 / 9; }
+.fact img.ill { margin-bottom: 8px; }
+.duo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px; align-items: start; }
+.duo.rev { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+.duo.rev img.ill { order: 2; }
+.duo img.ill.tall { aspect-ratio: auto; height: 100%; min-height: 240px; }
+.duo.meme { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); align-items: center; }
+.duo.meme img.ill { aspect-ratio: 4 / 5; object-fit: contain; background: var(--paper); }
+@media (max-width: 680px) { .duo, .duo.rev, .duo.meme { grid-template-columns: 1fr; } .duo.rev img.ill { order: 0; } .duo img.ill.tall { height: auto; aspect-ratio: 16 / 9; min-height: 0; } }
+.chimg { display: block; width: calc(100% + 40px); max-width: none; margin: 0 -20px 4px; aspect-ratio: 21 / 8; object-fit: cover; }
+fieldset.chapter { position: relative; }
+body { background: var(--bg); color: var(--ink); font: 17px/1.6 var(--body); }
+.wrap { max-width: 860px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 60px; display: grid; gap: 34px; }
+h2 { font: 700 clamp(24px, 3.4vw, 30px)/1.15 var(--display); margin: 0 0 10px; text-wrap: balance; }
+h3 { font: 700 20px/1.2 var(--display); margin: 0 0 6px; }
+p { margin: 0; }
+.prose { display: grid; gap: 12px; max-width: 68ch; }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--jade); }
+section { display: grid; gap: 12px; }
+
+/* титул */
+.title { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px 28px; align-items: end; border-bottom: 2px solid var(--ink); padding-bottom: 18px; }
+@media (max-width: 600px) { .title { grid-template-columns: 1fr; } }
+.title h1 { margin: 6px 0 0; font: 800 clamp(34px, 6vw, 56px)/1 var(--display); letter-spacing: .01em; text-wrap: balance; }
+.title .sub { color: var(--mute); margin-top: 10px; max-width: 52ch; }
+.year { text-align: right; }
+@media (max-width: 600px) { .year { text-align: left; } }
+.year b { display: block; font: 800 clamp(56px, 10vw, 92px)/.9 var(--display); color: var(--seal); font-variant-numeric: lining-nums; }
+.year span { font: 500 12px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--mute); }
+
+/* «если коротко» — письмо */
+.letter { background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 22px 24px; position: relative; display: grid; gap: 12px; }
+.letter p { font: italic 19px/1.6 var(--letter); }
+.letter .sig { font: 500 13px var(--mono); color: var(--mute); letter-spacing: .08em; }
+.seal { position: absolute; right: 18px; top: -18px; width: 54px; height: 54px; border-radius: 50%; background: var(--seal); color: var(--paper); display: grid; place-items: center; font: 800 22px var(--display); box-shadow: 0 2px 0 rgba(0,0,0,.15); }
+
+/* блоки мира */
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 24px; }
+@media (max-width: 600px) { .facts { grid-template-columns: 1fr; } }
+.fact { border-top: 3px solid var(--line); padding-top: 10px; display: grid; gap: 4px; min-width: 0; align-content: start; }
+.fact.a { border-color: var(--seal); } .fact.b { border-color: var(--brass); } .fact.c { border-color: var(--jade); } .fact.d { border-color: var(--spore); }
+.fact p { font-size: 16px; }
+.fact p + p { margin-top: 6px; }
+
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-left: 2px solid var(--line); }
+.timeline li { padding: 0 0 14px 18px; position: relative; }
+.timeline li::before { content: ""; position: absolute; left: -7px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--paper); border: 2px solid var(--jade); }
+.timeline li.now::before { background: var(--seal); border-color: var(--seal); }
+.timeline b { display: block; }
+.timeline span { color: var(--mute); font-size: 16px; }
+
+table.rum { width: 100%; border-collapse: collapse; }
+table.rum td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.rum td.n { font: 500 15px var(--mono); color: var(--brass); width: 2.6em; font-variant-numeric: tabular-nums; }
+table.rum tr.hit td { background: color-mix(in srgb, var(--brass) 18%, transparent); }
+.btn { font: 700 15px/1 var(--body); padding: 10px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; }
+.btn.prim { background: var(--jade); border-color: var(--jade); color: var(--paper); }
+.btn:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--jade); outline-offset: 2px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.note { font-size: 15px; color: var(--mute); }
+
+.checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.checklist li { display: grid; grid-template-columns: 26px 1fr; gap: 8px; }
+.checklist li::before { content: "✦"; color: var(--brass); font-size: 15px; padding-top: 2px; }
+
+/* анкета */
+form.hero { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 20px; display: grid; gap: 22px; }
+fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 14px; min-width: 0; }
+legend { font: 700 19px/1.2 var(--display); padding: 0; margin-bottom: 4px; display: flex; gap: 10px; align-items: baseline; }
+legend small { font: 500 12px var(--mono); color: var(--mute); letter-spacing: .08em; }
+.q { display: grid; gap: 5px; min-width: 0; }
+.q label { font-weight: 700; }
+.q .hint { font-size: 14px; color: var(--mute); }
+.q input, .q textarea { width: 100%; font: 16px/1.5 var(--body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 9px 11px; }
+.q textarea { min-height: 76px; resize: vertical; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.status { font-size: 15px; padding: 10px 12px; border-radius: 6px; border: 1px dashed var(--line); }
+.status.ok { border-color: var(--jade); color: var(--jade); }
+.status.warn { border-color: var(--brass); color: var(--brass); }
+.private { font-size: 14px; color: var(--seal); }
+.code { border: 1px dashed var(--line); border-radius: 6px; padding: 12px 14px; display: grid; gap: 8px; }
+.code .mono { font: 700 16px var(--mono); letter-spacing: .08em; color: var(--seal); }
+.code input { font: 15px var(--mono); padding: 9px 11px; border: 1px solid var(--line); border-radius: 5px; background: var(--bg); color: var(--ink); min-width: 0; flex: 1 1 220px; }
+.chapnav { display: grid; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.chgroup { display: grid; gap: 6px; }
+.chlabel { font: 500 11px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--mute); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 7px; font: 500 15px/1 var(--body); padding: 8px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
+.chip b { font: 700 13px var(--display); color: var(--brass); }
+.chip .dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--line); }
+.chip.some .dot { background: var(--brass); border-color: var(--brass); }
+.chip.full .dot { background: var(--jade); border-color: var(--jade); }
+.chip[aria-selected="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.chip[aria-selected="true"] b { color: var(--paper); }
+.overall { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.overall i { display: block; height: 100%; width: 0; background: var(--jade); transition: width .3s; }
+.chhead { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: start; padding-bottom: 6px; }
+.chhead .roman { font: 800 clamp(48px, 8vw, 72px)/.85 var(--display); color: var(--seal); min-width: 1.4em; }
+.chhead legend { font: 800 clamp(26px, 4vw, 34px)/1.1 var(--display); margin: 6px 0 6px; display: block; }
+.chhead .ep { font: italic 18px/1.5 var(--letter); color: var(--mute); max-width: 56ch; }
+.chhead .legend { margin-top: 8px; font: 500 13px var(--mono); color: var(--brass); }
+.chfoot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; padding-top: 14px; border-top: 1px solid var(--line); }
+.scale { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.scale .end { font-size: 13px; color: var(--mute); }
+.scale label { position: relative; }
+.scale input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.scale label span { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--bg); font: 700 16px var(--body); font-variant-numeric: tabular-nums; }
+.scale input:checked + span { background: var(--jade); border-color: var(--jade); color: var(--paper); }
+.scale input:focus-visible + span { outline: 2px solid var(--jade); outline-offset: 2px; }
+.choice { display: grid; gap: 6px; }
+.choice label { display: flex; gap: 8px; align-items: center; font-weight: 400; cursor: pointer; }
+.choice input { accent-color: var(--jade); width: 18px; height: 18px; }
+
+.gm { background: var(--paper); border: 2px solid var(--seal); border-radius: 6px; padding: 18px; display: grid; gap: 14px; }
+.gmcard { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 6px; }
+.gmcard dl { margin: 0; display: grid; gap: 6px; }
+.gmcard dt { font-weight: 700; font-size: 15px; color: var(--mute); }
+.gmcard dd { margin: 0 0 4px; white-space: pre-wrap; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <figure class="banner"><img src="img/banner.webp" alt="Разбитый корабль у рифов и остров людоящеров с исполинским деревом в зелёном тумане" decoding="async"></figure>
+  <header class="title">
+    <div>
+      <div class="eyebrow">Нулевая сессия · раздатка для игроков</div>
+      <h1 class="sr">Скрытые земли людоящеров</h1>
+      <p class="sub">Эластрия, Эпоха изменений. Остатки Ордена Симори отправляют корабли к острову, где обосновалась чумная богиня. Ваш корабль до острова не дошёл.</p>
+    </div>
+    <div class="year"><b>1279</b><span>год · эпоха изменений</span></div>
+  </header>
+
+  <section aria-labelledby="short">
+    <div class="eyebrow" id="short">Если коротко</div>
+    <div class="duo"><img class="ill tall" src="img/letter.webp" alt="Письмо с печатью Ордена Симори и карта с обведённым островом" loading="lazy" decoding="async">
+    <div class="letter">
+      <div class="seal" aria-hidden="true">С</div>
+      <p>После Ереси Ордена Симори Авангардия окончательно теряет силу и величие. Соседи пристально следят: каждый готов оттяпать кусок от только что развалившейся величайшей империи.</p>
+      <p>Остатки Ордена хранят тайну о чумной богине, которая обосновалась где-то в землях людоящеров, и тихо набирают авантюристов, чтобы те отправились на этот остров и покончили с её планами.</p>
+      <p>Вы каким-то образом оказались на одном из таких кораблей. Но что-то пошло не так: еретики напали на корабль и уничтожили его, а вас во время штурма прибило к острову людоящеров.</p>
+      <p>С этого и начинается наша история.</p>
+      <div class="sig">— НЕ ДЛЯ ЧУЖИХ ГЛАЗ · ПЕЧАТЬ ОРДЕНА СИМОРИ</div>
+    </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="world">
+    <h2 id="world">Мир в 1279 году</h2>
+    <div class="prose">
+      <p>Пять лет назад величайшая империя Эластрии, Авангардия, развалилась. После Ереси Ордена Симори умерла королева, Орден прибрал власть к рукам, и страна раскололась натрое. Сегодня на её месте три земли, и ни одна не признаёт другую до конца.</p>
+    </div>
+    <div class="facts">
+      <div class="fact c"><img class="ill" src="img/new-avg.webp" alt="Гарда и замок Блейд над рекой, инквизиторы Ордена на площади" loading="lazy" decoding="async"><h3>Новая Авангардия</h3><p>Столица — Гарда, главная крепость — замок Блейд. Здесь живут свободнее и миролюбивее, чем при империи. Здесь же теперь обосновался Орден Симори.</p><p>Новая Авангардия поклялась больше не повторять ошибок прошлого. Начались массовые чистки еретиков и проверки всех верующих. Но проверки находят не всех: часть еретиков до сих пор прячется внутри страны и внутри Ордена.</p></div>
+      <div class="fact a"><img class="ill" src="img/old-avg.webp" alt="Северная крепость в снегу, войско и командир на балконе" loading="lazy" decoding="async"><h3>Старая Авангардия</h3><p>Северная часть бывшей империи. Здесь живут консерваторы и националисты, которые считают, что Авангардия размякла: открытая внешняя политика погубила королеву и отдала страну Ордену.</p><p>Старая Авангардия зовёт себя истинными гардианцами. Многие здесь уверены, что человек — высшая форма жизни в Эластрии. С Новой Авангардией она живёт в подвешенном состоянии: ни войны, ни мира.</p></div>
+      <div class="fact d"><img class="ill" src="img/nichya.webp" alt="Разрушенный замок под кровавой луной и деревня в тумане" loading="lazy" decoding="async"><h3>Ничейные земли</h3><p>Последний регион бывшей империи не подчиняется никому. Там живут вампиры и другие порождения Кишина. Кто придёт там к власти, пока неизвестно.</p><p>Там вершится своя история, но наша кампания не о ней.</p></div>
+      <div class="fact b"><h3>Соседи и герои</h3><p>Соседние страны пристально следят за развалом и готовы оттяпать свой кусок. Их удерживают общество героев, новоиспечённые малые боги и сам Панцерфауст: они выступают за мир и за то, чтобы бывшая империя сама нашла свой путь, регион за регионом.</p></div>
+    </div>
+    <div class="fact" style="border-color:var(--seal)"><h3>Орден Симори сегодня</h3><p>От Ордена остались осколки, и он сидит в Новой Авангардии под пристальным взглядом её властей. Ересь из него до конца не ушла: еретики всё ещё мешают ему работать. Немногие в Ордене хранят тайну о чумной богине, которая обосновалась в землях людоящеров, и тихо набирают авантюристов, чтобы отправить их на остров.</p></div>
+  </section>
+
+  <section aria-labelledby="gods">
+    <h2 id="gods">Боги и остальной мир</h2>
+    <div class="facts">
+      <div class="fact b"><img class="ill" src="img/gods.webp" alt="Небесный зал с тронами богов, в тени появляются злые боги" loading="lazy" decoding="async"><h3>Собрание богов</h3><p>Все нынешние божества уже вошли в свой ранг: Кайрон, Фина, Роско, Лозарито и другие. В 1252 году прошло первое Собрание новых богов — фундаментальных, средних и малых.</p><p>На Собрании объявились и злые боги. Они плетут интриги, но какие — никто не знает.</p></div>
+      <div class="fact d"><img class="ill" src="img/karantir.webp" alt="Карантир у клетки с многоглазым богом безумия" loading="lazy" decoding="async"><h3>Забытый бог</h3><p>Благодаря Аматусу и Лиаму большинство людей забыли о Кишине, боге безумия. Помнят о нём божества, сильные сущности и совсем немногие смертные. Похоже, одним из них был кто-то из еретиков Ордена. Кто — пока неизвестно.</p><p>Кишина стережёт Карантир, Страж Безумия. Он вовремя бьёт его по голове, чтобы тот сидел смирно и больше никогда не выбрался.</p></div>
+      <div class="fact c"><img class="ill" src="img/tiefling.webp" alt="Праздник в горном городе тифлингов, новое знамя над вершиной" loading="lazy" decoding="async"><h3>Тифлинговый пик</h3><p>В 1260 году тифлинги окончательно объединились. Больше нет Тифлингов Аквиртуса и Тифлингов Экзортуса — есть единые тифлинги, которые снова зовут свою землю Тифлинговым пиком, как до Войны за Зефрит.</p></div>
+      <div class="fact a"><h3>Что знают ваши герои</h3><p>Всё на этой странице — знание для вас как игроков. Обычный житель Эластрии о Кишине не помнит, а о чумной богине не слышал вовсе. Если ваш герой знает больше — напишите в анкете, откуда.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="road">
+    <h2 id="road">Хроника последних лет</h2>
+    <div class="duo rev"><img class="ill tall" src="img/shturm.webp" alt="Еретики берут на абордаж корабль Ордена в шторм" loading="lazy" decoding="async">
+    <ol class="timeline">
+      <li><b>1247 · Ересь Ордена Симори</b><span>Раскол Ордена накрывает Авангардию. Умирает королева, Орден прибирает власть к рукам.</span></li>
+      <li><b>1247 · Заточение Кишина</b><span>Бога безумия заковывают в клетку. Карантир становится его вечным хранителем — Стражем Безумия.</span></li>
+      <li><b>1252 · Собрание новых богов</b><span>Впервые собираются все боги: фундаментальные, средние и малые. Объявляются и злые боги.</span></li>
+      <li><b>1260 · Тифлинговый пик</b><span>Тифлинги Аквиртуса и Экзортуса окончательно объединяются.</span></li>
+      <li><b>1274 · Распад империи</b><span>Авангардия раскалывается на Новую, Старую и ничейные земли. В Новой Авангардии начинаются чистки еретиков.</span></li>
+      <li><b>1279 · Тайна чумной богини</b><span>Немногие уцелевшие из Ордена узнают, что в землях людоящеров обосновалась богиня болезней.</span></li>
+      <li><b>Набор</b><span>Орден тихо нанимает авантюристов и отправляет корабли к острову. Один из этих кораблей — ваш.</span></li>
+      <li><b>Штурм</b><span>Еретики атакуют корабль и уничтожают его. В хаосе штурма вас выбрасывает на берег.</span></li>
+      <li class="now"><b>Остров людоящеров</b><span>Вы приходите в себя на песке среди обломков. Отсюда начинается игра.</span></li>
+    </ol>
+    </div>
+  </section>
+
+  <section aria-labelledby="rum">
+    <h2 id="rum">Что болтали на корабле</h2>
+    <img class="ill wide" src="img/rumors.webp" alt="Старый матрос рассказывает байки у бочки при свете фонаря" loading="lazy" decoding="async">
+    <p class="note">Каждый игрок бросает к8 и получает один слух. Какие из них правда — узнаете на острове.</p>
+    <table class="rum" id="rumors"><tbody></tbody></table>
+    <div class="row"><button class="btn" id="rollRumor" type="button">Бросить к8</button><span class="note" id="rumorOut" aria-live="polite"></span></div>
+  </section>
+
+  <section aria-labelledby="make">
+    <h2 id="make">Ваш герой</h2>
+    <div class="duo meme"><img class="ill" src="img/meme.webp" alt="Мем: потрёпанный авантюрист и табличка «Топ-5 советов для выживания в джунглях»" loading="lazy" decoding="async">
+    <ul class="checklist">
+      <li><span><b>7 уровень</b>, правила D&amp;D 2024. Остальные детали создания персонажа обсудим на нулевой сессии.</span></li>
+      <li><span><b>Стартовое золото:</b> 500 зм + 1к10 × 25 зм и обычное начальное снаряжение класса и предыстории.</span></li>
+      <li><span><b>Магические предметы:</b> 1 обычный и 1 необычный на выбор (согласуйте с мастером).</span></li>
+      <li><span>Вы уже опытные авантюристы: Орден нанимал тех, кто способен выжить там, где пропадали другие.</span></li>
+      <li><span>Людоящеры говорят на драконьем. Если хоть один из группы его знает, жить станет проще.</span></li>
+      <li><span>На острове пригодятся Выживание, Природа, Атлетика и Медицина. Не обязательно всё у одного героя.</span></li>
+      <li><span>Ответьте на анкету ниже. По ответам мастер вплетёт ваше прошлое в остров: в его подземелья, в его чудовищ и в людей, которых вы там встретите.</span></li>
+    </ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="ank">
+    <h2 id="ank">Кто ваш герой</h2>
+    <div class="prose">
+      <p>Эти вопросы помогают вам самим понять героя, а мастеру — связать его историю с островом. Не обязательно отвечать на всё: лучше коротко и честно, чем длинно и для галочки. Один-два ответа, которые цепляют, важнее десяти общих.</p>
+      <p class="private">Ответы попадают в таблицу мастера. Другие игроки их не увидят.</p>
+      <p>Анкета разбита на девять глав: первые пять про героя, остальные четыре про вас как игрока. Можно идти по порядку или прыгать между главами. Точка у главы показывает, сколько вы уже ответили.</p>
+    </div>
+    <form class="hero" id="heroForm" autocomplete="off"></form>
+    <div class="status" id="saveStatus" aria-live="polite">Черновик сохраняется в этом браузере, пока вы печатаете.</div>
+    <div class="row">
+      <button class="btn prim" type="button" id="sendBtn">Сохранить и отправить мастеру</button>
+      <button class="btn" type="button" id="copyBtn">Скопировать ответы</button>
+    </div>
+    <div class="code">
+      <p><b>Ваш код героя:</b> <span id="heroCode" class="mono">—</span></p>
+      <p class="note">По этому коду можно открыть свои ответы на другом устройстве и дописать их. Отправлять можно сколько угодно раз — мастер увидит последнюю версию.</p>
+      <div class="row"><label class="sr" for="codeIn">Код героя</label><input id="codeIn" placeholder="Код с другого устройства, например K7Q2-MW4P" autocomplete="off"><button class="btn" type="button" id="codeBtn">Открыть по коду</button></div>
+    </div>
+  </section>
+</div>
+
+<div class="music" id="music">
+  <button type="button" id="musicBtn" aria-pressed="false" title="Музыка джунглей"><span class="knob" aria-hidden="true"></span><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span><span id="musicLbl">Музыка</span></button>
+  <label class="sr" for="musicVol">Громкость</label><input type="range" id="musicVol" min="0" max="1" step="0.05" value="0.4">
+</div>
+<audio id="bgm" src="audio/jungle.mp3" loop preload="none"></audio>
+<script>
+(() => {
+  const a = document.getElementById("bgm"), b = document.getElementById("musicBtn"), box = document.getElementById("music"), vol = document.getElementById("musicVol"), lbl = document.getElementById("musicLbl");
+  try { const v = localStorage.getItem("razdatka.vol"); if (v !== null) vol.value = v; } catch (e) {}
+  a.volume = Number(vol.value);
+  const set = (on) => { b.setAttribute("aria-pressed", on); box.classList.toggle("on", on); lbl.textContent = on ? "Музыка играет" : "Музыка"; };
+  b.addEventListener("click", async () => {
+    if (a.paused) { try { await a.play(); set(true); } catch (e) { lbl.textContent = "Не удалось включить"; } }
+    else { a.pause(); set(false); }
+  });
+  vol.addEventListener("input", () => { a.volume = Number(vol.value); try { localStorage.setItem("razdatka.vol", vol.value); } catch (e) {} });
+  a.addEventListener("pause", () => set(false)); a.addEventListener("play", () => set(true));
+})();
+</script>
+<script>
+const RUMORS = [
+  "Людоящеры едят чужаков. Всех. Начиная с самых упитанных.",
+  "Посреди острова растёт дерево выше облаков. Его видно с моря в ясный день.",
+  "Кто проспит ночь в зелёном тумане, проснётся с цветком в лёгких.",
+  "Орден уже бывал на острове. Давно. И в хрониках об этом ни слова.",
+  "В реке живёт змей размером с корабль. Переправляйтесь быстро.",
+  "Ящеры разделены на несколько племён, и те друг друга терпеть не могут.",
+  "На острове есть цветы, которые поют. Кто их послушает, уходит за ними.",
+  "Еретики знали маршрут заранее. Кто-то на корабле им его передал."
+];
+const WANT = ["Не хочу", "Очень хочу"], IMP = ["Не важно", "Очень важно"];
+const SECTIONS = [
+  { t: "Кто вы", s: "основа", ep: "Имя — первое, что спросят у костра. И первое, что забудут, если вы не вернётесь.", q: [
+    { id: "name", l: "Имя, раса, класс", h: "Как вас зовут и кто вы. Можно с прозвищем.", short: true },
+    { id: "player", l: "Имя игрока", h: "Чтобы мастер знал, чья анкета.", short: true },
+    { id: "look", l: "Три детали внешности", h: "Не рост и цвет глаз, а то, что запомнят: шрам через бровь, вечно мокрые сапоги, амулет из зуба." },
+    { id: "home", l: "Откуда вы родом и кем были до приключений", h: "Город, страна, ремесло. Как вы относитесь к развалу Авангардии?" }
+  ]},
+  { t: "Палуба", s: "почему вы на корабле", ep: "Никто не садится на корабль Ордена просто так.", q: [
+    { id: "why", l: "Как вы оказались на корабле Ордена?", h: "Наняли за золото? Паломничество? Бежали от кого-то? Свой интерес к острову? Кто-то вас туда отправил?" },
+    { id: "order", l: "Что вы думаете об Ордене Симори и Ереси?", h: "Вы верите Ордену? Сочувствуете еретикам? Вам всё равно, лишь бы платили?" },
+    { id: "goddess", l: "Что вы слышали о чумной богине?", h: "Это может быть слух, кошмар, семейная легенда. Или вы впервые услышали о ней на корабле." },
+    { id: "storm", l: "Что вы делали, когда еретики пошли на штурм?", h: "Сражались, спасали кого-то, прятались, бросились за борт? Что последнее вы видели перед тем, как очнуться на берегу?" }
+  ]},
+  { t: "Тени за спиной", s: "прошлое", ep: "Прошлое плывёт за кораблём, как акула. И чует кровь.", q: [
+    { id: "lost", l: "Кого вы потеряли или кого ищете?", h: "Пропавший брат, погибший товарищ, учитель, который исчез. Живы ли они — решать мастеру." },
+    { id: "power", l: "Откуда ваша сила?", h: "Кто вас учил, с кем у вас договор, какой клятвой вы связаны, в чьей крови магия." },
+    { id: "debt", l: "Кому вы должны и что будет, если не вернёте?", h: "Деньги, услуга, жизнь. Долг перед человеком, гильдией, богом." },
+    { id: "regret", l: "О чём вы жалеете?", h: "Что вы сделали — или не сделали, — и это до сих пор не отпускает." }
+  ]},
+  { t: "Под кожей", s: "страхи и желания", ep: "Джунгли найдут, чего вы боитесь. Лучше узнать это первыми.", q: [
+    { id: "fear", l: "Чего вы боитесь больше всего?", h: "Не «пауков», а то, что по-настоящему ломает: потерять себя, остаться одному, стать как отец." },
+    { id: "want", l: "Чего вы хотите на самом деле?", h: "Не для группы, а для себя. Что изменится в вашей жизни, если всё получится?" },
+    { id: "line", l: "Что заставит вас пойти против группы?", h: "Есть ли цена, за которую вы предадите? Или черта, которую не переступите даже ради друзей?" },
+    { id: "keep", l: "Какую вещь вы спасли из обломков?", h: "Одна вещь, которая уцелела после крушения и важна вам не ценой, а смыслом." }
+  ]},
+  { t: "Узы", s: "группа и экипаж", ep: "На острове выживают не сильные, а те, кого есть кому вытащить.", q: [
+    { id: "party", l: "С кем из группы вы были знакомы до корабля?", h: "Или с кем сошлись в пути. Одна фраза о каждом, кого знаете." },
+    { id: "crew", l: "Кому на корабле вы доверяли?", h: "Матрос, жрец, капитан. Мастер решит, выжил ли этот человек." }
+  ]},
+  { t: "Границы", s: "темы и контент", legend: "1 — прошу избегать · 3 — нейтрально · 5 — очень хочу", ep: "Что можно рассказывать за этим столом, а что лучше оставить за бортом.", about: "player", q: [
+    { id: "c_sex", l: "Сцены сексуального характера (намёки, фейд-ту-блэк, без графики)", scale: WANT },
+    { id: "c_blood", l: "Кровавые и боевые сцены (раны, кровь в бою)", scale: WANT },
+    { id: "c_gore", l: "Графичное насилие и гуро (детальные увечья, пытки, расчленение)", scale: WANT },
+    { id: "c_npcdeath", l: "Смерть значимых NPC, питомцев, спутников", scale: WANT },
+    { id: "c_pcdeath", l: "Смерть вашего персонажа (возможна ли смерть навсегда)", scale: WANT },
+    { id: "c_swear", l: "Мат в речи NPC и персонажей", scale: WANT },
+    { id: "c_insult", l: "Оскорбления вашего персонажа от NPC в отыгрыше (расовые и видовые подколки и т. п.)", scale: WANT },
+    { id: "c_ban", l: "Темы, которые нужно полностью исключить", h: "Например: насилие над детьми, сексуальное насилие, суицид, конкретные фобии. Можно оставить пустым." }
+  ]},
+  { t: "Стол", s: "стиль игры", legend: "1 — прошу избегать · 5 — очень хочу", ep: "Как мы играем вместе: конфликты, PvP и стоп-слово.", about: "player", q: [
+    { id: "s_betray", l: "Предательство, воровство, конфликты между игроками в отыгрыше (не «потому что я сильнее и мне смешно»)", scale: WANT },
+    { id: "s_pvp", l: "PvP-сцены, если они логично вытекают из сюжета и характеров персонажей", scale: WANT },
+    { id: "s_tools", l: "Знакомы ли вы с инструментами безопасности (X-card, стоп-слово, пауза для обсуждения)?", choice: ["Да, использовал(а) раньше", "Слышал(а), но не использовал(а)", "Нет, не знаю, что это"] },
+    { id: "s_stop", l: "Готовы ли вы пользоваться стоп-словом или сигналом, если контент станет некомфортным?", choice: ["Да", "Скорее да", "Скорее нет", "Нет"] }
+  ]},
+  { t: "Компас", s: "приоритеты", legend: "1 — не важно · 5 — очень важно", ep: "Куда вас тянет: к разговорам, к бою, к тайнам или к сокровищам.", about: "player", q: [
+    { id: "p_social", l: "Социалка (диалоги, интриги, отношения с NPC)", scale: IMP },
+    { id: "p_combat", l: "Боёвка (тактика, экшн, сражения)", scale: IMP },
+    { id: "p_story", l: "Сюжет (история, твисты, развитие арки)", scale: IMP },
+    { id: "p_explore", l: "Исследование (загадки, лор, секреты, локации)", scale: IMP },
+    { id: "p_loot", l: "Лут и механическая прогрессия (предметы, уровни, билд)", scale: IMP },
+    { id: "p_rp", l: "Отыгрыш и развитие характера персонажа", scale: IMP }
+  ]},
+  { t: "Последнее слово", s: "свободный комментарий", ep: "Всё, что не влезло в вопросы. По желанию.", about: "player", q: [
+    { id: "f_like", l: "Что вам нравится в играх, в которых вы участвовали раньше?" },
+    { id: "f_more", l: "Есть ли что-то ещё, что мастер должен знать перед игрой?" }
+  ]}
+];
+
+/* ---------- слухи ---------- */
+const rumBody = document.querySelector("#rumors tbody");
+rumBody.innerHTML = RUMORS.map((r, i) => `<tr><td class="n">${i + 1}</td><td>${r}</td></tr>`).join("");
+document.getElementById("rollRumor").addEventListener("click", () => {
+  const d = Math.floor(Math.random() * 8);
+  rumBody.querySelectorAll("tr").forEach((tr, i) => tr.classList.toggle("hit", i === d));
+  document.getElementById("rumorOut").textContent = `Выпало ${d + 1}`;
+});
+
+/* ---------- анкета ---------- */
+const form = document.getElementById("heroForm");
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]));
+const field = (q) => q.scale
+  ? `<div class="scale" role="radiogroup" aria-labelledby="l-${q.id}"><span class="end">${q.scale[0]}</span>${[1, 2, 3, 4, 5].map(n => `<label><input type="radio" name="${q.id}" value="${n}"><span>${n}</span></label>`).join("")}<span class="end">${q.scale[1]}</span></div>`
+  : q.choice ? `<div class="choice" role="radiogroup" aria-labelledby="l-${q.id}">${q.choice.map(o => `<label><input type="radio" name="${q.id}" value="${esc(o)}"> ${esc(o)}</label>`).join("")}</div>`
+  : q.short ? `<input id="f-${q.id}" name="${q.id}" aria-describedby="h-${q.id}">` : `<textarea id="f-${q.id}" name="${q.id}" aria-describedby="h-${q.id}"></textarea>`;
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+form.innerHTML = `<div class="chapnav" role="tablist" aria-label="Главы анкеты">
+    <div class="chgroup"><span class="chlabel">Часть первая · Герой</span><div class="chips">${SECTIONS.map((sec, i) => sec.about ? "" : `<button type="button" role="tab" class="chip" data-ch="${i}"><b>${ROMAN[i]}</b>${sec.t}<i class="dot"></i></button>`).join("")}</div></div>
+    <div class="chgroup"><span class="chlabel">Часть вторая · Игрок</span><div class="chips">${SECTIONS.map((sec, i) => !sec.about ? "" : `<button type="button" role="tab" class="chip" data-ch="${i}"><b>${ROMAN[i]}</b>${sec.t}<i class="dot"></i></button>`).join("")}</div></div>
+    <div class="overall"><i></i></div>
+  </div>` + SECTIONS.map((sec, si) => `<fieldset class="chapter" data-ch="${si}" role="tabpanel" hidden>
+  <img class="chimg" src="img/ch${si + 1}.webp" alt="" loading="lazy" decoding="async"><header class="chhead"><span class="roman">${ROMAN[si]}</span><div><span class="eyebrow">${sec.about ? "Часть вторая · про вас как игрока" : "Часть первая · про героя"} · ${sec.s}</span><legend>${sec.t}</legend><p class="ep">${sec.ep}</p>${sec.legend ? `<p class="legend">${sec.legend}</p>` : ""}</div></header>
+  <div class="${si === 0 ? "grid3" : ""}" style="display:grid;gap:18px">${sec.q.map(q => `<div class="q"><label id="l-${q.id}" for="f-${q.id}">${q.l}</label>${q.h ? `<span class="hint" id="h-${q.id}">${q.h}</span>` : ""}
+    ${field(q)}</div>`).join("")}</div>
+  <div class="chfoot">${si > 0 ? `<button type="button" class="btn" data-go="${si - 1}">← ${ROMAN[si - 1]}. ${SECTIONS[si - 1].t}</button>` : "<span></span>"}<span class="note">Глава ${si + 1} из ${SECTIONS.length}</span>${si < SECTIONS.length - 1 ? `<button type="button" class="btn prim" data-go="${si + 1}">${ROMAN[si + 1]}. ${SECTIONS[si + 1].t} →</button>` : `<button type="button" class="btn prim" data-go="send">К отправке ↓</button>`}</div>
+</fieldset>`).join("");
+const ALLQ = SECTIONS.flatMap(s => s.q);
+const read = () => Object.fromEntries(ALLQ.map(q => [q.id, String(form.elements[q.id].value ?? "").trim()]));
+const fill = (d) => ALLQ.forEach(q => { if (d && typeof d[q.id] === "string") form.elements[q.id].value = d[q.id]; });
+const LS = "razdatka.draft";
+let CH = 0;
+try { CH = Math.min(SECTIONS.length - 1, Number(localStorage.getItem("razdatka.ch")) || 0); } catch (e) {}
+function showCh(i, scroll) {
+  CH = i;
+  form.querySelectorAll("fieldset.chapter").forEach(f => f.hidden = Number(f.dataset.ch) !== i);
+  form.querySelectorAll(".chip[data-ch]").forEach(b => b.setAttribute("aria-selected", Number(b.dataset.ch) === i));
+  try { localStorage.setItem("razdatka.ch", i); } catch (e) {}
+  if (scroll) form.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function progress() {
+  const d = read(); let all = 0, done = 0;
+  SECTIONS.forEach((sec, i) => {
+    const n = sec.q.filter(q => d[q.id]).length; all += sec.q.length; done += n;
+    const chip = form.querySelector(`.chip[data-ch="${i}"]`);
+    chip.classList.toggle("full", n === sec.q.length); chip.classList.toggle("some", n > 0 && n < sec.q.length);
+    chip.title = `Отвечено ${n} из ${sec.q.length}`;
+  });
+  form.querySelector(".overall i").style.width = `${Math.round(done / all * 100)}%`;
+}
+form.addEventListener("click", (e) => {
+  const c = e.target.closest("[data-ch].chip"); if (c) return showCh(Number(c.dataset.ch));
+  const g = e.target.closest("[data-go]"); if (!g) return;
+  if (g.dataset.go === "send") return document.getElementById("sendBtn").scrollIntoView({ behavior: "smooth", block: "center" });
+  showCh(Number(g.dataset.go), true);
+});
+form.addEventListener("input", progress);
+form.addEventListener("change", progress);
+try { const d = JSON.parse(localStorage.getItem(LS) || "null"); if (d) fill(d); } catch (e) {}
+showCh(CH); progress();
+let draftT;
+form.addEventListener("input", () => { clearTimeout(draftT); draftT = setTimeout(() => { try { localStorage.setItem(LS, JSON.stringify(read())); } catch (e) {} }, 400); });
+
+const status = document.getElementById("saveStatus");
+const setStatus = (t, cls = "") => { status.textContent = t; status.className = "status " + cls; };
+const asText = (d) => SECTIONS.map(s => `== ${s.t} ==\n` + s.q.map(q => `${q.l}\n${d[q.id] || "—"}`).join("\n\n")).join("\n\n");
+
+document.getElementById("copyBtn").addEventListener("click", async () => {
+  const txt = asText(read());
+  try { await navigator.clipboard.writeText(txt); setStatus("Ответы скопированы. Вставьте их в сообщение мастеру.", "ok"); }
+  catch (e) {
+    const ta = document.createElement("textarea"); ta.value = txt; ta.style.cssText = "width:100%;min-height:200px"; status.replaceChildren(ta); ta.select();
+    status.className = "status warn";
+  }
+});
+
+/* ---------- сохранение в таблицу мастера (Google Apps Script) ---------- */
+const ENDPOINT = "%%ENDPOINT%%";
+const sendBtn = document.getElementById("sendBtn");
+const codeEl = document.getElementById("heroCode");
+const ready = /^https:\/\/script\.google\.com\//.test(ENDPOINT);
+let HID = null;
+try { HID = localStorage.getItem("razdatka.id"); } catch (e) {}
+if (!HID) {
+  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  HID = Array.from(crypto.getRandomValues(new Uint8Array(8)), n => abc[n % abc.length]).join("").replace(/^(.{4})/, "$1-");
+  try { localStorage.setItem("razdatka.id", HID); } catch (e) {}
+}
+codeEl.textContent = HID;
+if (!ready) { sendBtn.disabled = true; sendBtn.title = "Сохранение пока не подключено — скопируйте ответы"; }
+const COLS = ALLQ.map(q => ({ id: q.id, label: q.l }));
+sendBtn.addEventListener("click", async () => {
+  const answers = read();
+  if (!answers.name) { setStatus("Впишите хотя бы имя героя — глава I.", "warn"); showCh(0, true); form.elements.name.focus(); return; }
+  sendBtn.disabled = true; setStatus("Сохраняю…");
+  try {
+    const r = await fetch(ENDPOINT, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ id: HID, answers, columns: COLS }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.ok) throw new Error(j.error || r.status);
+    setStatus("Сохранено. Анкета у мастера. Поправили что-то — нажмите ещё раз.", "ok");
+  } catch (e) {
+    setStatus("Не получилось сохранить. Попробуйте ещё раз или скопируйте ответы и пришлите мастеру.", "warn");
+  } finally { sendBtn.disabled = !ready; }
+});
+document.getElementById("codeBtn").addEventListener("click", async () => {
+  const code = document.getElementById("codeIn").value.trim().toUpperCase();
+  if (!/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) { setStatus("Код выглядит так: K7Q2-MW4P.", "warn"); return; }
+  if (!ready) { setStatus("Сохранение пока не подключено.", "warn"); return; }
+  setStatus("Ищу анкету…");
+  try {
+    const r = await fetch(ENDPOINT + "?id=" + encodeURIComponent(code));
+    const j = await r.json();
+    if (!j.ok || !j.byLabel) { setStatus("Анкета с таким кодом не найдена.", "warn"); return; }
+    const got = Object.fromEntries(COLS.map(c => [c.id, String(j.byLabel[c.label] ?? "")]));
+    HID = code; codeEl.textContent = code; try { localStorage.setItem("razdatka.id", code); } catch (e) {}
+    form.reset(); fill(got); progress();
+    try { localStorage.setItem(LS, JSON.stringify(read())); } catch (e) {}
+    setStatus("Анкета открыта. Можно дописать и сохранить.", "ok");
+  } catch (e) { setStatus("Не получилось открыть анкету. Попробуйте позже.", "warn"); }
+});
+</script>
+
+</body>
+</html>
