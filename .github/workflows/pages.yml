@@ -2,7 +2,7 @@ name: Сайт Кодекса (GitHub Pages)
 
 on:
   push:
-    branches: [main]
+    branches: [main, handouts]
   workflow_dispatch:
 
 permissions:
@@ -19,6 +19,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Раздатки для игроков (ветка handouts)
+        uses: actions/checkout@v4
+        with:
+          ref: handouts
+          path: _handouts
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -26,6 +33,8 @@ jobs:
         run: |
           cd site && npm install --no-audit --no-fund && cd ..
           node site/build.mjs _site
+          rm -rf _handouts/.git _handouts/README.md
+          cp -r _handouts/. _site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
