@@ -124,6 +124,24 @@ legend small { font: 500 12px var(--mono); color: var(--mute); letter-spacing: .
 .status.ok { border-color: var(--jade); color: var(--jade); }
 .status.warn { border-color: var(--brass); color: var(--brass); }
 .private { font-size: 14px; color: var(--seal); }
+img.ill, .banner img, .chimg { cursor: zoom-in; }
+.lb { position: fixed; inset: 0; z-index: 50; background: rgba(8, 12, 10, .92); display: grid; place-items: center; padding: 16px; cursor: zoom-out; opacity: 0; transition: opacity .2s; }
+.lb.on { opacity: 1; }
+.lb img { max-width: 100%; max-height: calc(100vh - 70px); width: auto; height: auto; border-radius: 6px; box-shadow: 0 10px 40px rgba(0,0,0,.6); }
+.lb p { color: #e3ebe4; font-size: 14px; margin: 10px 0 0; text-align: center; max-width: 70ch; }
+.lb button { position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(255,255,255,.12); color: #fff; font-size: 22px; cursor: pointer; }
+.pdfwrap { position: fixed; left: -10000px; top: 0; }
+#pdfSheet { width: 760px; background: #fbfaf5; color: #1c2620; font: 15px/1.5 "Alegreya Sans", "Segoe UI", sans-serif; padding: 28px 34px; }
+#pdfSheet h1 { font: 800 30px/1.1 "Alegreya SC", Georgia, serif; margin: 0; }
+#pdfSheet .meta { color: #5b6a60; font-size: 13px; margin: 6px 0 14px; }
+#pdfSheet .ban { width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 16px; display: block; }
+#pdfSheet h2 { font: 700 20px/1.2 "Alegreya SC", Georgia, serif; margin: 18px 0 4px; color: #9c2f35; border-bottom: 1px solid #cbd5c9; padding-bottom: 4px; }
+#pdfSheet h2 small { font: 500 11px "JetBrains Mono", monospace; color: #5b6a60; letter-spacing: .08em; text-transform: uppercase; margin-left: 8px; }
+#pdfSheet .qa { padding: 6px 0; page-break-inside: avoid; break-inside: avoid; }
+#pdfSheet .qa b { display: block; font-size: 14px; }
+#pdfSheet .qa p { margin: 2px 0 0; white-space: pre-wrap; }
+#pdfSheet .qa .empty { color: #9aa79d; font-style: italic; }
+#pdfSheet .part { font: 500 11px "JetBrains Mono", monospace; letter-spacing: .14em; text-transform: uppercase; color: #2d7357; margin-top: 22px; }
 .code { border: 1px dashed var(--line); border-radius: 6px; padding: 12px 14px; display: grid; gap: 8px; }
 .code .mono { font: 700 16px var(--mono); letter-spacing: .08em; color: var(--seal); }
 .code input { font: 15px var(--mono); padding: 9px 11px; border: 1px solid var(--line); border-radius: 5px; background: var(--bg); color: var(--ink); min-width: 0; flex: 1 1 220px; }
@@ -265,15 +283,10 @@ legend small { font: 500 12px var(--mono); color: var(--mute); letter-spacing: .
       <p>Анкета разбита на девять глав: первые пять про героя, остальные четыре про вас как игрока. Можно идти по порядку или прыгать между главами. Точка у главы показывает, сколько вы уже ответили.</p>
     </div>
     <form class="hero" id="heroForm" autocomplete="off"></form>
-    <div class="status" id="saveStatus" aria-live="polite">Черновик сохраняется в этом браузере, пока вы печатаете.</div>
+    <div class="status" id="saveStatus" aria-live="polite">Черновик сохраняется в этом браузере, пока вы печатаете. Когда закончите — скачайте PDF и пришлите мастеру.</div>
     <div class="row">
-      <button class="btn prim" type="button" id="sendBtn">Сохранить и отправить мастеру</button>
+      <button class="btn prim" type="button" id="pdfBtn">Скачать анкету в PDF</button>
       <button class="btn" type="button" id="copyBtn">Скопировать ответы</button>
-    </div>
-    <div class="code">
-      <p><b>Ваш код героя:</b> <span id="heroCode" class="mono">—</span></p>
-      <p class="note">По этому коду можно открыть свои ответы на другом устройстве и дописать их. Отправлять можно сколько угодно раз — мастер увидит последнюю версию.</p>
-      <div class="row"><label class="sr" for="codeIn">Код героя</label><input id="codeIn" placeholder="Код с другого устройства, например K7Q2-MW4P" autocomplete="off"><button class="btn" type="button" id="codeBtn">Открыть по коду</button></div>
     </div>
   </section>
 </div>
@@ -393,7 +406,7 @@ form.innerHTML = `<div class="chapnav" role="tablist" aria-label="Главы а�
   <img class="chimg" src="img/ch${si + 1}.webp" alt="" loading="lazy" decoding="async"><header class="chhead"><span class="roman">${ROMAN[si]}</span><div><span class="eyebrow">${sec.about ? "Часть вторая · про вас как игрока" : "Часть первая · про героя"} · ${sec.s}</span><legend>${sec.t}</legend><p class="ep">${sec.ep}</p>${sec.legend ? `<p class="legend">${sec.legend}</p>` : ""}</div></header>
   <div class="${si === 0 ? "grid3" : ""}" style="display:grid;gap:18px">${sec.q.map(q => `<div class="q"><label id="l-${q.id}" for="f-${q.id}">${q.l}</label>${q.h ? `<span class="hint" id="h-${q.id}">${q.h}</span>` : ""}
     ${field(q)}</div>`).join("")}</div>
-  <div class="chfoot">${si > 0 ? `<button type="button" class="btn" data-go="${si - 1}">← ${ROMAN[si - 1]}. ${SECTIONS[si - 1].t}</button>` : "<span></span>"}<span class="note">Глава ${si + 1} из ${SECTIONS.length}</span>${si < SECTIONS.length - 1 ? `<button type="button" class="btn prim" data-go="${si + 1}">${ROMAN[si + 1]}. ${SECTIONS[si + 1].t} →</button>` : `<button type="button" class="btn prim" data-go="send">К отправке ↓</button>`}</div>
+  <div class="chfoot">${si > 0 ? `<button type="button" class="btn" data-go="${si - 1}">← ${ROMAN[si - 1]}. ${SECTIONS[si - 1].t}</button>` : "<span></span>"}<span class="note">Глава ${si + 1} из ${SECTIONS.length}</span>${si < SECTIONS.length - 1 ? `<button type="button" class="btn prim" data-go="${si + 1}">${ROMAN[si + 1]}. ${SECTIONS[si + 1].t} →</button>` : `<button type="button" class="btn prim" data-go="send">Скачать PDF ↓</button>`}</div>
 </fieldset>`).join("");
 const ALLQ = SECTIONS.flatMap(s => s.q);
 const read = () => Object.fromEntries(ALLQ.map(q => [q.id, String(form.elements[q.id].value ?? "").trim()]));
@@ -421,7 +434,7 @@ function progress() {
 form.addEventListener("click", (e) => {
   const c = e.target.closest("[data-ch].chip"); if (c) return showCh(Number(c.dataset.ch));
   const g = e.target.closest("[data-go]"); if (!g) return;
-  if (g.dataset.go === "send") return document.getElementById("sendBtn").scrollIntoView({ behavior: "smooth", block: "center" });
+  if (g.dataset.go === "send") return document.getElementById("pdfBtn").scrollIntoView({ behavior: "smooth", block: "center" });
   showCh(Number(g.dataset.go), true);
 });
 form.addEventListener("input", progress);
@@ -444,50 +457,57 @@ document.getElementById("copyBtn").addEventListener("click", async () => {
   }
 });
 
-/* ---------- сохранение в таблицу мастера (Google Apps Script) ---------- */
-const ENDPOINT = "%%ENDPOINT%%";
-const sendBtn = document.getElementById("sendBtn");
-const codeEl = document.getElementById("heroCode");
-const ready = /^https:\/\/script\.google\.com\//.test(ENDPOINT);
-let HID = null;
-try { HID = localStorage.getItem("razdatka.id"); } catch (e) {}
-if (!HID) {
-  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  HID = Array.from(crypto.getRandomValues(new Uint8Array(8)), n => abc[n % abc.length]).join("").replace(/^(.{4})/, "$1-");
-  try { localStorage.setItem("razdatka.id", HID); } catch (e) {}
+/* ---------- картинки на весь экран ---------- */
+document.addEventListener("click", (e) => {
+  const im = e.target.closest("img.ill, .banner img, img.chimg"); if (!im) return;
+  const lb = document.createElement("div"); lb.className = "lb"; lb.setAttribute("role", "dialog"); lb.setAttribute("aria-label", "Картинка во весь экран");
+  lb.innerHTML = `<button type="button" aria-label="Закрыть">×</button><div><img src="${im.currentSrc || im.src}" alt="">${im.alt ? `<p>${esc(im.alt)}</p>` : ""}</div>`;
+  const close = () => { lb.classList.remove("on"); setTimeout(() => lb.remove(), 200); document.removeEventListener("keydown", onKey); };
+  const onKey = (ev) => { if (ev.key === "Escape") close(); };
+  lb.addEventListener("click", close); document.addEventListener("keydown", onKey);
+  document.body.appendChild(lb); requestAnimationFrame(() => lb.classList.add("on")); lb.querySelector("button").focus();
+});
+
+/* ---------- анкета в PDF ---------- */
+function sheetHTML() {
+  const d = read(), ROM = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"];
+  const val = (q) => {
+    const v = d[q.id]; if (!v) return `<p class="empty">— без ответа —</p>`;
+    if (q.scale) return `<p>${esc(v)} из 5 <span style="color:#5b6a60">(1 — ${esc(q.scale[0]).toLowerCase()}, 5 — ${esc(q.scale[1]).toLowerCase()})</span></p>`;
+    return `<p>${esc(v)}</p>`;
+  };
+  let html = `<img class="ban" src="img/banner.webp" alt=""><h1>${esc(d.name || "Безымянный герой")}</h1>
+    <div class="meta">Скрытые земли людоящеров · анкета героя${d.player ? " · игрок: " + esc(d.player) : ""} · ${new Date().toLocaleDateString("ru-RU")}</div>`;
+  SECTIONS.forEach((sec, i) => {
+    if (i === 0) html += `<div class="part">Часть первая · герой</div>`;
+    if (sec.about && !SECTIONS[i - 1].about) html += `<div class="part">Часть вторая · игрок</div>`;
+    html += `<h2>${ROM[i]}. ${esc(sec.t)}<small>${esc(sec.s)}</small></h2>` + sec.q.filter(q => !(i === 0 && (q.id === "name" || q.id === "player"))).map(q => `<div class="qa"><b>${esc(q.l)}</b>${val(q)}</div>`).join("");
+  });
+  return html;
 }
-codeEl.textContent = HID;
-if (!ready) { sendBtn.disabled = true; sendBtn.title = "Сохранение пока не подключено — скопируйте ответы"; }
-const COLS = ALLQ.map(q => ({ id: q.id, label: q.l }));
-sendBtn.addEventListener("click", async () => {
-  const answers = read();
-  if (!answers.name) { setStatus("Впишите хотя бы имя героя — глава I.", "warn"); showCh(0, true); form.elements.name.focus(); return; }
-  sendBtn.disabled = true; setStatus("Сохраняю…");
+function loadLib() {
+  return window.html2pdf ? Promise.resolve() : new Promise((res, rej) => {
+    const sc = document.createElement("script");
+    sc.src = "vendor/html2pdf.bundle.min.js";
+    sc.onload = res; sc.onerror = rej; document.head.appendChild(sc);
+  });
+}
+document.getElementById("pdfBtn").addEventListener("click", async (e) => {
+  const btn = e.currentTarget, d = read();
+  btn.disabled = true; setStatus("Собираю PDF…");
+  const wrap = document.createElement("div"); wrap.className = "pdfwrap";
+  const box = document.createElement("div"); box.id = "pdfSheet"; box.innerHTML = sheetHTML(); wrap.appendChild(box); document.body.appendChild(wrap);
   try {
-    const r = await fetch(ENDPOINT, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ id: HID, answers, columns: COLS }) });
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok || !j.ok) throw new Error(j.error || r.status);
-    setStatus("Сохранено. Анкета у мастера. Поправили что-то — нажмите ещё раз.", "ok");
-  } catch (e) {
-    setStatus("Не получилось сохранить. Попробуйте ещё раз или скопируйте ответы и пришлите мастеру.", "warn");
-  } finally { sendBtn.disabled = !ready; }
+    await loadLib();
+    await Promise.all([...box.querySelectorAll("img")].map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
+    const fname = `Анкета — ${(d.name || "герой").replace(/[\\/:*?"<>|]+/g, " ").trim().slice(0, 60)}.pdf`;
+    await window.html2pdf().set({ margin: [10, 8, 12, 8], filename: fname, image: { type: "jpeg", quality: 0.9 }, html2canvas: { scale: 2, useCORS: true, backgroundColor: "#fbfaf5", scrollX: 0, scrollY: 0 }, jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }, pagebreak: { mode: ["css", "legacy"], avoid: [".qa", "h2"] } }).from(box).save();
+    setStatus("PDF скачан.", "ok");
+  } catch (err) {
+    setStatus("Не получилось собрать PDF. Попробуйте ещё раз или скопируйте ответы.", "warn");
+  } finally { wrap.remove(); btn.disabled = false; }
 });
-document.getElementById("codeBtn").addEventListener("click", async () => {
-  const code = document.getElementById("codeIn").value.trim().toUpperCase();
-  if (!/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) { setStatus("Код выглядит так: K7Q2-MW4P.", "warn"); return; }
-  if (!ready) { setStatus("Сохранение пока не подключено.", "warn"); return; }
-  setStatus("Ищу анкету…");
-  try {
-    const r = await fetch(ENDPOINT + "?id=" + encodeURIComponent(code));
-    const j = await r.json();
-    if (!j.ok || !j.byLabel) { setStatus("Анкета с таким кодом не найдена.", "warn"); return; }
-    const got = Object.fromEntries(COLS.map(c => [c.id, String(j.byLabel[c.label] ?? "")]));
-    HID = code; codeEl.textContent = code; try { localStorage.setItem("razdatka.id", code); } catch (e) {}
-    form.reset(); fill(got); progress();
-    try { localStorage.setItem(LS, JSON.stringify(read())); } catch (e) {}
-    setStatus("Анкета открыта. Можно дописать и сохранить.", "ok");
-  } catch (e) { setStatus("Не получилось открыть анкету. Попробуйте позже.", "warn"); }
-});
+
 </script>
 
 </body>
