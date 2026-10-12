@@ -35,14 +35,14 @@ const TRANSPORT = [
   { id: "car", ru: "Машина", kmh: 35, icon: "fa-car" },
   { id: "av", ru: "AV / ави", kmh: 160, icon: "fa-helicopter" }
 ];
-const QSTATUS = { hidden: "Скрыт", active: "Активен", done: "Выполнен", failed: "Провален" };
+const QSTATUS = { hidden: "Скрыт", offer: "Слух / предложение", active: "Активен", done: "Выполнен", failed: "Провален" };
 
 /* ================================================================ настройки и состояние */
 
-const DEFAULT_STATE = { quests: [], pins: [], poi: {}, party: null, route: null, visited: [], shops: [], night: false };
+const DEFAULT_STATE = { quests: [], pins: [], poi: {}, party: null, route: null, visited: [], shops: [], night: false, clock: 0, players: {}, messages: [] };
 
 Hooks.once("init", () => {
-  game.settings.register(MID, "state", { scope: "world", config: false, type: Object, default: DEFAULT_STATE, onChange: () => UI.refresh() });
+  game.settings.register(MID, "state", { scope: "world", config: false, type: Object, default: DEFAULT_STATE, onChange: () => { UI.refresh(); Agent.onState(); } });
   game.settings.register(MID, "image", {
     name: "Картинка карты", hint: "Файл карты Найт-Сити 2045 (без легенды). Точки привязаны к пропорциям этой карты.",
     scope: "world", config: true, type: String, filePicker: "image", default: `modules/${MID}/assets/night-city-2045.webp`, onChange: () => UI.rebuild()
@@ -55,6 +55,7 @@ Hooks.once("init", () => {
     scope: "client", config: true, type: String, default: "full", choices: { full: "Полный", soft: "Мягкий", off: "Выключен" }, onChange: () => UI.rebuild()
   });
   game.settings.register(MID, "notify", { name: "Уведомлять игроков о новых квестах", scope: "world", config: true, type: Boolean, default: true });
+  game.keybindings.register(MID, "agent", { name: "Агент (телефон)", editable: [{ key: "KeyA", modifiers: ["Shift"] }], onDown: () => { Agent.toggle(); return true; } });
   game.keybindings.register(MID, "open", {
     name: "Открыть карту Найт-Сити", editable: [{ key: "KeyM", modifiers: ["Shift"] }],
     onDown: () => { UI.toggle(); return true; }
@@ -67,6 +68,45 @@ async function save(mut) {
   const s = state();
   mut(s);
   await game.settings.set(MID, "state", s);
+}
+
+/* ================================================================ время */
+
+const T0 = Date.UTC(2045, 6, 14, 20, 0); // старт часов: пт 14.07.2045, 20:00
+const DOW = ["ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
+function clockDate(min = state().clock) { return new Date(T0 + min * 60000); }
+function fmtClock(min = state().clock) {
+  const d = clockDate(min), z = (n) => String(n).padStart(2, "0");
+  return { day: `${DOW[d.getUTCDay()]} ${z(d.getUTCDate())}.${z(d.getUTCMonth() + 1)}.${d.getUTCFullYear()}`, time: `${z(d.getUTCHours())}:${z(d.getUTCMinutes())}` };
+}
+const isNight = (s = state()) => { const h = clockDate(s.clock).getUTCHours(); return s.night || h >= 21 || h < 6; };
+const fmtMin = (m) => m < 60 ? `${Math.round(m)} мин` : `${Math.floor(m / 60)} ч${Math.round(m % 60) ? ` ${Math.round(m % 60)} мин` : ""}`;
+
+/* ================================================================ запросы игроков через мастера */
+
+/** Игроки не пишут настройки мира — их действия выполняет активный мастер. */
+async function act(op, data = {}) {
+  if (isGM()) return applyOp(op, data, game.user);
+  if (!game.users.activeGM) return ui.notifications.warn("Карта: нужен мастер в игре, чтобы сохранить это.");
+  emit({ action: "op", op, data, user: game.user.id });
+}
+async function applyOp(op, d, user) {
+  const name = user?.character?.name ?? user?.name ?? "Игрок";
+  switch (op) {
+    case "party": return save(s => { s.party = { x: d.x, y: d.y }; });
+    case "me": return save(s => { s.players[user.id] = { x: d.x, y: d.y }; });
+    case "me-clear": return save(s => { delete s.players[user.id]; });
+    case "travel": return save(s => {
+      s.clock = (s.clock ?? 0) + Math.round(d.min);
+      if (d.who === "party") s.party = { x: d.x, y: d.y }; else s.players[d.who] = { x: d.x, y: d.y };
+    }).then(() => { if (isGM()) game.time?.advance?.(Math.round(d.min) * 60); chatTravel(d, name); });
+    case "take": return save(s => { const q = s.quests.find(x => x.id === d.id); if (q && q.status === "offer") { q.status = "active"; q.takenBy = name; } })
+      .then(() => ChatMessage.create({ speaker: { alias: "Агент" }, content: `<div class="ncm-chat"><div class="ncm-chat-k">ЗАКАЗ ПРИНЯТ</div><b>${esc(name)}</b> берёт заказ «${esc(state().quests.find(x => x.id === d.id)?.title ?? "")}»</div>` }));
+    case "msg": return save(s => { s.messages.push({ id: rid(), to: d.to ?? "gm", from: d.from ?? name, fromUser: user?.id, text: String(d.text ?? "").slice(0, 2000), t: s.clock ?? 0, ts: Date.now() }); if (s.messages.length > 300) s.messages = s.messages.slice(-300); });
+  }
+}
+function chatTravel(d, name) {
+  ChatMessage.create({ speaker: { alias: "Найт-Сити" }, content: `<div class="ncm-chat"><div class="ncm-chat-k">В ПУТИ · ${esc(d.mode ?? "")}</div><b>${esc(d.who === "party" ? "Группа" : name)}</b> → ${esc(d.to ?? "")}<br>${fmtMin(d.min)} · ${(d.km ?? 0).toFixed(1)} км · теперь ${fmtClock().time}</div>` });
 }
 
 /* ================================================================ данные */
@@ -248,12 +288,15 @@ const UI = {
         <div class="ncm-modes">
           <button data-act="mode-route" title="Проложить маршрут: кликайте точки на карте"><i class="fas fa-route"></i> Маршрут</button>
           <button data-act="quests" title="Список заказов"><i class="fas fa-scroll"></i> Заказы</button>
-          <button data-act="mode-party" title="Поставить метку «Мы здесь» — видят все игроки"><i class="fas fa-users"></i> Мы здесь</button>
-          ${isGM() ? `<button data-act="night" title="День / ночь — влияет на встречи и вид карты"><i class="fas fa-moon"></i> <span class="ncm-dn">День</span></button>
+          <button data-act="mode-party" title="Поставить метку «Мы здесь» (вся группа)"><i class="fas fa-users"></i> Мы здесь</button>
+          <button data-act="mode-me" title="Поставить свою метку «Я здесь» — если группа разделилась"><i class="fas fa-user"></i> Я здесь</button>
+          <button data-act="agent" title="Агент: заказы и сообщения (Shift+A)"><i class="fas fa-mobile-screen"></i> Агент<span class="ncm-agent-badge" hidden></span></button>
+          ${isGM() ? `<button data-act="gen-gigs" title="Разбросать случайные заказы по карте"><i class="fas fa-circle-question"></i> Заказы на карту</button>
           <button data-act="gen-shops" title="Расставить случайные магазины по городу"><i class="fas fa-cart-shopping"></i> Магазины</button>
           <button data-act="mode-pin" title="Добавить свою точку"><i class="fas fa-location-dot"></i> Точка</button>
           <button data-act="share" title="Открыть карту у всех игроков на этом месте"><i class="fas fa-satellite-dish"></i> Показать всем</button>` : ""}
         </div>
+        <div class="ncm-clock" title="Время в Найт-Сити"></div>
         <button class="ncm-x" data-act="close" title="Закрыть (Esc)"><i class="fas fa-xmark"></i></button>
       </header>
       <nav class="ncm-cats">${Object.entries(CATS).map(([k, c]) => `<button data-cat="${k}" class="on" style="--c:${c.color}"><i class="fas ${c.icon}"></i>${c.ru}</button>`).join("")}</nav>
@@ -277,6 +320,7 @@ const UI = {
       <div class="ncm-scan"></div>`;
     document.body.appendChild(el);
     this.el = el;
+    this.layout();
     this.world = el.querySelector(".ncm-world");
     this.vp = el.querySelector(".ncm-viewport");
     const img = el.querySelector(".ncm-img");
@@ -290,6 +334,13 @@ const UI = {
     requestAnimationFrame(() => el.classList.add("ncm-in"));
   },
 
+  /** Карта не перекрывает боковую панель Foundry (чат, журналы), а окна Foundry всегда поверх карты. */
+  layout() {
+    if (!this.el) return;
+    const sb = document.getElementById("sidebar"), r = sb?.getBoundingClientRect();
+    const right = r && r.width ? Math.max(0, window.innerWidth - r.left + 6) : 0;
+    this.el.style.right = `${right}px`;
+  },
   /* ------------------------------------------------ вид */
   size() { const img = this.el.querySelector(".ncm-img"); return { w: img.naturalWidth || MAP_SIZE.w, h: img.naturalHeight || MAP_SIZE.h }; },
   apply() {
@@ -351,8 +402,8 @@ const UI = {
   },
   renderMarkers() {
     const s = state(), q = this.query.toLowerCase();
-    this.el.classList.toggle("ncm-night", !!s.night);
-    const dn = this.el.querySelector(".ncm-dn"); if (dn) dn.textContent = s.night ? "Ночь" : "День";
+    this.el.classList.toggle("ncm-night", isNight(s));
+    this.renderClock();
     const qByPoi = {};
     for (const qu of questsVisible()) if (qu.status === "active" || (isGM() && qu.status === "hidden")) { if (qu.target) (qByPoi[qu.target] ??= []).push(qu); if (qu.giver) (qByPoi[qu.giver] ??= []).push(qu); }
     const html = allPois().filter(p => this.filter.has(p.cat)).map(p => {
@@ -366,7 +417,15 @@ const UI = {
         <span class="ncm-name">${esc(p.name)}</span></button>`;
     }).join("");
     const party = s.party ? `<div class="ncm-party" style="left:${s.party.x * 100}%;top:${s.party.y * 100}%"><span></span><b>МЫ ЗДЕСЬ</b></div>` : "";
-    this.el.querySelector(".ncm-markers").innerHTML = html + party;
+    const gigs = questsVisible().filter(qu => qu.x != null && ["offer", "active", "hidden"].includes(qu.status)).map(qu =>
+      `<button class="ncm-pin ncm-gig st-${qu.status}${this.sel === `q:${qu.id}` ? " sel" : ""}" data-gig="${qu.id}" style="left:${qu.x * 100}%;top:${qu.y * 100}%" title="${esc(qu.title)}">
+        <span class="ncm-gigmark">${qu.status === "active" ? "!" : "?"}</span><span class="ncm-name">${esc(qu.title)}</span></button>`).join("");
+    const me = Object.entries(s.players ?? {}).map(([uid, pt]) => {
+      const u = game.users.get(uid); if (!u) return "";
+      const img = u.character?.img ?? u.avatar;
+      return `<div class="ncm-me" style="left:${pt.x * 100}%;top:${pt.y * 100}%;--uc:${u.color?.css ?? u.color ?? "#ff2a6d"}" title="${esc(u.name)}">${img ? `<img src="${esc(img)}" alt="">` : ""}<b>${esc(u.character?.name ?? u.name)}</b></div>`;
+    }).join("");
+    this.el.querySelector(".ncm-markers").innerHTML = html + gigs + party + me;
   },
   renderSvg() {
     const H = 1000 * aspect, P = (p) => `${(p.x * 1000).toFixed(1)},${(p.y * H).toFixed(1)}`;
@@ -383,7 +442,7 @@ const UI = {
   renderHint() {
     const h = this.el.querySelector(".ncm-hint");
     const msg = { route: "Маршрут: кликайте по карте или точкам — каждая точка добавляет поворот. Правый клик — убрать последнюю.",
-      party: "Кликните по карте, чтобы поставить метку «Мы здесь».", pin: "Кликните по карте, чтобы добавить свою точку." }[this.mode];
+      party: "Кликните по карте, чтобы поставить метку «Мы здесь».", me: "Кликните по карте, чтобы поставить свою метку «Я здесь».", pin: "Кликните по карте, чтобы добавить свою точку." }[this.mode];
     h.innerHTML = msg ? `<i class="fas fa-crosshairs"></i> ${msg} <button data-act="mode-off">Готово</button>` : "";
     h.classList.toggle("on", !!msg);
     this.el.querySelectorAll(".ncm-modes button").forEach(b => b.classList.toggle("on", b.dataset.act === `mode-${this.mode}`));
@@ -468,7 +527,7 @@ const UI = {
   renderRoutePanel(panel) {
     const pts = this.route, st = routeStats(this.path.length ? this.path : pts, this.path.length > 1);
     panel.classList.add("on");
-    const names = pts.map(p => p.poi ? poiById(p.poi)?.name : null);
+    const names = pts.map(p => p.poi ? poiById(p.poi)?.name : p.gig ? state().quests.find(q => q.id === p.gig)?.title : null);
     panel.innerHTML = `
       <div class="ncm-p-head" style="--c:#ff2a6d">
         <span class="ncm-p-cat"><i class="fas fa-route"></i> Маршрут</span>
@@ -478,7 +537,7 @@ const UI = {
       <div class="ncm-p-body">
         <div class="ncm-rpick">
           <input list="ncm-poilist" data-route-add placeholder="${pts.length ? "Добавить точку: место, магазин, район…" : "Откуда: место, магазин, район…"}">
-          <datalist id="ncm-poilist">${allPois().map(x => `<option value="${esc(x.name)}">`).join("")}${DISTRICTS.filter(x => !["delbay", "sanbay"].includes(x.id)).map(x => `<option value="${esc(x.ru)}">`).join("")}${state().party ? `<option value="Мы здесь">` : ""}</datalist>
+          <datalist id="ncm-poilist">${allPois().map(x => `<option value="${esc(x.name)}">`).join("")}${DISTRICTS.filter(x => !["delbay", "sanbay"].includes(x.id)).map(x => `<option value="${esc(x.ru)}">`).join("")}${state().party ? `<option value="Мы здесь">` : ""}${state().players?.[game.user.id] ? `<option value="Я здесь">` : ""}</datalist>
           ${state().party ? `<button data-act="route-party" title="Начать от метки «Мы здесь»"><i class="fas fa-users"></i></button>` : ""}
         </div>
         ${pts.length > 1 ? `
@@ -486,7 +545,11 @@ const UI = {
         <div class="ncm-stats"><div><b>${st.road.toFixed(1)}</b><span>км в пути</span></div><div><b>${routeStats(pts).dist.toFixed(1)}</b><span>км по прямой</span></div><div><b>${pts.length}</b><span>точек</span></div></div>
         ${st.hot > 0.05 ? `<div class="ncm-warn hot"><i class="fas fa-radiation"></i> Через Зону Поражения: ${st.hot.toFixed(1)} км</div>` : ""}
         ${st.combat > 0.05 ? `<div class="ncm-warn combat"><i class="fas fa-triangle-exclamation"></i> Через Боевую зону: ${st.combat.toFixed(1)} км — возможна встреча с бандой</div>` : ""}
-        <div class="ncm-eta">${TRANSPORT.map(t => `<div><i class="fas ${t.icon}"></i><span>${t.ru}</span><b>${fmtTime((t.id === "av" ? st.dist : st.road) / t.kmh)}</b></div>`).join("")}</div>
+        <div class="ncm-eta">${TRANSPORT.map(t => `<button data-act="travel" data-t="${t.id}" title="Проехать: время пройдёт, метка переместится в конец маршрута"><i class="fas ${t.icon}"></i><span>${t.ru}</span><b>${fmtTime((t.id === "av" ? st.dist : st.road) / t.kmh)}</b><em>▶</em></button>`).join("")}</div>
+        <div class="ncm-who">Кто едет:
+          <label><input type="radio" name="ncm-who" value="party" ${this.who !== "me" ? "checked" : ""}> вся группа</label>
+          <label><input type="radio" name="ncm-who" value="me" ${this.who === "me" ? "checked" : ""}> только я</label>
+          ${isGM() ? `<label><input type="checkbox" data-travel-enc ${this.travelEnc ? "checked" : ""}> встречи по пути</label>` : ""}</div>
         ${isGM() ? `<button class="ncm-enc-roll" data-act="enc-route"><i class="fas fa-dice-d20"></i> Встречи по пути</button>
         ${(this.routeEnc ?? []).map(encCard).join("")}` : ""}
         <ol class="ncm-steps">${pts.map((p, i) => `<li><button class="ncm-step-x" data-act="route-rm" data-i="${i}" title="Убрать точку">✕</button>${esc(names[i] ?? ([streetNear(p.x, p.y)?.ru, districtAt(p.x, p.y)?.ru].filter(Boolean).join(", ") || "точка"))}</li>`).join("")}</ol>` :
@@ -509,6 +572,7 @@ const UI = {
       const v = inp.value.trim().toLowerCase(); inp.value = ""; if (!v) return;
       let pt = null;
       if (v === "мы здесь" && state().party) pt = { ...state().party };
+      if (v === "я здесь" && state().players?.[game.user.id]) pt = { ...state().players[game.user.id] };
       const p = allPois().find(x => x.name.toLowerCase() === v) ?? allPois().find(x => x.name.toLowerCase().includes(v));
       const d = DISTRICTS.find(x => x.ru.toLowerCase() === v);
       if (!pt && p) pt = { x: p.x, y: p.y, poi: p.id };
@@ -544,7 +608,7 @@ const UI = {
   renderQuestList() {
     const box = this.el.querySelector(".ncm-quests");
     const qs = questsVisible();
-    const order = { active: 0, hidden: 1, done: 2, failed: 3 };
+    const order = { active: 0, offer: 1, hidden: 2, done: 3, failed: 4 };
     qs.sort((a, b) => order[a.status] - order[b.status]);
     box.innerHTML = `
       <div class="ncm-q-head"><h2><i class="fas fa-scroll"></i> Заказы</h2>
@@ -576,6 +640,10 @@ const UI = {
   bind() {
     const el = this.el, vp = this.vp;
     el.addEventListener("click", (ev) => this.onClick(ev));
+    el.addEventListener("change", (ev) => {
+      if (ev.target.name === "ncm-who") this.who = ev.target.value;
+      if (ev.target.matches("[data-travel-enc]")) this.travelEnc = ev.target.checked;
+    });
     el.querySelector(".ncm-search input").addEventListener("input", (ev) => { this.query = ev.target.value.trim(); this.renderMarkers(); });
     el.querySelector(".ncm-search input").addEventListener("keydown", (ev) => {
       ev.stopPropagation();
@@ -610,7 +678,7 @@ const UI = {
       if (ev.key === "Escape") { ev.stopPropagation(); if (this.mode !== "browse") this.setMode("browse"); else this.close(); }
     };
     document.addEventListener("keydown", this.onKey, true);
-    window.addEventListener("resize", () => this.el && this.fit());
+    window.addEventListener("resize", () => { if (this.el) { this.layout(); this.fit(); } });
   },
   reopen() {
     if (this.lastEncDist && !this.sel) return this.renderDistrict(this.lastEncDist);
@@ -632,6 +700,54 @@ const UI = {
     this.routeEnc = out; this.lastEnc = out.at(-1);
     this.renderPanel();
   },
+  selectGig(id) {
+    this.sel = `q:${id}`; this.renderMarkers();
+    const q = state().quests.find(x => x.id === id), panel = this.el.querySelector(".ncm-panel");
+    if (!q) return;
+    const d = districtAt(q.x, q.y), st = streetNear(q.x, q.y);
+    panel.classList.add("on");
+    panel.innerHTML = `<div class="ncm-p-head" style="--c:${q.status === "active" ? "#fcee0a" : "#00f0ff"}">
+        <span class="ncm-p-cat"><i class="fas fa-${q.status === "active" ? "exclamation" : "question"}"></i> ${QSTATUS[q.status]}</span>
+        <h2>${esc(q.title)}</h2>${d ? `<button class="ncm-p-dist" data-act="dist" data-id="${d.id}">${esc(d.ru)}</button>` : ""}
+        ${st ? `<div class="ncm-p-street"><i class="fas fa-signs-post"></i> ${esc(st.ru)}</div>` : ""}
+        <button class="ncm-p-x" data-act="unsel"><i class="fas fa-xmark"></i></button></div>
+      <div class="ncm-p-body">${qcard(q)}
+        <div class="ncm-p-acts"><button data-act="route-gig" data-id="${q.id}"><i class="fas fa-flag-checkered"></i> Маршрут сюда</button>
+        ${!isGM() && q.status === "offer" ? `<button data-act="take" data-id="${q.id}"><i class="fas fa-handshake"></i> Взять заказ</button>` : ""}</div>
+        ${encBlock(q.x, q.y, d?.id)}</div>`;
+  },
+  renderClock() {
+    const c = this.el?.querySelector(".ncm-clock"); if (!c) return;
+    const { day, time } = fmtClock(), n = isNight();
+    c.innerHTML = `<i class="fas fa-${n ? "moon" : "sun"}"></i><b>${time}</b><small>${day}</small>${isGM() ? `<span class="ncm-tadd"><button data-act="time" data-m="10">+10м</button><button data-act="time" data-m="60">+1ч</button><button data-act="time" data-m="480">+8ч</button><button data-act="time-set" title="Установить время">⏱</button></span>` : ""}`;
+  },
+  async travel(tid) {
+    const pts = this.path.length ? this.path : this.route; if (pts.length < 2) return;
+    const t = TRANSPORT.find(x => x.id === tid), st = routeStats(pts, this.path.length > 1);
+    const min = ((t.id === "av" ? st.dist : st.road) / t.kmh) * 60;
+    const end = this.route.at(-1), who = this.who === "me" ? game.user.id : "party";
+    const to = end.poi ? poiById(end.poi)?.name : end.gig ? state().quests.find(x => x.id === end.gig)?.title : (streetNear(end.x, end.y)?.ru ?? districtAt(end.x, end.y)?.ru);
+    if (isGM() && this.travelEnc) await this.rollRoute();
+    // анимация метки по маршруту
+    this.animateTravel(pts);
+    await act("travel", { x: end.x, y: end.y, min, who, mode: t.ru, to, km: st.road });
+    this.route = [{ ...end }]; this.path = [];
+    setTimeout(() => { this.renderSvg(); this.renderPanel(); }, 1300);
+  },
+  animateTravel(pts) {
+    const layer = this.el.querySelector(".ncm-markers"), dot = document.createElement("div");
+    dot.className = "ncm-runner"; layer.appendChild(dot);
+    const segs = []; let L = 0;
+    for (let i = 1; i < pts.length; i++) { const l = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y); segs.push([pts[i - 1], pts[i], L, l]); L += l; }
+    const t0 = performance.now(), dur = 1200;
+    const step = (now) => {
+      const k = Math.min(1, (now - t0) / dur), at = k * L;
+      const sg = segs.find(g => at <= g[2] + g[3]) ?? segs.at(-1), u = sg[3] ? (at - sg[2]) / sg[3] : 1;
+      dot.style.left = `${(sg[0].x + (sg[1].x - sg[0].x) * u) * 100}%`; dot.style.top = `${(sg[0].y + (sg[1].y - sg[0].y) * u) * 100}%`;
+      if (k < 1) requestAnimationFrame(step); else setTimeout(() => dot.remove(), 200);
+    };
+    requestAnimationFrame(step);
+  },
   async recalc() {
     if (this.streets && this.route.length > 1) { await loadGrid(); this.path = buildPath(this.route); }
     else this.path = [];
@@ -650,14 +766,17 @@ const UI = {
     if (center && p) this.focus(p.x, p.y, Math.max(this.view.s, 0.9));
   },
   async onMapClick(ev, target = ev.target) {
-    const pin = target.closest("[data-poi]");
+    const pin = target.closest("[data-poi], [data-gig]");
+    if (pin?.dataset.gig && this.mode !== "route") { /* обработано ниже */ }
     const f = this.toFrac(ev);
     if (this.mode === "route") {
-      const p = pin ? poiById(pin.dataset.poi) : null;
-      this.route.push(p ? { x: p.x, y: p.y, poi: p.id } : f);
+      const gq = pin?.dataset.gig ? state().quests.find(x => x.id === pin.dataset.gig) : null;
+      const p = pin?.dataset.poi ? poiById(pin.dataset.poi) : null;
+      this.route.push(p ? { x: p.x, y: p.y, poi: p.id } : gq ? { x: gq.x, y: gq.y, gig: gq.id } : f);
       return this.recalc();
     }
-    if (this.mode === "party") { await setParty(f); this.setMode("browse"); return; }
+    if (this.mode === "party") { await act("party", f); this.setMode("browse"); return; }
+    if (this.mode === "me") { await act("me", f); this.setMode("browse"); return; }
     if (this.mode === "pin") {
       const data = await formDialog("Новая точка", `<form class="ncm-form"><label>Название<input name="name" placeholder="Схрон Мальстрема"></label>
         <label>Описание<textarea name="desc" rows="3"></textarea></label><label>Заметки мастера<textarea name="notes" rows="2"></textarea></label>
@@ -665,6 +784,8 @@ const UI = {
       if (data?.name) await save(s => { s.pins.push({ id: `c${rid()}`, ...f, ...data }); });
       this.setMode("browse"); return;
     }
+    const gig = target.closest("[data-gig]");
+    if (this.mode === "browse" && gig) return this.selectGig(gig.dataset.gig);
     if (pin) return this.select(pin.dataset.poi);
     const dist = target.closest("[data-dist]");
     if (dist) return this.renderDistrict(dist.dataset.dist);
@@ -732,6 +853,20 @@ const UI = {
         });
       }
       case "night": return save(s => { s.night = !s.night; });
+      case "mode-me": return this.setMode("me");
+      case "agent": return Agent.toggle();
+      case "time": return save(s => { s.clock = (s.clock ?? 0) + Number(b.dataset.m); }).then(() => game.time?.advance?.(Number(b.dataset.m) * 60));
+      case "time-set": {
+        const d = clockDate(), z = (n) => String(n).padStart(2, "0");
+        const data = await formDialog("Время в Найт-Сити", `<form class="ncm-form"><div class="ncm-row"><label>Дата<input type="date" name="d" value="${d.getUTCFullYear()}-${z(d.getUTCMonth() + 1)}-${z(d.getUTCDate())}"></label><label>Время<input type="time" name="t" value="${z(d.getUTCHours())}:${z(d.getUTCMinutes())}"></label></div></form>`);
+        if (!data) return;
+        const ms = Date.parse(`${data.d}T${data.t}:00Z`); if (isNaN(ms)) return;
+        return save(s => { s.clock = Math.round((ms - T0) / 60000); });
+      }
+      case "travel": return this.travel(b.dataset.t);
+      case "take": return act("take", { id });
+      case "route-gig": { const q = state().quests.find(x => x.id === id); if (!q) return; const me = state().players?.[game.user.id], start = me ?? state().party; this.sel = null; this.route = start ? [{ ...start }, { x: q.x, y: q.y, gig: q.id }] : [{ x: q.x, y: q.y, gig: q.id }]; this.mode = "browse"; if (!start) return this.setMode("route"); return this.recalc(); }
+      case "gen-gigs": return genGigsDialog();
       case "dossier": return openDossier(id);
       case "enc": { await doEncounter(Number(b.dataset.x), Number(b.dataset.y), b.dataset.d || null); this.lastEncDist = b.dataset.d; return this.reopen(); }
       case "enc-again": { const e = this.lastEnc; if (!e) return; if (this.routeEnc?.includes(e)) return this.rollRoute(); await doEncounter(e.x, e.y, e.distId); return this.reopen(); }
@@ -767,6 +902,7 @@ const UI = {
       }
       case "new-quest": return this.editQuest(null, id ?? this.sel);
       case "edit-quest": return this.editQuest(id);
+      case "gig-go": { const q = state().quests.find(x => x.id === id); if (q?.x != null) { this.focus(q.x, q.y, Math.max(this.view.s, 0.8)); this.selectGig(id); } return; }
       case "quest-go": { const q = state().quests.find(x => x.id === id); const p = q && poiById(q.target ?? q.giver); if (p) this.select(p.id, true); return; }
       case "quest-status": return save(s => { const q = s.quests.find(x => x.id === id); if (q) q.status = b.dataset.st; })
         .then(() => { if (b.dataset.st === "active" && game.settings.get(MID, "notify")) emit({ action: "quest", id }); });
@@ -831,7 +967,7 @@ async function spawnMooks(id, n) {
 async function doEncounter(x, y, distId, { toGM = true } = {}) {
   const dist = DISTRICTS.find(d => d.id === distId) ?? districtAt(x, y);
   const threat = threatOf(dist, zoneAt(x, y));
-  const e = rollEncounter({ distId: dist?.id, threat, night: !!state().night });
+  const e = rollEncounter({ distId: dist?.id, threat, night: isNight() });
   e.key = `${x.toFixed(4)},${y.toFixed(4)}`; e.x = x; e.y = y; e.distId = dist?.id; e.where = streetNear(x, y)?.ru ?? dist?.ru ?? "";
   UI.lastEnc = e;
   if (toGM) chatEnc(e, true);
@@ -931,6 +1067,8 @@ function qcard(q) {
   const t = q.target && poiById(q.target), g = q.giver && poiById(q.giver);
   return `<div class="ncm-qcard st-${q.status}">
     <div class="ncm-qc-top"><b>${esc(q.title || "Без названия")}</b><span class="ncm-qst">${QSTATUS[q.status]}</span></div>
+    ${q.takenBy ? `<div class="ncm-qc-fx"><i class="fas fa-user-check"></i> Взял: ${esc(q.takenBy)}</div>` : ""}
+    ${q.x != null ? `<button class="ncm-qc-go" data-act="gig-go" data-id="${q.id}"><i class="fas fa-location-crosshairs"></i> На карте</button>` : ""}
     ${q.fixer ? `<div class="ncm-qc-fx"><i class="fas fa-user-secret"></i> ${esc(q.fixer)}</div>` : ""}
     ${q.desc ? `<p>${esc(q.desc)}</p>` : ""}
     <div class="ncm-qc-meta">
@@ -941,6 +1079,7 @@ function qcard(q) {
     ${isGM() && q.notes ? `<div class="ncm-gm"><p>${esc(q.notes)}</p></div>` : ""}
     ${isGM() ? `<div class="ncm-qc-acts">
       <button data-act="edit-quest" data-id="${q.id}"><i class="fas fa-pen"></i></button>
+      ${q.status === "hidden" ? `<button data-act="quest-status" data-st="offer" data-id="${q.id}" title="Игроки увидят «?» на карте">Слух</button>` : ""}
       ${q.status !== "active" ? `<button data-act="quest-status" data-st="active" data-id="${q.id}">Выдать</button>` : ""}
       ${q.status === "active" ? `<button data-act="quest-status" data-st="done" data-id="${q.id}">Выполнен</button><button data-act="quest-status" data-st="failed" data-id="${q.id}">Провален</button>` : ""}
       <button class="danger" data-act="del-quest" data-id="${q.id}"><i class="fas fa-trash"></i></button></div>` : ""}
@@ -1038,16 +1177,15 @@ function questToast(q) {
 Hooks.once("ready", () => {
   game.socket.on(SOCKET, (d) => {
     if (!d) return;
-    if (d.action === "party") {
-      if (game.user === game.users.activeGM) save(s => { s.party = { x: d.x, y: d.y }; }).then(() => ui.notifications.info(`${d.user}: метка «Мы здесь» перенесена.`));
-      return;
-    }
+    if (d.action === "op") { if (game.user === game.users.activeGM) applyOp(d.op, d.data, game.users.get(d.user)); return; }
+    if (d.action === "party") { if (game.user === game.users.activeGM) save(s => { s.party = { x: d.x, y: d.y }; }); return; }
     if (isGM()) return;
     if (d.action === "open") { UI.open(); setTimeout(() => { UI.focus(d.x, d.y, d.s); if (d.sel) UI.select(d.sel); }, 120); }
     if (d.action === "dossier") return openDossier(d.id, { remote: true });
     if (d.action === "quest") { const q = state().quests.find(x => x.id === d.id); if (q) questToast(q); }
   });
-  game.modules.get(MID).api = { open: () => UI.open(), close: () => UI.close(), ui: UI };
+  game.modules.get(MID).api = { open: () => UI.open(), close: () => UI.close(), ui: UI, agent: () => Agent.toggle() };
+  Agent.seen = new Set(state().messages.map(m => m.id));
   globalThis.NightCityMap = game.modules.get(MID).api;
 });
 
@@ -1056,6 +1194,7 @@ Hooks.once("ready", () => {
 Hooks.on("getSceneControlButtons", (controls) => {
   const tok = controls.find?.(c => c.name === "token");
   tok?.tools?.push({ name: "ncm", title: "Карта Найт-Сити (Shift+M)", icon: "fas fa-city", button: true, onClick: () => UI.toggle() });
+  tok?.tools?.push({ name: "ncm-agent", title: "Агент — заказы и сообщения (Shift+A)", icon: "fas fa-mobile-screen", button: true, onClick: () => Agent.toggle() });
 });
 Hooks.on("renderJournalDirectory", (app, html) => {
   const root = html instanceof HTMLElement ? html : html?.[0];
@@ -1066,3 +1205,167 @@ Hooks.on("renderJournalDirectory", (app, html) => {
   btn.addEventListener("click", () => UI.open());
   (root.querySelector(".header-actions") ?? root.querySelector(".directory-header") ?? root).append(btn);
 });
+
+/* ================================================================ случайные заказы на карту */
+
+async function genGigsDialog() {
+  const data = await formDialog("Заказы на карту", `<form class="ncm-form">
+    <p>Случайные заказы появятся на улицах города. «?» — слух, игроки видят его и могут взять заказ; скрытые видит только мастер.</p>
+    <label>Сколько заказов<input name="count" type="number" min="1" max="30" value="6"></label>
+    <label>Статус<select name="status"><option value="offer">Слух — видят игроки («?»)</option><option value="hidden">Скрыт — только мастер</option></select></label>
+    <label class="ncm-check"><input type="checkbox" name="replace"> Убрать старые невзятые заказы с карты</label></form>`);
+  if (!data) return;
+  await loadGrid();
+  const n = Math.max(1, Math.min(30, Number(data.count) || 6));
+  const pois = allPois().filter(p => !p.hidden && !p.shop);
+  const { w, h, cell } = GRID, out = [];
+  const taken = [...allPois(), ...state().quests.filter(q => q.x != null)].map(p => ({ x: p.x, y: p.y }));
+  let tries = 0;
+  while (out.length < n && tries++ < n * 500) {
+    const i = Math.floor(Math.random() * cell.length);
+    if (cell[i] !== 1) continue;
+    const x = (i % w) / (w - 1), y = ((i / w) | 0) / (h - 1);
+    if (x > 0.93 || x < 0.03 || y < 0.03 || y > 0.965) continue;
+    const d = districtAt(x, y); if (!d || ["norcal", "morro", "delbay", "sanbay"].includes(d.id)) continue;
+    if (taken.some(p => Math.hypot(p.x - x, (p.y - y) * aspect) < 0.025)) continue;
+    const g = rollGig(pois, { distOf: (p) => districtAt(p.x, p.y)?.id });
+    const where = streetNear(x, y)?.ru ?? d.ru;
+    g.title = `${g.jtype}: ${d.ru}`;
+    g.desc = `Встреча с контактом: ${where}.\n` + g.desc;
+    out.push({ id: rid(), ...g, x, y, status: data.status === "hidden" ? "hidden" : "offer" });
+    taken.push({ x, y });
+  }
+  await save(s => {
+    if (data.replace) s.quests = s.quests.filter(q => !(q.x != null && ["offer", "hidden"].includes(q.status)));
+    s.quests.push(...out);
+  });
+  ui.notifications.info(`На карте новых заказов: ${out.length}.`);
+}
+
+/* ================================================================ Агент — телефон эджраннера */
+
+const Agent = {
+  el: null, tab: "msg", seen: new Set(), unread: 0, chatWith: null,
+  toggle() { this.el ? this.close() : this.open(); },
+  open(tab) {
+    if (tab) this.tab = tab;
+    if (!this.el) {
+      const el = document.createElement("div");
+      el.id = "ncm-agent";
+      document.body.appendChild(el);
+      this.el = el;
+      el.addEventListener("click", (ev) => this.onClick(ev));
+      el.addEventListener("keydown", (ev) => { ev.stopPropagation(); if (ev.key === "Enter" && !ev.shiftKey && ev.target.matches("textarea")) { ev.preventDefault(); this.send(); } });
+      this.makeDraggable(el);
+      requestAnimationFrame(() => el.classList.add("on"));
+    }
+    this.markSeen(); this.render();
+  },
+  close() { if (!this.el) return; const el = this.el; this.el = null; el.classList.remove("on"); setTimeout(() => el.remove(), 250); },
+  makeDraggable(el) {
+    let d = null;
+    el.addEventListener("pointerdown", (ev) => { if (!ev.target.closest(".ag-top")) return; const r = el.getBoundingClientRect(); d = { x: ev.clientX - r.left, y: ev.clientY - r.top }; el.setPointerCapture(ev.pointerId); });
+    el.addEventListener("pointermove", (ev) => { if (!d) return; el.style.left = `${ev.clientX - d.x}px`; el.style.top = `${ev.clientY - d.y}px`; el.style.right = "auto"; el.style.bottom = "auto"; });
+    el.addEventListener("pointerup", () => { d = null; });
+  },
+  mine(m) { return isGM() || m.to === "all" || m.to === game.user.id || m.fromUser === game.user.id; },
+  msgs() { return state().messages.filter(m => this.mine(m)); },
+  markSeen() { for (const m of this.msgs()) this.seen.add(m.id); this.unread = 0; this.badge(); },
+  badge() { document.querySelectorAll(".ncm-agent-badge").forEach(b => { b.textContent = this.unread || ""; b.hidden = !this.unread; }); },
+  onState() {
+    const fresh = this.msgs().filter(m => !this.seen.has(m.id) && m.fromUser !== game.user.id);
+    if (fresh.length) {
+      for (const m of fresh) this.seen.add(m.id);
+      if (!this.el || this.tab !== "msg") { this.unread += fresh.length; this.badge(); this.ping(fresh.at(-1)); }
+    }
+    if (this.el) this.render();
+  },
+  ping(m) {
+    try { foundry.audio?.AudioHelper?.play?.({ src: "sounds/notify.wav", volume: 0.6 }, false) ?? AudioHelper.play({ src: "sounds/notify.wav", volume: 0.6 }, false); } catch (e) { /* без звука */ }
+    const t = document.createElement("div");
+    t.className = "ncm-toast ncm-toast-agent";
+    t.innerHTML = `<div class="ncm-toast-k"><i class="fas fa-mobile-screen"></i> АГЕНТ · НОВОЕ СООБЩЕНИЕ</div><b>${esc(m.from)}</b><span>${esc(m.text.slice(0, 120))}${m.text.length > 120 ? "…" : ""}</span>`;
+    t.addEventListener("click", () => { this.open("msg"); t.remove(); });
+    document.body.appendChild(t);
+    requestAnimationFrame(() => t.classList.add("on"));
+    setTimeout(() => { t.classList.remove("on"); setTimeout(() => t.remove(), 400); }, 8000);
+  },
+  render() {
+    if (!this.el) return;
+    const { time } = fmtClock();
+    const body = this.tab === "msg" ? this.renderMsgs() : this.tab === "jobs" ? this.renderJobs() : this.renderMe();
+    this.el.innerHTML = `<div class="ag-phone">
+      <div class="ag-top"><span>${time}</span><span class="ag-net">NCNET ▮▮▮▯ 5G</span><button data-ag="close">✕</button></div>
+      <div class="ag-head"><b>AGENT</b><small>${esc(game.user.character?.name ?? game.user.name)}</small></div>
+      <div class="ag-body">${body}</div>
+      <nav class="ag-nav">
+        <button data-ag="tab" data-t="msg" class="${this.tab === "msg" ? "on" : ""}"><i class="fas fa-comment-dots"></i>Чаты</button>
+        <button data-ag="tab" data-t="jobs" class="${this.tab === "jobs" ? "on" : ""}"><i class="fas fa-briefcase"></i>Заказы</button>
+        <button data-ag="tab" data-t="me" class="${this.tab === "me" ? "on" : ""}"><i class="fas fa-location-dot"></i>Я</button>
+        <button data-ag="map"><i class="fas fa-map"></i>Карта</button>
+      </nav></div>`;
+    const list = this.el.querySelector(".ag-msgs"); if (list) list.scrollTop = list.scrollHeight;
+  },
+  renderMsgs() {
+    const all = this.msgs();
+    const players = game.users.filter(u => !u.isGM);
+    const fromName = (m) => m.fromUser === game.user.id ? "Вы" : m.from;
+    const t = (m) => fmtClock(m.t).time;
+    let list = all;
+    if (isGM() && this.chatWith) list = all.filter(m => m.to === "all" || m.to === this.chatWith || m.fromUser === this.chatWith);
+    return `${isGM() ? `<div class="ag-to">Кому: <select data-ag-to><option value="all">Всем</option>${players.map(u => `<option value="${u.id}"${this.chatWith === u.id ? " selected" : ""}>${esc(u.character?.name ?? u.name)}</option>`).join("")}</select>
+        От: <input data-ag-from value="${esc(this.from ?? "Фиксер")}"></div>` : ""}
+      <div class="ag-msgs">${list.length ? list.map(m => `<div class="ag-msg ${m.fromUser === game.user.id ? "out" : "in"}${m.to === "all" ? " all" : ""}">
+          <div class="ag-m-h"><b>${esc(fromName(m))}</b>${isGM() && m.to !== "all" && m.to !== "gm" ? ` → ${esc(game.users.get(m.to)?.name ?? "")}` : ""}${m.to === "all" ? " · всем" : ""}<span>${t(m)}</span></div>
+          <div class="ag-m-t">${esc(m.text).replace(/\n/g, "<br>")}</div></div>`).join("") : `<p class="ag-empty">Нет сообщений. Сеть молчит.</p>`}</div>
+      <div class="ag-compose"><textarea data-ag-text rows="2" placeholder="${isGM() ? "Сообщение от фиксера…" : "Ответить мастеру…"}"></textarea><button data-ag="send"><i class="fas fa-paper-plane"></i></button></div>`;
+  },
+  renderJobs() {
+    const qs = questsVisible().filter(q => isGM() ? q.status !== "done" && q.status !== "failed" : ["active", "offer"].includes(q.status));
+    const done = questsVisible().filter(q => ["done", "failed"].includes(q.status));
+    const card = (q) => `<div class="ag-job st-${q.status}"><div class="ag-j-h"><b>${esc(q.title)}</b><span>${QSTATUS[q.status]}</span></div>
+      ${q.fixer ? `<small><i class="fas fa-user-secret"></i> ${esc(q.fixer)}</small>` : ""}
+      ${q.desc ? `<p>${esc(q.desc).replace(/\n/g, "<br>")}</p>` : ""}
+      <div class="ag-j-f">${q.reward ? `<em>${esc(q.reward)}</em>` : "<span></span>"}
+        <span>${q.x != null || q.target ? `<button data-ag="job-map" data-id="${q.id}"><i class="fas fa-location-crosshairs"></i></button>` : ""}
+        ${!isGM() && q.status === "offer" ? `<button data-ag="take" data-id="${q.id}">Взять</button>` : ""}</span></div></div>`;
+    return `<div class="ag-jobs">${qs.length ? qs.map(card).join("") : `<p class="ag-empty">Заказов нет.</p>`}
+      ${done.length ? `<details><summary>Архив (${done.length})</summary>${done.map(card).join("")}</details>` : ""}</div>`;
+  },
+  renderMe() {
+    const s = state(), me = s.players?.[game.user.id], d = me && districtAt(me.x, me.y), st = me && streetNear(me.x, me.y);
+    const { day, time } = fmtClock();
+    return `<div class="ag-me"><div class="ag-clock"><b>${time}</b><small>${day} · ${isNight() ? "ночь" : "день"}</small></div>
+      <div class="ag-loc"><span>МОЯ ПОЗИЦИЯ</span><b>${me ? esc([st?.ru, d?.ru].filter(Boolean).join(", ")) : "не отмечена"}</b></div>
+      <button data-ag="set-me"><i class="fas fa-user"></i> Отметить «Я здесь» на карте</button>
+      ${me ? `<button data-ag="clear-me"><i class="fas fa-users"></i> Я снова с группой</button>` : ""}
+      ${s.party ? `<div class="ag-loc"><span>ГРУППА</span><b>${esc([streetNear(s.party.x, s.party.y)?.ru, districtAt(s.party.x, s.party.y)?.ru].filter(Boolean).join(", "))}</b></div>` : ""}</div>`;
+  },
+  async send() {
+    const ta = this.el?.querySelector("[data-ag-text]"); const text = ta?.value.trim(); if (!text) return;
+    if (isGM()) {
+      const to = this.el.querySelector("[data-ag-to]")?.value ?? "all"; this.from = this.el.querySelector("[data-ag-from]")?.value || "Фиксер";
+      await act("msg", { to, from: this.from, text });
+    } else await act("msg", { to: "gm", text, from: game.user.character?.name ?? game.user.name });
+    ta.value = "";
+  },
+  async onClick(ev) {
+    const b = ev.target.closest("[data-ag]"); if (!b) return;
+    switch (b.dataset.ag) {
+      case "close": return this.close();
+      case "tab": this.tab = b.dataset.t; if (this.tab === "msg") this.markSeen(); return this.render();
+      case "send": return this.send();
+      case "map": return UI.open();
+      case "take": return act("take", { id: b.dataset.id });
+      case "set-me": UI.open(); return setTimeout(() => UI.setMode("me"), 150);
+      case "clear-me": return act("me-clear", {});
+      case "job-map": {
+        UI.open(); const q = state().quests.find(x => x.id === b.dataset.id); if (!q) return;
+        return setTimeout(() => { if (q.x != null) { UI.focus(q.x, q.y, 0.9); UI.selectGig(q.id); } else { const p = poiById(q.target ?? q.giver); if (p) UI.select(p.id, true); } }, 200);
+      }
+    }
+  }
+};
+document.addEventListener("change", (ev) => { if (ev.target.matches?.("#ncm-agent [data-ag-to]")) { Agent.chatWith = ev.target.value === "all" ? null : ev.target.value; Agent.render(); } });
+
+Hooks.on("collapseSidebar", () => setTimeout(() => { if (UI.el) { UI.layout(); UI.fit(); } }, 350));
