@@ -11,7 +11,7 @@
 import * as D from "./data.js";
 
 const MID = "karmina";
-const K = { VERSION: "3.0.1" };
+const K = { VERSION: "3.0.2" };
 const CH = "module." + MID;
 const isGM = () => !!game.user?.isGM;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -511,7 +511,7 @@ K.Check = {
           <span class="kc-tier">${D.TIERS[o.tier]?.name || ""} · ${K.Check._label(o)} СЛ ${o.dc}</span>
           <span class="kc-label">${o.label}</span>
           <p class="kc-text">${o.text || ""}</p>
-          <span class="kc-cost">${o.cost || ""}</span>
+          ${isGM() && o.cost ? `<span class="kc-cost">${o.cost}</span>` : ""}
         </button>`).join("")}</div>
       <p class="kc-foot">${isGM() ? "Игроки выбирают. Результаты придут на пульт. <a data-close>Убрать у всех</a>" : "Выбери подход"}</p>`;
     document.body.appendChild(el);
@@ -529,7 +529,7 @@ K.Check = {
       const r = await K.Check.roll(o), ok = r.total !== null && r.total >= o.dc;
       foot.innerHTML = r.total === null ? "Не нашёл твоего персонажа — кидай вручную."
         : `<b style="color:${ok ? "#7FBA86" : "#E4677C"};font-size:17px">${r.total} — ${ok ? "успех" : "провал"}</b> <span style="opacity:.6">(${K.Check._label(o)} СЛ ${o.dc}${r.mod !== null ? `, мод ${r.mod >= 0 ? "+" : ""}${r.mod}` : ""})</span>`;
-      K.Check.send({ who: game.user.name, actor: r.actorName, label: o.label, check: K.Check._label(o), dc: o.dc, total: r.total, ok });
+      K.Check.send({ who: game.user.name, actor: r.actorName, label: o.label, check: K.Check._label(o), dc: o.dc, total: r.total, ok, cost: o.cost || "" });
       setTimeout(() => K.Check.hide(), 4500);
     });
   },
@@ -756,7 +756,7 @@ K.Panel = {
     box.style.display = "block";
     const row = document.createElement("div");
     row.className = "kp-res-row " + (r.ok ? "ok" : "no");
-    row.innerHTML = `<b>${esc(r.actor || r.who)}</b> — ${esc(r.label)}<span>${r.check} СЛ ${r.dc} → <b>${r.total ?? "?"}</b></span>`;
+    row.innerHTML = `<b>${esc(r.actor || r.who)}</b> — ${esc(r.label)}<span>${r.check} СЛ ${r.dc} → <b>${r.total ?? "?"}</b></span>${r.cost ? `<small class="kp-res-cost">${r.cost}</small>` : ""}`;
     box.appendChild(row);
   }
 };

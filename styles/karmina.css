@@ -305,3 +305,5 @@
 #karmina-choice.gm{pointer-events:none; background:rgba(6,8,5,.45)}
 #karmina-choice.gm .kc-opt{pointer-events:none}
 #karmina-choice.gm .kc-foot,#karmina-choice.gm .kc-foot a{pointer-events:auto}
+#karmina-panel .kp-res-cost{display:block; width:100%; margin-top:2px; font-size:11px; line-height:1.35; color:#8E8B78}
+#karmina-panel .kp-res-row{flex-wrap:wrap}
