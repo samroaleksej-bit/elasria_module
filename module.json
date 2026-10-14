@@ -1,8 +1,8 @@
 {
   "id": "night-city-map",
-  "title": "Найт-Сити · интерактивная карта",
-  "description": "Интерактивная карта Найт-Сити 2045 для Cyberpunk RED на русском: 65 мест и 21 район по Корке RED, улицы из Cyberpunk 2077, Боевые зоны и Зона Поражения, маршруты по улицам со временем в пути, заказы фиксеров, случайные магазины с ассортиментом и ценами из книги, метка «Мы здесь» для всей группы. Shift+M.",
-  "version": "0.11.1",
+  "title": "Night City · Interactive Map (EN/RU)",
+  "description": "<p>An interactive Night City 2045 map for <b>Cyberpunk RED</b>: 65 locations and 21 districts, streets from Cyberpunk 2077, Combat Zones and the Hot Zone, street routing with travel time, random encounters, fixer gigs, procedural shops and Night Markets with Core rulebook prices, a shared “We are here” marker and the Agent phone for gigs and messages. Shift+M — map, Shift+A — Agent.</p><p>Интерактивная карта Найт-Сити 2045 для Cyberpunk RED: места, районы, маршруты, встречи, заказы фиксеров, магазины и Ночные рынки, телефон «Агент». Язык — как у Foundry (или выбирается в настройках модуля).</p>",
+  "version": "0.12.0",
   "authors": [
     {
       "name": "Verlierboy",
@@ -20,14 +20,26 @@
     "styles/ncmap.css"
   ],
   "socket": true,
-  "url": "https://github.com/samroaleksej-bit/elasria_module/tree/night-city-map",
-  "manifest": "https://raw.githubusercontent.com/samroaleksej-bit/elasria_module/night-city-map/module.json",
-  "download": "https://github.com/samroaleksej-bit/elasria_module/archive/refs/heads/night-city-map.zip",
+  "url": "https://github.com/samroaleksej-bit/night-city-map",
+  "manifest": "https://github.com/samroaleksej-bit/night-city-map/releases/latest/download/module.json",
+  "download": "https://github.com/samroaleksej-bit/night-city-map/releases/download/v0.12.0/module.zip",
   "packs": [
     {
       "name": "npc",
-      "label": "Найт-Сити · персонажи",
+      "label": "Найт-Сити · персонажи (RU)",
       "path": "packs/npc",
+      "type": "Actor",
+      "system": "cyberpunk-red-core",
+      "ownership": {
+        "PLAYER": "NONE",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "npc-en",
+      "label": "Night City · NPCs (EN)",
+      "path": "packs/npc-en",
       "type": "Actor",
       "system": "cyberpunk-red-core",
       "ownership": {
@@ -42,8 +54,27 @@
       {
         "id": "foundryvtt-simple-calendar",
         "type": "module",
-        "reason": "Календарь «Найт-Сити 2045» и общее время с картой"
+        "reason": "“Night City 2045” calendar and a shared clock with the map / Календарь «Найт-Сити 2045» и общее время с картой"
+      },
+      {
+        "id": "night-city-gang-and-corp-mook-pack",
+        "type": "module",
+        "reason": "Ready-made enemies for random encounters / готовые противники для случайных встреч"
       }
     ]
-  }
+  },
+  "bugs": "https://github.com/samroaleksej-bit/night-city-map/issues",
+  "readme": "https://github.com/samroaleksej-bit/night-city-map#readme",
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "ru",
+      "name": "Русский",
+      "path": "lang/ru.json"
+    }
+  ]
 }
