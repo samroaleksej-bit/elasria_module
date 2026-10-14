@@ -11,7 +11,8 @@
 import * as D from "./data.js";
 
 const MID = "karmina";
-const K = { VERSION: "3.0.0" };
+const K = { VERSION: "3.0.1" };
+const CH = "module." + MID;
 const isGM = () => !!game.user?.isGM;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const nonce = () => Date.now() + "-" + Math.random().toString(36).slice(2, 7);
@@ -23,8 +24,8 @@ const DEFAULT_STATE = { signal: null, clock: 0, phase: 1, clues: [], showClues: 
 
 Hooks.once("init", () => {
   const S = (key, data) => game.settings.register(MID, key, data);
-  S("stage", { scope: "world", config: false, type: Object, default: {}, onChange: (p) => p?.nonce && K._render(p) });
-  S("state", { scope: "world", config: false, type: Object, default: DEFAULT_STATE, onChange: () => K.refresh() });
+  S("stage", { scope: "world", config: false, type: Object, default: {}, onChange: (p) => deliver(p) });
+  S("state", { scope: "world", config: false, type: Object, default: DEFAULT_STATE, onChange: (v) => { if (v && typeof v === "object") CUR = v; K.refresh(); } });
   S("artDir", { name: "Папка артов", hint: "Папка с картинками плашек (хор.png, нектар.png, корни.png, голод.png, танец.png, «фаза 2.png», венец.png). Путь от папки Data.", scope: "world", config: true, type: String, default: D.ART_DIR_DEFAULT, filePicker: "folder" });
   S("showArt", { name: "Картинки в плашках", scope: "world", config: true, type: Boolean, default: true });
   S("hints", { name: "Подсказывать игрокам, как сорвать Действие", hint: "Выключено — способ противодействия видит только мастер на пульте.", scope: "world", config: true, type: Boolean, default: false });
@@ -37,12 +38,34 @@ Hooks.once("init", () => {
   game.keybindings.register(MID, "panel", { name: "Пульт Кармины", editable: [{ key: "KeyK", modifiers: ["Shift"] }], restricted: true, onDown: () => { K.panel(); return true; } });
 });
 
-const state = () => foundry.utils.mergeObject(clone(DEFAULT_STATE), clone(game.settings.get(MID, "state") ?? {}), { inplace: false });
+/* Доставка: основной канал — сокет модуля (мгновенно, всем открытым клиентам), запасной — настройки мира
+   (их же читает зашедший позже). Повторы отсекаются по nonce. */
+let CUR = null;
+const seen = new Set();
+function deliver(p) {
+  if (!p?.nonce || seen.has(p.nonce)) return;
+  seen.add(p.nonce);
+  try { K._render(p); } catch (e) { console.error("Karmina | render", e); }
+}
+const emit = (msg) => { try { game.socket?.emit(CH, msg); } catch (e) { console.warn("Karmina | socket", e); } };
+function readState() { try { return game.settings.get(MID, "state") ?? {}; } catch (e) { return {}; } }
+const state = () => foundry.utils.mergeObject(clone(DEFAULT_STATE), clone(CUR ?? readState()), { inplace: false });
 async function save(mut) {
   if (!isGM()) return;
   const s = state(); mut(s);
-  await game.settings.set(MID, "state", s);
+  CUR = s;
+  emit({ t: "state", s });
+  K.refresh();
+  try { await game.settings.set(MID, "state", s); } catch (e) { console.error("Karmina | state", e); }
 }
+function onSocket(m) {
+  if (!m) return;
+  if (m.t === "state") { CUR = m.s; return K.refresh(); }
+  if (m.t === "stage") return deliver(m.p);
+  if (m.t === "check") { if (isGM()) gotResult(m.r); return; }
+  if (m.nonce) deliver(m);            // старый макрос мастера 2.4 шлёт плашку как есть
+}
+const gotResult = (r) => { if (!r?.nonce || seen.has("r" + r.nonce)) return; seen.add("r" + r.nonce); K.Panel.result(r); };
 const json = (key, def) => { try { return { ...def, ...JSON.parse(game.settings.get(MID, key) || "{}") }; } catch (e) { return def; } };
 const sfx = () => json("sfx", D.SFX_DEFAULT);
 const fxPaths = () => json("fx", D.FX_DEFAULT);
@@ -235,7 +258,9 @@ K.broadcast = async function (payload) {
         ${payload.text ? `<div style="font-size:13px;opacity:.85">${payload.text}</div>` : ""}${payload.meta ? `<div style="font-size:12px;margin-top:4px">${payload.meta}</div>` : ""}</div>`
     });
   }
-  await game.settings.set(MID, "stage", payload);
+  emit({ t: "stage", p: payload });
+  deliver(payload);
+  try { await game.settings.set(MID, "stage", payload); } catch (e) { console.error("Karmina | stage", e); }
 };
 
 /* ================================================================ постоянные виджеты: Сигнал, часы, улики */
@@ -527,6 +552,7 @@ K.Check = {
   },
   send(res) {
     res.nonce = nonce();
+    emit({ t: "check", r: res });
     game.user.setFlag(MID, "check", res).catch(() => ChatMessage.create({
       whisper: ChatMessage.getWhisperRecipients("GM"),
       content: `<b>${esc(res.actor || res.who)}</b> — ${esc(res.label)}: ${res.check} СЛ ${res.dc} → <b>${res.total}</b> ${res.ok ? "успех" : "провал"}`
@@ -534,9 +560,9 @@ K.Check = {
   }
 };
 Hooks.on("updateUser", (user, diff) => {
-  if (!isGM() || !diff?.flags?.[MID]?.check) return;
-  const r = user.getFlag(MID, "check");
-  if (r?.nonce) K.Panel.result(r);
+  if (!isGM()) return;
+  if (diff?.flags?.[MID]?.check) gotResult(user.getFlag(MID, "check"));
+  if (diff?.flags?.world?.karminaCheck) gotResult(user.getFlag("world", "karminaCheck"));   // игрок на старом макросе
 });
 
 /* ================================================================ связка с боем */
@@ -748,7 +774,19 @@ function launcher() {
 }
 
 Hooks.once("ready", () => {
-  globalThis.Karmina = K;
+  game.socket?.on(CH, onSocket);
+  // Старые макросы 2.4 делают globalThis.Karmina = своё и тянут одеяло на себя (свой пульт, свой CSS, свои каналы).
+  // При включённом модуле такой макрос останавливается на этой строке и просит себя удалить.
+  try {
+    Object.defineProperty(globalThis, "Karmina", {
+      configurable: true, enumerable: false, get: () => K,
+      set: () => {
+        ui.notifications?.warn("Кармина: старый макрос 2.4 больше не нужен — модуль уже всё делает. Удали макрос с панели. Пульт: кнопка ✿ или Shift+K.", { permanent: true });
+        throw new Error("Karmina: module is active, legacy macro stopped");
+      }
+    });
+  } catch (e) { globalThis.Karmina = K; }
+  console.log(`Karmina | ${K.VERSION} готова (${isGM() ? "мастер" : "игрок"})`);
   game.modules.get(MID).api = K;
   K.refresh(false);
   launcher();
