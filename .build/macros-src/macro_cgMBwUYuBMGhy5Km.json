@@ -1,0 +1,24 @@
+{
+ "_id": "cgMBwUYuBMGhy5Km",
+ "_key": "!macros!cgMBwUYuBMGhy5Km",
+ "name": "Кармина · прогнать эффекты",
+ "type": "script",
+ "img": "icons/svg/lightning.svg",
+ "command": "game.modules.get('karmina').api.demo();",
+ "scope": "global",
+ "author": null,
+ "folder": null,
+ "sort": 0,
+ "flags": {},
+ "ownership": {
+  "default": 0
+ },
+ "_stats": {
+  "coreVersion": "13.348",
+  "systemId": "dnd5e",
+  "systemVersion": "5.1.0",
+  "createdTime": 1791900000000,
+  "modifiedTime": 1791900000000,
+  "lastModifiedBy": null
+ }
+}

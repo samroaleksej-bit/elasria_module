@@ -1,0 +1,24 @@
+{
+ "_id": "YSgy3c2Eom06Dwt0",
+ "_key": "!macros!YSgy3c2Eom06Dwt0",
+ "name": "Кармина · пульт",
+ "type": "script",
+ "img": "icons/svg/oak.svg",
+ "command": "game.modules.get('karmina')?.api?.panel();",
+ "scope": "global",
+ "author": null,
+ "folder": null,
+ "sort": 0,
+ "flags": {},
+ "ownership": {
+  "default": 0
+ },
+ "_stats": {
+  "coreVersion": "13.348",
+  "systemId": "dnd5e",
+  "systemVersion": "5.1.0",
+  "createdTime": 1791900000000,
+  "modifiedTime": 1791900000000,
+  "lastModifiedBy": null
+ }
+}

@@ -1,0 +1,208 @@
+{
+ "_id": "PPgdzUvZ3gpmmICi",
+ "_key": "!actors!PPgdzUvZ3gpmmICi",
+ "name": "Бутон на ярусе",
+ "type": "npc",
+ "img": "icons/svg/aura.svg",
+ "folder": null,
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 1,
+    "proficient": 0,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   },
+   "dex": {
+    "value": 1,
+    "proficient": 0,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   },
+   "con": {
+    "value": 14,
+    "proficient": 0,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   },
+   "int": {
+    "value": 1,
+    "proficient": 0,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   },
+   "wis": {
+    "value": 10,
+    "proficient": 0,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   },
+   "cha": {
+    "value": 1,
+    "proficient": 0,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 14,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 25,
+    "max": 25,
+    "temp": 0,
+    "formula": ""
+   },
+   "movement": {
+    "walk": 0,
+    "units": "ft",
+    "hover": false
+   },
+   "senses": {
+    "blindsight": 10,
+    "units": "ft",
+    "special": ""
+   }
+  },
+  "details": {
+   "cr": 0,
+   "type": {
+    "value": "plant",
+    "subtype": "",
+    "custom": ""
+   },
+   "alignment": "нейтральное зло",
+   "biography": {
+    "value": "<p>Одиннадцать бутонов по кромке скамей. <b>Трое из одиннадцати живы</b> — на пульте модуля они отмечены точкой.</p><p>Уничтоженный бутон: Кармина получает 10 психического урона и теряет одно легендарное действие в этом раунде. Спасти — действие и Медицина СЛ 18; провал — срезан не тот слой.</p>",
+    "public": ""
+   }
+  },
+  "traits": {
+   "size": "med",
+   "dr": {
+    "value": [],
+    "custom": ""
+   },
+   "di": {
+    "value": [
+     "poison"
+    ],
+    "custom": ""
+   },
+   "dv": {
+    "value": [
+     "fire"
+    ],
+    "custom": ""
+   },
+   "ci": {
+    "value": [
+     "charmed",
+     "frightened",
+     "prone"
+    ],
+    "custom": ""
+   },
+   "languages": {
+    "value": [],
+    "custom": ""
+   }
+  },
+  "skills": {},
+  "resources": {
+   "legact": {
+    "max": 0,
+    "spent": 0
+   },
+   "legres": {
+    "max": 0,
+    "spent": 0
+   }
+  }
+ },
+ "prototypeToken": {
+  "name": "Бутон на ярусе",
+  "actorLink": false,
+  "disposition": -1,
+  "displayName": 20,
+  "displayBars": 20,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "width": 1,
+  "height": 1,
+  "texture": {
+   "src": "icons/svg/aura.svg"
+  },
+  "sight": {
+   "enabled": false
+  }
+ },
+ "items": [
+  {
+   "_id": "EZAmggQBwBAD3UdR",
+   "name": "Поёт её голосом",
+   "type": "feat",
+   "img": "icons/svg/sound.svg",
+   "system": {
+    "description": {
+     "value": "<p>Пока идёт Сигнал «Багрового Хора», три бутона поют. Назвать бутон по имени (действие, нужна улика «Хор») — он замолкает.</p>",
+     "chat": ""
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activities": {}
+   },
+   "effects": [],
+   "flags": {},
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0
+   },
+   "_stats": {
+    "coreVersion": "13.348",
+    "systemId": "dnd5e",
+    "systemVersion": "5.1.0",
+    "createdTime": 1791900000000,
+    "modifiedTime": 1791900000000,
+    "lastModifiedBy": null
+   },
+   "_key": "!actors.items!PPgdzUvZ3gpmmICi.EZAmggQBwBAD3UdR"
+  }
+ ],
+ "effects": [],
+ "flags": {
+  "karmina": {
+   "role": "Бутон на ярусе"
+  }
+ },
+ "sort": 0,
+ "ownership": {
+  "default": 0
+ },
+ "_stats": {
+  "coreVersion": "13.348",
+  "systemId": "dnd5e",
+  "systemVersion": "5.1.0",
+  "createdTime": 1791900000000,
+  "modifiedTime": 1791900000000,
+  "lastModifiedBy": null
+ }
+}

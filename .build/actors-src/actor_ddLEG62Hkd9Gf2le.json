@@ -1,0 +1,362 @@
+{
+ "_id": "ddLEG62Hkd9Gf2le",
+ "_key": "!actors!ddLEG62Hkd9Gf2le",
+ "name": "Пасынок",
+ "type": "npc",
+ "img": "icons/svg/oak.svg",
+ "folder": null,
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 15,
+    "proficient": 0,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   },
+   "dex": {
+    "value": 8,
+    "proficient": 0,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   },
+   "con": {
+    "value": 14,
+    "proficient": 0,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   },
+   "int": {
+    "value": 5,
+    "proficient": 0,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   },
+   "wis": {
+    "value": 10,
+    "proficient": 0,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   },
+   "cha": {
+    "value": 3,
+    "proficient": 0,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 12,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 26,
+    "max": 26,
+    "temp": 0,
+    "formula": "4d8+8"
+   },
+   "movement": {
+    "walk": 10,
+    "units": "ft",
+    "hover": false
+   },
+   "senses": {
+    "blindsight": 60,
+    "units": "ft",
+    "special": ""
+   }
+  },
+  "details": {
+   "cr": 0.5,
+   "type": {
+    "value": "plant",
+    "subtype": "",
+    "custom": ""
+   },
+   "alignment": "нейтральное зло",
+   "biography": {
+    "value": "<p>Порча из лиан, выросшая из тел носильщиков. Зовёт по именам их голосами. Обожжённый — не встаёт: первая половина главного секрета.</p>",
+    "public": ""
+   }
+  },
+  "traits": {
+   "size": "med",
+   "dr": {
+    "value": [],
+    "custom": ""
+   },
+   "di": {
+    "value": [],
+    "custom": ""
+   },
+   "dv": {
+    "value": [],
+    "custom": ""
+   },
+   "ci": {
+    "value": [
+     "blinded",
+     "deafened"
+    ],
+    "custom": ""
+   },
+   "languages": {
+    "value": [],
+    "custom": "понимает голоса тех, кого съела Кармина"
+   }
+  },
+  "skills": {
+   "ste": {
+    "value": 1,
+    "ability": "dex"
+   }
+  },
+  "resources": {
+   "legact": {
+    "max": 0,
+    "spent": 0
+   },
+   "legres": {
+    "max": 0,
+    "spent": 0
+   }
+  }
+ },
+ "prototypeToken": {
+  "name": "Пасынок",
+  "actorLink": false,
+  "disposition": -1,
+  "displayName": 20,
+  "displayBars": 20,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "width": 1,
+  "height": 1,
+  "texture": {
+   "src": "icons/svg/oak.svg"
+  },
+  "sight": {
+   "enabled": false
+  }
+ },
+ "items": [
+  {
+   "_id": "BlrDp37eCZ32JgdP",
+   "name": "Голос мёртвого",
+   "type": "feat",
+   "img": "icons/svg/sound.svg",
+   "system": {
+    "description": {
+     "value": "<p>Первый раз, когда Пасынок обращается к существу, оно совершает спасбросок Мудрости СЛ 13 или Ошеломлено до конца своего следующего хода.</p>",
+     "chat": ""
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activities": {}
+   },
+   "effects": [],
+   "flags": {},
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0
+   },
+   "_stats": {
+    "coreVersion": "13.348",
+    "systemId": "dnd5e",
+    "systemVersion": "5.1.0",
+    "createdTime": 1791900000000,
+    "modifiedTime": 1791900000000,
+    "lastModifiedBy": null
+   },
+   "_key": "!actors.items!ddLEG62Hkd9Gf2le.BlrDp37eCZ32JgdP"
+  },
+  {
+   "_id": "I1af7W2pkAFEn3z5",
+   "name": "Живучесть",
+   "type": "feat",
+   "img": "icons/svg/regen.svg",
+   "system": {
+    "description": {
+     "value": "<p>В начале хода Пасынок восстанавливает 5 хитов, если не получал урона огнём с начала своего прошлого хода.</p>",
+     "chat": ""
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activities": {}
+   },
+   "effects": [],
+   "flags": {},
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0
+   },
+   "_stats": {
+    "coreVersion": "13.348",
+    "systemId": "dnd5e",
+    "systemVersion": "5.1.0",
+    "createdTime": 1791900000000,
+    "modifiedTime": 1791900000000,
+    "lastModifiedBy": null
+   },
+   "_key": "!actors.items!ddLEG62Hkd9Gf2le.I1af7W2pkAFEn3z5"
+  },
+  {
+   "_id": "dkyayq7YYDsBS9UY",
+   "name": "Удушающая лоза",
+   "type": "weapon",
+   "img": "icons/svg/net.svg",
+   "system": {
+    "description": {
+     "value": "<p><i>Попадание:</i> цель Схвачена (СЛ высвобождения 12), пока схвачена — опутана.</p>",
+     "chat": ""
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "damage": {
+     "base": {
+      "number": 2,
+      "denomination": 6,
+      "bonus": "",
+      "types": [
+       "slashing"
+      ],
+      "custom": {
+       "enabled": false
+      },
+      "scaling": {
+       "number": 1
+      }
+     },
+     "versatile": {}
+    },
+    "range": {
+     "value": null,
+     "long": null,
+     "reach": 10,
+     "units": "ft"
+    },
+    "equipped": true,
+    "proficient": 1,
+    "activities": {
+     "JQTFjmsn9dLVIdVu": {
+      "_id": "JQTFjmsn9dLVIdVu",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "override": false
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "critical": {
+        "threshold": null
+       },
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "critical": {
+        "bonus": ""
+       },
+       "includeBase": true,
+       "parts": []
+      },
+      "consumption": {
+       "targets": [],
+       "scaling": {
+        "allowed": false
+       },
+       "spellSlot": true
+      },
+      "description": {
+       "chatFlavor": ""
+      },
+      "duration": {
+       "units": "inst",
+       "concentration": false,
+       "override": false
+      },
+      "range": {
+       "override": false
+      },
+      "target": {
+       "template": {
+        "contiguous": false,
+        "units": "ft"
+       },
+       "affects": {
+        "choice": false
+       },
+       "override": false,
+       "prompt": true
+      },
+      "uses": {
+       "spent": 0,
+       "recovery": []
+      },
+      "sort": 0
+     }
+    }
+   },
+   "effects": [],
+   "flags": {},
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0
+   },
+   "_stats": {
+    "coreVersion": "13.348",
+    "systemId": "dnd5e",
+    "systemVersion": "5.1.0",
+    "createdTime": 1791900000000,
+    "modifiedTime": 1791900000000,
+    "lastModifiedBy": null
+   },
+   "_key": "!actors.items!ddLEG62Hkd9Gf2le.dkyayq7YYDsBS9UY"
+  }
+ ],
+ "effects": [],
+ "flags": {
+  "karmina": {
+   "role": "Пасынок"
+  }
+ },
+ "sort": 0,
+ "ownership": {
+  "default": 0
+ },
+ "_stats": {
+  "coreVersion": "13.348",
+  "systemId": "dnd5e",
+  "systemVersion": "5.1.0",
+  "createdTime": 1791900000000,
+  "modifiedTime": 1791900000000,
+  "lastModifiedBy": null
+ }
+}

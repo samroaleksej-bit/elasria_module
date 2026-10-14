@@ -1,0 +1,24 @@
+{
+ "_id": "PGzR1Iv8bh4qlL9q",
+ "_key": "!macros!PGzR1Iv8bh4qlL9q",
+ "name": "Кармина · Разрешить текущий Сигнал",
+ "type": "script",
+ "img": "icons/svg/hazard.svg",
+ "command": "game.modules.get('karmina').api.resolve(null, 'full');",
+ "scope": "global",
+ "author": null,
+ "folder": null,
+ "sort": 0,
+ "flags": {},
+ "ownership": {
+  "default": 0
+ },
+ "_stats": {
+  "coreVersion": "13.348",
+  "systemId": "dnd5e",
+  "systemVersion": "5.1.0",
+  "createdTime": 1791900000000,
+  "modifiedTime": 1791900000000,
+  "lastModifiedBy": null
+ }
+}

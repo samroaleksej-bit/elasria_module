@@ -1,0 +1,1071 @@
+{
+ "_id": "GprQFnIiU74KKEpY",
+ "_key": "!actors!GprQFnIiU74KKEpY",
+ "name": "Кармина, Мать тысячи ртов",
+ "type": "npc",
+ "img": "icons/svg/oak.svg",
+ "folder": null,
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 22,
+    "proficient": 0,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   },
+   "dex": {
+    "value": 12,
+    "proficient": 0,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   },
+   "con": {
+    "value": 22,
+    "proficient": 1,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   },
+   "int": {
+    "value": 10,
+    "proficient": 0,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   },
+   "wis": {
+    "value": 18,
+    "proficient": 1,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   },
+   "cha": {
+    "value": 22,
+    "proficient": 1,
+    "bonuses": {
+     "check": "",
+     "save": ""
+    }
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 17,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 253,
+    "max": 253,
+    "temp": 0,
+    "formula": "22d12+132"
+   },
+   "movement": {
+    "walk": 10,
+    "units": "ft",
+    "hover": false
+   },
+   "senses": {
+    "blindsight": 60,
+    "tremorsense": 90,
+    "units": "ft",
+    "special": ""
+   }
+  },
+  "details": {
+   "cr": 12,
+   "type": {
+    "value": "plant",
+    "subtype": "",
+    "custom": ""
+   },
+   "alignment": "нейтральное зло",
+   "biography": {
+    "value": "<p><b>Кармина, Мать тысячи ртов</b> (<i>Regina carminis</i>). Двадцать футов сомкнутого багрового бутона, укоренённого в сцену затонувшего амфитеатра. Выделяет лунный нектар — приманку. Экспедиция Мендосы не погибла: она пущена в рост.</p><p><b>Фаза 2 — «Она встаёт» (126 хитов).</b> Вырывает корни из сцены. Скорость 40 фт, размер Громадный, «Корневая сеть» пропадает, регенерация 10. Два Боевых Действия за раунд. Дно чаши поднимается на 1 фут в раунд, нижний ярус затоплен на 4-м раунде фазы.</p><p><b>Усиленная версия</b> (если партия идёт с ящиком экспедиции): 310 хитов (27к12+162), регенерация 25 / 15, аура пыльцы 15 фт, реакция «Шипастый ответ», третья фаза «Последняя песня» на 78 хитах.</p><p><b>Боевые Действия</b> — на пульте модуля (Shift+K): Багровый Хор, Нектарный прилив, Корни-рыбаки, Жажда, Танец тысячи лепестков (2-я фаза), Последний Венец (3-я фаза). Сигнал — в конце её хода, Разрешение — в начале следующего. Раунды 1–2 — одно Действие, с 3-го и во 2-й фазе — два.</p>",
+    "public": ""
+   }
+  },
+  "traits": {
+   "size": "huge",
+   "dr": {
+    "value": [
+     "piercing",
+     "bludgeoning"
+    ],
+    "custom": ""
+   },
+   "di": {
+    "value": [
+     "poison"
+    ],
+    "custom": ""
+   },
+   "dv": {
+    "value": [],
+    "custom": ""
+   },
+   "ci": {
+    "value": [
+     "poisoned",
+     "charmed",
+     "frightened",
+     "exhaustion"
+    ],
+    "custom": ""
+   },
+   "languages": {
+    "value": [],
+    "custom": "понимает все языки, которые знали съеденные; говорит только их голосами"
+   }
+  },
+  "skills": {
+   "prc": {
+    "value": 1,
+    "ability": "wis"
+   },
+   "dec": {
+    "value": 1,
+    "ability": "cha"
+   }
+  },
+  "resources": {
+   "legact": {
+    "max": 3,
+    "spent": 0
+   },
+   "legres": {
+    "max": 3,
+    "spent": 0
+   }
+  }
+ },
+ "prototypeToken": {
+  "name": "Кармина, Мать тысячи ртов",
+  "actorLink": false,
+  "disposition": -1,
+  "displayName": 20,
+  "displayBars": 20,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "width": 3,
+  "height": 3,
+  "texture": {
+   "src": "icons/svg/oak.svg"
+  },
+  "sight": {
+   "enabled": false
+  }
+ },
+ "items": [
+  {
+   "_id": "OhbVrpoiVgRV5IfL",
+   "name": "Регенерация",
+   "type": "feat",
+   "img": "icons/svg/regen.svg",
+   "system": {
+    "description": {
+     "value": "<p>В начале своего хода Кармина восстанавливает <b>20 хитов</b>, если не получала урона огнём с начала своего прошлого хода. Она умирает на 0 хитах, только если последний урон был огнём или кислотой; иначе сворачивается и через минуту поднимается с 50 хитами.</p>",
+     "chat": ""
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activities": {}
+   },
+   "effects": [],
+   "flags": {},
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0
+   },
+   "_stats": {
+    "coreVersion": "13.348",
+    "systemId": "dnd5e",
+    "systemVersion": "5.1.0",
+    "createdTime": 1791900000000,
+    "modifiedTime": 1791900000000,
+    "lastModifiedBy": null
+   },
+   "_key": "!actors.items!GprQFnIiU74KKEpY.OhbVrpoiVgRV5IfL"
+  },
+  {
+   "_id": "BcbfnoGMbJmTPSIA",
+   "name": "Корневая сеть",
+   "type": "feat",
+   "img": "icons/svg/oak.svg",
+   "system": {
+    "description": {
+     "value": "<p>Пока Кармина укоренена, она знает положение каждого существа, касающегося земли в пределах 120 футов. Во 2-й фазе черта пропадает.</p>",
+     "chat": ""
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activities": {}
+   },
+   "effects": [],
+   "flags": {},
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0
+   },
+   "_stats": {
+    "coreVersion": "13.348",
+    "systemId": "dnd5e",
+    "systemVersion": "5.1.0",
+    "createdTime": 1791900000000,
+    "modifiedTime": 1791900000000,
+    "lastModifiedBy": null
+   },
+   "_key": "!actors.items!GprQFnIiU74KKEpY.BcbfnoGMbJmTPSIA"
+  },
+  {
+   "_id": "oCLrZ3aWZkSBvrjn",
+   "name": "Аура пыльцы",
+   "type": "feat",
+   "img": "icons/svg/poison.svg",
+   "system": {
+    "description": {
+     "value": "<p>В конце своего хода каждое существо в 10 футах от Кармины совершает спасбросок Телосложения СЛ 18 или получает состояние Отравлен до конца своего следующего хода.</p>",
+     "chat": ""
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activities": {}
+   },
+   "effects": [],
+   "flags": {},
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0
+   },
+   "_stats": {
+    "coreVersion": "13.348",
+    "systemId": "dnd5e",
+    "systemVersion": "5.1.0",
+    "createdTime": 1791900000000,
+    "modifiedTime": 1791900000000,
+    "lastModifiedBy": null
+   },
+   "_key": "!actors.items!GprQFnIiU74KKEpY.oCLrZ3aWZkSBvrjn"
+  },
+  {
+   "_id": "9Wvgfygw2wMqZcUD",
+   "name": "Стойкость корня (3/день)",
+   "type": "feat",
+   "img": "icons/svg/oak.svg",
+   "system": {
+    "description": {
+     "value": "<p>Провалив спасбросок, Кармина может вместо этого его преуспеть.</p>",
+     "chat": ""
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activities": {}
+   },
+   "effects": [],
+   "flags": {},
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0
+   },
+   "_stats": {
+    "coreVersion": "13.348",
+    "systemId": "dnd5e",
+    "systemVersion": "5.1.0",
+    "createdTime": 1791900000000,
+    "modifiedTime": 1791900000000,
+    "lastModifiedBy": null
+   },
+   "_key": "!actors.items!GprQFnIiU74KKEpY.9Wvgfygw2wMqZcUD"
+  },
+  {
+   "_id": "Ih7yfJs1ON43xKmT",
+   "name": "Мультиатака",
+   "type": "feat",
+   "img": "icons/svg/oak.svg",
+   "system": {
+    "description": {
+     "value": "<p>Три атаки «Лоза-коса»; или две атаки «Лоза-коса» и одна «Пасть сердцевины».</p>",
+     "chat": ""
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activities": {
+     "ecQoXsf2o3gyrDO1": {
+      "_id": "ecQoXsf2o3gyrDO1",
+      "type": "utility",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "condition": "",
+       "override": false
+      },
+      "consumption": {
+       "targets": [],
+       "scaling": {
+        "allowed": false
+       },
+       "spellSlot": true
+      },
+      "description": {
+       "chatFlavor": ""
+      },
+      "duration": {
+       "units": "inst",
+       "concentration": false,
+       "override": false
+      },
+      "range": {
+       "units": "self",
+       "override": false
+      },
+      "target": {
+       "template": {
+        "contiguous": false,
+        "units": "ft"
+       },
+       "affects": {
+        "choice": false
+       },
+       "override": false,
+       "prompt": true
+      },
+      "uses": {
+       "spent": 0,
+       "recovery": []
+      },
+      "roll": {
+       "formula": "",
+       "name": "",
+       "prompt": false,
+       "visible": false
+      },
+      "sort": 0
+     }
+    }
+   },
+   "effects": [],
+   "flags": {},
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0
+   },
+   "_stats": {
+    "coreVersion": "13.348",
+    "systemId": "dnd5e",
+    "systemVersion": "5.1.0",
+    "createdTime": 1791900000000,
+    "modifiedTime": 1791900000000,
+    "lastModifiedBy": null
+   },
+   "_key": "!actors.items!GprQFnIiU74KKEpY.Ih7yfJs1ON43xKmT"
+  },
+  {
+   "_id": "xkxwnQrS7RPeMOkI",
+   "name": "Лоза-коса",
+   "type": "weapon",
+   "img": "icons/svg/net.svg",
+   "system": {
+    "description": {
+     "value": "<p><i>Попадание:</i> рубящий урон, и цель совершает спасбросок Силы СЛ 18 или притягивается на 10 футов к Кармине.</p>",
+     "chat": ""
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "damage": {
+     "base": {
+      "number": 2,
+      "denomination": 10,
+      "bonus": "",
+      "types": [
+       "slashing"
+      ],
+      "custom": {
+       "enabled": false
+      },
+      "scaling": {
+       "number": 1
+      }
+     },
+     "versatile": {}
+    },
+    "range": {
+     "value": null,
+     "long": null,
+     "reach": 20,
+     "units": "ft"
+    },
+    "equipped": true,
+    "proficient": 1,
+    "activities": {
+     "UpkDyr7OSJoRu1XX": {
+      "_id": "UpkDyr7OSJoRu1XX",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "override": false
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "critical": {
+        "threshold": null
+       },
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "critical": {
+        "bonus": ""
+       },
+       "includeBase": true,
+       "parts": []
+      },
+      "consumption": {
+       "targets": [],
+       "scaling": {
+        "allowed": false
+       },
+       "spellSlot": true
+      },
+      "description": {
+       "chatFlavor": ""
+      },
+      "duration": {
+       "units": "inst",
+       "concentration": false,
+       "override": false
+      },
+      "range": {
+       "override": false
+      },
+      "target": {
+       "template": {
+        "contiguous": false,
+        "units": "ft"
+       },
+       "affects": {
+        "choice": false
+       },
+       "override": false,
+       "prompt": true
+      },
+      "uses": {
+       "spent": 0,
+       "recovery": []
+      },
+      "sort": 0
+     }
+    }
+   },
+   "effects": [],
+   "flags": {},
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0
+   },
+   "_stats": {
+    "coreVersion": "13.348",
+    "systemId": "dnd5e",
+    "systemVersion": "5.1.0",
+    "createdTime": 1791900000000,
+    "modifiedTime": 1791900000000,
+    "lastModifiedBy": null
+   },
+   "_key": "!actors.items!GprQFnIiU74KKEpY.xkxwnQrS7RPeMOkI"
+  },
+  {
+   "_id": "do0cZuzren68K4Tu",
+   "name": "Пасть сердцевины",
+   "type": "weapon",
+   "img": "icons/svg/blood.svg",
+   "system": {
+    "description": {
+     "value": "<p><i>Попадание:</i> колющий урон. Цель Среднего размера или меньше получает состояние Схвачен (СЛ высвобождения 18) и в конце следующего хода Кармины проглатывается: 21 (6к6) кислотного урона в начале каждого хода Кармины, слепа и опутана. Проглоченный освобождается, если Кармина получает 30+ урона огнём за один ход.</p>",
+     "chat": ""
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "damage": {
+     "base": {
+      "number": 3,
+      "denomination": 10,
+      "bonus": "",
+      "types": [
+       "piercing"
+      ],
+      "custom": {
+       "enabled": false
+      },
+      "scaling": {
+       "number": 1
+      }
+     },
+     "versatile": {}
+    },
+    "range": {
+     "value": null,
+     "long": null,
+     "reach": 10,
+     "units": "ft"
+    },
+    "equipped": true,
+    "proficient": 1,
+    "activities": {
+     "nPFz46PDjqipVJIq": {
+      "_id": "nPFz46PDjqipVJIq",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "override": false
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "critical": {
+        "threshold": null
+       },
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "critical": {
+        "bonus": ""
+       },
+       "includeBase": true,
+       "parts": []
+      },
+      "consumption": {
+       "targets": [],
+       "scaling": {
+        "allowed": false
+       },
+       "spellSlot": true
+      },
+      "description": {
+       "chatFlavor": ""
+      },
+      "duration": {
+       "units": "inst",
+       "concentration": false,
+       "override": false
+      },
+      "range": {
+       "override": false
+      },
+      "target": {
+       "template": {
+        "contiguous": false,
+        "units": "ft"
+       },
+       "affects": {
+        "choice": false
+       },
+       "override": false,
+       "prompt": true
+      },
+      "uses": {
+       "spent": 0,
+       "recovery": []
+      },
+      "sort": 0
+     }
+    }
+   },
+   "effects": [],
+   "flags": {},
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0
+   },
+   "_stats": {
+    "coreVersion": "13.348",
+    "systemId": "dnd5e",
+    "systemVersion": "5.1.0",
+    "createdTime": 1791900000000,
+    "modifiedTime": 1791900000000,
+    "lastModifiedBy": null
+   },
+   "_key": "!actors.items!GprQFnIiU74KKEpY.do0cZuzren68K4Tu"
+  },
+  {
+   "_id": "VLB5LzxoiGFfWd3h",
+   "name": "Плевок нектара (перезарядка 5–6)",
+   "type": "feat",
+   "img": "icons/svg/acid.svg",
+   "system": {
+    "description": {
+     "value": "<p>Конус 30 футов. Спасбросок Телосложения СЛ 18: 36 (8к8) урона ядом при провале, половина при успехе. Провалившее существо получает состояние Очарован до конца своего следующего хода и обязано двигаться к Кармине.</p>",
+     "chat": ""
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activities": {
+     "jOkYRBMeyyMDHqJ3": {
+      "_id": "jOkYRBMeyyMDHqJ3",
+      "type": "utility",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "condition": "",
+       "override": false
+      },
+      "consumption": {
+       "targets": [],
+       "scaling": {
+        "allowed": false
+       },
+       "spellSlot": true
+      },
+      "description": {
+       "chatFlavor": ""
+      },
+      "duration": {
+       "units": "inst",
+       "concentration": false,
+       "override": false
+      },
+      "range": {
+       "units": "self",
+       "override": false
+      },
+      "target": {
+       "template": {
+        "contiguous": false,
+        "units": "ft"
+       },
+       "affects": {
+        "choice": false
+       },
+       "override": false,
+       "prompt": true
+      },
+      "uses": {
+       "spent": 0,
+       "recovery": []
+      },
+      "roll": {
+       "formula": "",
+       "name": "",
+       "prompt": false,
+       "visible": false
+      },
+      "sort": 0
+     }
+    }
+   },
+   "effects": [],
+   "flags": {},
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0
+   },
+   "_stats": {
+    "coreVersion": "13.348",
+    "systemId": "dnd5e",
+    "systemVersion": "5.1.0",
+    "createdTime": 1791900000000,
+    "modifiedTime": 1791900000000,
+    "lastModifiedBy": null
+   },
+   "_key": "!actors.items!GprQFnIiU74KKEpY.VLB5LzxoiGFfWd3h"
+  },
+  {
+   "_id": "8aRUhR4IWrXPvhsB",
+   "name": "Смена лица",
+   "type": "feat",
+   "img": "icons/svg/sound.svg",
+   "system": {
+    "description": {
+     "value": "<p>Бонусное действие. Кармина раскрывает новый бутон и обращается к существу в 60 футах голосом того, кого оно потеряло. Спасбросок Мудрости СЛ 18 или помеха на первую атаку по Кармине до конца его следующего хода.</p>",
+     "chat": ""
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activities": {
+     "kDa9U4UqGWlG6g3O": {
+      "_id": "kDa9U4UqGWlG6g3O",
+      "type": "utility",
+      "activation": {
+       "type": "bonus",
+       "value": 1,
+       "condition": "",
+       "override": false
+      },
+      "consumption": {
+       "targets": [],
+       "scaling": {
+        "allowed": false
+       },
+       "spellSlot": true
+      },
+      "description": {
+       "chatFlavor": ""
+      },
+      "duration": {
+       "units": "inst",
+       "concentration": false,
+       "override": false
+      },
+      "range": {
+       "units": "self",
+       "override": false
+      },
+      "target": {
+       "template": {
+        "contiguous": false,
+        "units": "ft"
+       },
+       "affects": {
+        "choice": false
+       },
+       "override": false,
+       "prompt": true
+      },
+      "uses": {
+       "spent": 0,
+       "recovery": []
+      },
+      "roll": {
+       "formula": "",
+       "name": "",
+       "prompt": false,
+       "visible": false
+      },
+      "sort": 0
+     }
+    }
+   },
+   "effects": [],
+   "flags": {},
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0
+   },
+   "_stats": {
+    "coreVersion": "13.348",
+    "systemId": "dnd5e",
+    "systemVersion": "5.1.0",
+    "createdTime": 1791900000000,
+    "modifiedTime": 1791900000000,
+    "lastModifiedBy": null
+   },
+   "_key": "!actors.items!GprQFnIiU74KKEpY.8aRUhR4IWrXPvhsB"
+  },
+  {
+   "_id": "t1OGMmjxWkI9X7H6",
+   "name": "Хлёст",
+   "type": "feat",
+   "img": "icons/svg/net.svg",
+   "system": {
+    "description": {
+     "value": "<p>Кармина совершает одну атаку «Лоза-коса».</p>",
+     "chat": ""
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activities": {
+     "aMuFbh7x41Ztpdp4": {
+      "_id": "aMuFbh7x41Ztpdp4",
+      "type": "utility",
+      "activation": {
+       "type": "legendary",
+       "value": 1,
+       "condition": "",
+       "override": false
+      },
+      "consumption": {
+       "targets": [],
+       "scaling": {
+        "allowed": false
+       },
+       "spellSlot": true
+      },
+      "description": {
+       "chatFlavor": ""
+      },
+      "duration": {
+       "units": "inst",
+       "concentration": false,
+       "override": false
+      },
+      "range": {
+       "units": "self",
+       "override": false
+      },
+      "target": {
+       "template": {
+        "contiguous": false,
+        "units": "ft"
+       },
+       "affects": {
+        "choice": false
+       },
+       "override": false,
+       "prompt": true
+      },
+      "uses": {
+       "spent": 0,
+       "recovery": []
+      },
+      "roll": {
+       "formula": "",
+       "name": "",
+       "prompt": false,
+       "visible": false
+      },
+      "sort": 0
+     }
+    }
+   },
+   "effects": [],
+   "flags": {},
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0
+   },
+   "_stats": {
+    "coreVersion": "13.348",
+    "systemId": "dnd5e",
+    "systemVersion": "5.1.0",
+    "createdTime": 1791900000000,
+    "modifiedTime": 1791900000000,
+    "lastModifiedBy": null
+   },
+   "_key": "!actors.items!GprQFnIiU74KKEpY.t1OGMmjxWkI9X7H6"
+  },
+  {
+   "_id": "K8ffUF0eWIXiiQE8",
+   "name": "Прорастание",
+   "type": "feat",
+   "img": "icons/svg/oak.svg",
+   "system": {
+    "description": {
+     "value": "<p>Куб 10 футов в пределах 60 футов зарастает шипами: труднопроходимая местность, существо, входящее в область, получает 7 (2к6) колющего урона.</p>",
+     "chat": ""
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activities": {
+     "JkqH3MB9n7IWUSmT": {
+      "_id": "JkqH3MB9n7IWUSmT",
+      "type": "utility",
+      "activation": {
+       "type": "legendary",
+       "value": 1,
+       "condition": "",
+       "override": false
+      },
+      "consumption": {
+       "targets": [],
+       "scaling": {
+        "allowed": false
+       },
+       "spellSlot": true
+      },
+      "description": {
+       "chatFlavor": ""
+      },
+      "duration": {
+       "units": "inst",
+       "concentration": false,
+       "override": false
+      },
+      "range": {
+       "units": "self",
+       "override": false
+      },
+      "target": {
+       "template": {
+        "contiguous": false,
+        "units": "ft"
+       },
+       "affects": {
+        "choice": false
+       },
+       "override": false,
+       "prompt": true
+      },
+      "uses": {
+       "spent": 0,
+       "recovery": []
+      },
+      "roll": {
+       "formula": "",
+       "name": "",
+       "prompt": false,
+       "visible": false
+      },
+      "sort": 0
+     }
+    }
+   },
+   "effects": [],
+   "flags": {},
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0
+   },
+   "_stats": {
+    "coreVersion": "13.348",
+    "systemId": "dnd5e",
+    "systemVersion": "5.1.0",
+    "createdTime": 1791900000000,
+    "modifiedTime": 1791900000000,
+    "lastModifiedBy": null
+   },
+   "_key": "!actors.items!GprQFnIiU74KKEpY.K8ffUF0eWIXiiQE8"
+  },
+  {
+   "_id": "tzQPxC5HChpoevbL",
+   "name": "Вопль хора (стоит 2 действия)",
+   "type": "feat",
+   "img": "icons/svg/sound.svg",
+   "system": {
+    "description": {
+     "value": "<p>Каждое враждебное существо в 30 футах совершает спасбросок Мудрости СЛ 18 или получает состояние Испуган до конца своего следующего хода.</p>",
+     "chat": ""
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activities": {
+     "JoLoaeTOdoe5c3ve": {
+      "_id": "JoLoaeTOdoe5c3ve",
+      "type": "utility",
+      "activation": {
+       "type": "legendary",
+       "value": 2,
+       "condition": "",
+       "override": false
+      },
+      "consumption": {
+       "targets": [],
+       "scaling": {
+        "allowed": false
+       },
+       "spellSlot": true
+      },
+      "description": {
+       "chatFlavor": ""
+      },
+      "duration": {
+       "units": "inst",
+       "concentration": false,
+       "override": false
+      },
+      "range": {
+       "units": "self",
+       "override": false
+      },
+      "target": {
+       "template": {
+        "contiguous": false,
+        "units": "ft"
+       },
+       "affects": {
+        "choice": false
+       },
+       "override": false,
+       "prompt": true
+      },
+      "uses": {
+       "spent": 0,
+       "recovery": []
+      },
+      "roll": {
+       "formula": "",
+       "name": "",
+       "prompt": false,
+       "visible": false
+      },
+      "sort": 0
+     }
+    }
+   },
+   "effects": [],
+   "flags": {},
+   "folder": null,
+   "sort": 0,
+   "ownership": {
+    "default": 0
+   },
+   "_stats": {
+    "coreVersion": "13.348",
+    "systemId": "dnd5e",
+    "systemVersion": "5.1.0",
+    "createdTime": 1791900000000,
+    "modifiedTime": 1791900000000,
+    "lastModifiedBy": null
+   },
+   "_key": "!actors.items!GprQFnIiU74KKEpY.tzQPxC5HChpoevbL"
+  }
+ ],
+ "effects": [],
+ "flags": {
+  "karmina": {
+   "role": "Кармина, Мать тысячи ртов"
+  }
+ },
+ "sort": 0,
+ "ownership": {
+  "default": 0
+ },
+ "_stats": {
+  "coreVersion": "13.348",
+  "systemId": "dnd5e",
+  "systemVersion": "5.1.0",
+  "createdTime": 1791900000000,
+  "modifiedTime": 1791900000000,
+  "lastModifiedBy": null
+ }
+}
