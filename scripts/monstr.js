@@ -6,7 +6,7 @@
 import { BOSSES, TONES } from "./bosses.js";
 
 const MID = "monstryatina";
-const M = { VERSION: "0.1.0", BOSSES };
+const M = { VERSION: "0.1.1", BOSSES };
 const CH = "module." + MID;
 const ROOT = `modules/${MID}/`;
 const isGM = () => !!game.user?.isGM;
@@ -205,7 +205,7 @@ M._render = function (p) {
   stage.style.setProperty("--mx-accent", p.accent);
   stage.style.setProperty("--mx-glow", p.glow);
   stage.innerHTML = `
-    ${p.art ? `<img class="mx-bg" src="${esc(p.art)}" onerror="this.classList.add('mx-missing');this.closest('#monstr-stage').classList.add('mx-noart')">` : ""}
+    ${p.art ? `<img class="mx-bg" src="${esc(p.art)}"${p.art2 ? ` data-alt="${esc(p.art2)}"` : ""} onerror="if(this.dataset.alt){this.src=this.dataset.alt;delete this.dataset.alt;}else{this.classList.add('mx-missing');this.closest('#monstr-stage').classList.add('mx-noart')}">` : ""}
     <div class="mx-scrim"></div>
     <div class="mx-caption">
       <div class="mx-bar"></div>
@@ -353,7 +353,7 @@ M.resolve = async function (key, outcome = "full", id = bossId()) {
   }
   await save(s => { if (s.signal === key) { s.signal = null; s.target = null; } });
   await M.broadcast({ kicker: t.kicker, accent: t.accent, glow: t.glow, title: a.title, text, meta,
-    art: M.artPath(id, key, outcome === "none" ? "signal" : "res"), duration: outcome === "none" ? 5000 : 7000,
+    art: M.artPath(id, key, outcome === "none" ? "none" : "res"), art2: outcome === "none" ? M.artPath(id, key, "signal") : null, duration: outcome === "none" ? 5000 : 7000,
     screen: a.screen?.[outcome === "none" ? "none" : "full"], sound: M.sfxPath(id, outcome === "none" ? "none" : key + "-res") });
   if (a.summon && outcome !== "none") M.Panel.flash("res", `«${a.title}» сработал — поставь миньонов кнопкой «Призыв» на пульте.`);
 };

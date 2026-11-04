@@ -17,7 +17,7 @@
 Вихрь · Тень сверху (фаза 1, наведись на цель клавишей T) · Розовый туман · Подрубить мост (с фазы 2) · Клич гнезда (призыв 3 нимф).
 
 ## Новый босс
-`scripts/bosses.js` — объект в `BOSSES`; арты `assets/<id>/acts/<действие>-signal.webp` и `-res.webp`;
+`scripts/bosses.js` — объект в `BOSSES`; арты `assets/<id>/acts/<действие>-signal.webp` и `-res.webp` (+ `-none.webp` — арт «Сорвано», если нет — берётся Сигнал);
 звуки `sounds/<id>/<действие>-signal.ogg`, `-res.ogg`, `none.ogg`, `phase.ogg`.
 Актёры: `.build/build-actors.js` → `sh .build/pack.sh`.
 
