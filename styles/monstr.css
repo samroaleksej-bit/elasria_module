@@ -330,3 +330,15 @@
   background:#1A2115; border:1px solid #E4677C; color:#E4677C; font-size:19px; line-height:1; cursor:pointer;
   box-shadow:0 6px 20px rgba(0,0,0,.6)}
 #monstr-launch:hover{background:#2A1219; color:#fff}
+
+#monstr-stage.mx-contain .mx-bg{object-fit:contain; object-position:center 30%; transform:none; animation:none; height:62%; top:4%}
+#monstr-panel .mp-seg{display:grid; grid-template-columns:1fr 92px 52px 26px; gap:4px; align-items:center; margin:0 0 4px}
+#monstr-panel .mp-seg .mp-name small{color:#6E7563; font-size:10px; margin-left:3px}
+#monstr-panel .mp-bar{position:relative; height:18px; background:#1A2115; border:1px solid #35402E; overflow:hidden}
+#monstr-panel .mp-bar i{position:absolute; left:0; top:0; bottom:0; background:#6E2030}
+#monstr-panel .mp-bar b{position:relative; display:block; text-align:center; font-size:10.5px; line-height:16px; color:#DCDACB; font-weight:400}
+#monstr-panel .mp-seg.broken .mp-bar i{background:#8E6510}
+#monstr-panel .mp-seg.broken .mp-name{color:#E8C46A; text-decoration:line-through}
+#monstr-panel .mp-dmg{width:100%; box-sizing:border-box; padding:4px; font-size:11px; background:#212A1C; color:#DCDACB; border:1px solid #35402E}
+#monstr-panel .mp-seg button{padding:4px 0}
+#monstr-stage.mx-contain{background:rgba(8,10,7,.82)}

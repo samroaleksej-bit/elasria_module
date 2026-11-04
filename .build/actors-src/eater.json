@@ -1,0 +1,925 @@
+{
+ "_id": "8AxngAVr8mq2M5Z2",
+ "_key": "!actors!8AxngAVr8mq2M5Z2",
+ "folder": null,
+ "name": "Пожиратель троп",
+ "type": "npc",
+ "img": "modules/monstryatina/assets/eater/portrait.webp",
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 23,
+    "proficient": 1
+   },
+   "dex": {
+    "value": 12,
+    "proficient": 0
+   },
+   "con": {
+    "value": 22,
+    "proficient": 1
+   },
+   "int": {
+    "value": 3,
+    "proficient": 0
+   },
+   "wis": {
+    "value": 14,
+    "proficient": 0
+   },
+   "cha": {
+    "value": 5,
+    "proficient": 0
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 16,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 200,
+    "max": 200,
+    "formula": "16d12 + 96"
+   },
+   "movement": {
+    "walk": 30,
+    "swim": 40,
+    "units": "ft"
+   },
+   "senses": {
+    "tremorsense": 120,
+    "units": "ft"
+   }
+  },
+  "details": {
+   "cr": 9,
+   "type": {
+    "value": "monstrosity",
+    "subtype": "удав-крокодил"
+   },
+   "alignment": "без мировоззрения",
+   "biography": {
+    "value": "<blockquote>Тропа была ровная, утоптанная, удобная. Слишком удобная. — Талиен бы сказал то же самое</blockquote><p><b>Скрытник · Бестия</b> · гекс Л-16</p>\n<h3>Фавориты</h3><p>Тихие герои: плуты, монахи, Шумовые приманки (камень в воду, «Фокусы»), Огонь, Атлетика: заклинить пасть бревном</p><h3>Фолы</h3><p>Тяжёлые латники: их слышно за сто футов, Маленькие герои (их проглатывают), Те, кто стоит на тропе</p>\n<h3>Знания</h3><p><b>СЛ 15.</b> Он ложится вдоль тропы и ждёт. За ночь тропа «сдвигается»: это он поменял позу. <i>(улика «тропа сдвинулась»)</i></p><p><b>СЛ 19.</b> Слепой. Слышит шаги через землю. Кто стоит неподвижно, того он почти не чувствует. <i>(—)</i></p><p><b>СЛ 24.</b> Глотает целиком. Изнутри его можно заставить отрыгнуть, если бить сильно и быстро. <i>(улика «кости в бревне»)</i></p>\n<h3>Тактика</h3><p><b>Лёгкая:</b> Начинает бой с атаки, а не с засады. Глотает только тех, кто у него уже схвачен два раунда подряд.</p><p><b>Средняя:</b> Засада, Хвост по самому тяжёлому, Укус и Заглатывание по самому маленькому. Слушает шаги: бьёт тех, кто двигается.</p><p><b>Сложная:</b> ☠ Глотает в первый же раунд, уползает с проглоченным в заросли и переваривает его там. Партия должна догнать его по шуму.</p>\n<h3>Добыча</h3><p><b>Шкура-тропа</b> (Плащ, редкий, требует настройки). Преимущество на Скрытность в лесу, вы не оставляете следов.</p><p><b>Желудочный мешок</b> (Чудесный предмет, необычный). Кислотостойкая сумка: хранит яды и кислоты без вреда, 1/день — бросок ёмкости: 4к6 урона кислотой в 10 футах.</p><h3>Крючок</h3><p>Герой, который однажды бросил кого-то в пути: в брюхе Пожирателя находят вещи того самого человека.</p>"
+   }
+  },
+  "traits": {
+   "size": "huge",
+   "dr": {
+    "value": []
+   },
+   "di": {
+    "value": []
+   },
+   "ci": {
+    "value": [
+     "blinded",
+     "prone"
+    ]
+   },
+   "languages": {
+    "value": []
+   }
+  },
+  "skills": {
+   "ste": {
+    "value": 2,
+    "ability": "dex"
+   }
+  },
+  "resources": {
+   "legact": {
+    "value": 3,
+    "max": 3
+   },
+   "legres": {
+    "value": 3,
+    "max": 3
+   }
+  }
+ },
+ "items": [
+  {
+   "_id": "eNBiZb4S3PQ0rPCa",
+   "name": "Тропа",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Пока Пожиратель неподвижен, он неотличим от тропы. Заметить: Внимательность СЛ 20. С уликой «тропа сдвинулась» партию не застать врасплох.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.eNBiZb4S3PQ0rPCa"
+  },
+  {
+   "_id": "hfdFhnwOppSUQ1lr",
+   "name": "Слепой охотник",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Пожиратель не чувствует существо, которое в свой последний ход не перемещалось и не шумело: атаки по нему с помехой. Громкий шум в 30 футах от него отвлекает: его следующая атака уходит в шум, если он не преуспеет в спасброске Мудрости СЛ 16.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.hfdFhnwOppSUQ1lr"
+  },
+  {
+   "_id": "HzKzI20zw8T6o75S",
+   "name": "Длинное тело",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Тело лежит полосой 5×40 фт. Существо, которое начинает ход на теле, совершает спасбросок Ловкости СЛ 17 или сбито с ног.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "JO3lDBVUQLasVIcI": {
+      "_id": "JO3lDBVUQLasVIcI",
+      "type": "save",
+      "activation": {
+       "type": "special",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      },
+      "save": {
+       "ability": [
+        "dex"
+       ],
+       "dc": {
+        "calculation": "",
+        "formula": "17"
+       }
+      },
+      "damage": {
+       "onSave": "none",
+       "parts": []
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.HzKzI20zw8T6o75S"
+  },
+  {
+   "_id": "5a7PH144dUwRfzes",
+   "name": "Шкура тропы (3/день)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Если Пожиратель проваливает спасбросок, он может преуспеть. За каждый сломанный сегмент тела −1 использование.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "3",
+     "spent": 0,
+     "recovery": [
+      {
+       "period": "day",
+       "type": "recoverAll"
+      }
+     ]
+    },
+    "activities": {
+     "wtyayzXYdBJNihzc": {
+      "_id": "wtyayzXYdBJNihzc",
+      "type": "utility",
+      "activation": {
+       "type": "special",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": [
+        {
+         "type": "itemUses",
+         "value": "1"
+        }
+       ]
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.5a7PH144dUwRfzes"
+  },
+  {
+   "_id": "rPl82IjARrBtyman",
+   "name": "Сегменты тела",
+   "type": "feat",
+   "img": "icons/svg/target.svg",
+   "system": {
+    "description": {
+     "value": "<p>Тело делится на 4 сегмента со своими КД и запасом урона (см. таблицу). Урон по сегменту идёт и в хиты Пожирателя.</p><table><tr><th>Часть</th><th>КД</th><th>Урон</th><th>Где</th><th>Сломана</th></tr><tr><td><b>Голова</b></td><td>КД 17</td><td>60</td><td>Передние 3 клетки тела</td><td>Челюсть сломана: Укус без захвата, урон −1к12. Материал: зубы Пожирателя.</td></tr><tr><td><b>Горло</b></td><td>КД 14</td><td>40</td><td>Клетки 4–6; изнутри — проглоченные</td><td>Все проглоченные вываливаются наружу, Заглатывание больше невозможно. Материал: желудочный мешок.</td></tr><tr><td><b>Брюхо</b></td><td>КД 15</td><td>60</td><td>Середина тела; лежачий (ничком) Пожиратель подставляет его</td><td>Брюхо вспорото: атаки по нему критуют на 19–20, «Длинное тело» больше не сбивает с ног. Материал: брюшная шкура.</td></tr><tr><td><b>Хвост</b></td><td>КД 16</td><td>40</td><td>Последняя треть тела</td><td>Хвост срублен: нет атаки Хвостом, скорость −10 фт., не может уползти в фазе 3. Материал: шкура-тропа.</td></tr></table><p><i>Положи на тропу 4 отдельных токена-сегмента (или отметь их рисунками) и веди учёт урона каждого. Сегменты бьют так же, как обычную цель: выбрал сегмент — атакуешь его КД. На пульте Монстрятины есть трекер частей.</i></p><p></p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.rPl82IjARrBtyman"
+  },
+  {
+   "_id": "MOb6fgSQQJ6dpkwu",
+   "name": "Мультиатака",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Пожиратель совершает атаку Укусом и атаку Хвостом.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "mcjF8jFMh4PS6Qjx": {
+      "_id": "mcjF8jFMh4PS6Qjx",
+      "type": "utility",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.MOb6fgSQQJ6dpkwu"
+  },
+  {
+   "_id": "yVwHaIaFEyjElGgb",
+   "name": "Укус",
+   "type": "weapon",
+   "img": "icons/creatures/abilities/mouth-teeth-long-red.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +10 к попаданию, досягаемость 10 фт. Попадание: 19 (2к12 + 6) колющего урона, цель схвачена (СЛ 18). Пока цель схвачена, Пожиратель не кусает другие цели.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 10,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 2,
+      "denomination": 12,
+      "bonus": "",
+      "types": [
+       "piercing"
+      ]
+     }
+    },
+    "activities": {
+     "BrjzXNQY0Hav7PTZ": {
+      "_id": "BrjzXNQY0Hav7PTZ",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.yVwHaIaFEyjElGgb"
+  },
+  {
+   "_id": "PmacQ82Y6TIMewDG",
+   "name": "Хвост",
+   "type": "weapon",
+   "img": "icons/creatures/abilities/tail-strike-bone-orange.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +10 к попаданию, досягаемость 15 фт. Попадание: 17 (2к10 + 6) дробящего урона, цель Большая или меньше сбита с ног.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 15,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 2,
+      "denomination": 10,
+      "bonus": "",
+      "types": [
+       "bludgeoning"
+      ]
+     }
+    },
+    "activities": {
+     "VIY1PUZx4xxbfgbJ": {
+      "_id": "VIY1PUZx4xxbfgbJ",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.PmacQ82Y6TIMewDG"
+  },
+  {
+   "_id": "FKNFTv1acP8mancB",
+   "name": "Заглатывание",
+   "type": "feat",
+   "img": "icons/magic/acid/dissolve-bone-white.webp",
+   "system": {
+    "description": {
+     "value": "<p>Пожиратель глотает схваченное Среднее или меньшее существо. Проглоченное ослеплено и опутано, получает 14 (4к6) урона кислотой в начале каждого хода Пожирателя. Если изнутри за один ход нанесено 25 урона и больше, Пожиратель совершает спасбросок Телосложения СЛ 17 или отрыгивает проглоченных. С уликой «кости в бревне» проглоченный выбирается с преимуществом.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "PMz0cZ1BvmNfsPfI": {
+      "_id": "PMz0cZ1BvmNfsPfI",
+      "type": "utility",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.FKNFTv1acP8mancB"
+  },
+  {
+   "_id": "5b4pLc3MpMvGz7Y7",
+   "name": "Уйти под тропу",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Когда Пожиратель получает урон огнём, он смещается на 15 футов вдоль тропы, не провоцируя атак.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "2dqFHhKoyL0vhkod": {
+      "_id": "2dqFHhKoyL0vhkod",
+      "type": "utility",
+      "activation": {
+       "type": "reaction",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.5b4pLc3MpMvGz7Y7"
+  },
+  {
+   "_id": "4TOZeL2iBwVP6ci1",
+   "name": "Сдвиг тропы",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Каждое существо на теле сдвигается на 10 футов: спасбросок Ловкости СЛ 17 или сбито с ног.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "0MhFBUOqffA6PY40": {
+      "_id": "0MhFBUOqffA6PY40",
+      "type": "save",
+      "activation": {
+       "type": "legendary",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": [
+        {
+         "type": "attribute",
+         "target": "resources.legact.value",
+         "value": "1"
+        }
+       ]
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      },
+      "save": {
+       "ability": [
+        "dex"
+       ],
+       "dc": {
+        "calculation": "",
+        "formula": "17"
+       }
+      },
+      "damage": {
+       "onSave": "none",
+       "parts": []
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.4TOZeL2iBwVP6ci1"
+  },
+  {
+   "_id": "nw1RTgPYaTylboC9",
+   "name": "Укус (легендарное)",
+   "type": "weapon",
+   "img": "icons/creatures/abilities/mouth-teeth-long-red.webp",
+   "system": {
+    "description": {
+     "value": "<p>Пожиратель совершает атаку Укусом.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 10,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 2,
+      "denomination": 12,
+      "bonus": "",
+      "types": [
+       "piercing"
+      ]
+     }
+    },
+    "activities": {
+     "TuQUTFNRKk2Tmxi0": {
+      "_id": "TuQUTFNRKk2Tmxi0",
+      "type": "attack",
+      "activation": {
+       "type": "legendary",
+       "value": 1
+      },
+      "consumption": {
+       "targets": [
+        {
+         "type": "attribute",
+         "target": "resources.legact.value",
+         "value": "1"
+        }
+       ]
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.nw1RTgPYaTylboC9"
+  },
+  {
+   "_id": "KNcAn7goNr6joZz9",
+   "name": "Уползти (2 действия)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Пожиратель перемещается на свою скорость, не провоцируя атак.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "qcYAx4NSPu3TaGdD": {
+      "_id": "qcYAx4NSPu3TaGdD",
+      "type": "utility",
+      "activation": {
+       "type": "legendary",
+       "value": 2,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": [
+        {
+         "type": "attribute",
+         "target": "resources.legact.value",
+         "value": "2"
+        }
+       ]
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.KNcAn7goNr6joZz9"
+  },
+  {
+   "_id": "vSEa74VFKHQZtQ6R",
+   "name": "Кольца (Боевое действие)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Все внутри: спасбросок Силы СЛ 18, 33 (6к10) дробящего урона и опутан при провале, половина урона при успехе.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "TYR1gHz6jTtGCcPe": {
+      "_id": "TYR1gHz6jTtGCcPe",
+      "type": "save",
+      "activation": {
+       "type": "special",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      },
+      "save": {
+       "ability": [
+        "str"
+       ],
+       "dc": {
+        "calculation": "",
+        "formula": "18"
+       }
+      },
+      "damage": {
+       "onSave": "half",
+       "parts": [
+        {
+         "number": 6,
+         "denomination": 10,
+         "bonus": "",
+         "types": [
+          "bludgeoning"
+         ]
+        }
+       ]
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.vSEa74VFKHQZtQ6R"
+  },
+  {
+   "_id": "CgclJRZmdyd30H68",
+   "name": "Переваривание (Боевое действие)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Каждый проглоченный получает 28 (8к6) урона кислотой и 1 степень истощения.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "0lTF9p1j8zEcoFU1": {
+      "_id": "0lTF9p1j8zEcoFU1",
+      "type": "save",
+      "activation": {
+       "type": "special",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      },
+      "save": {
+       "ability": [
+        "con"
+       ],
+       "dc": {
+        "calculation": "",
+        "formula": "17"
+       }
+      },
+      "damage": {
+       "onSave": "none",
+       "parts": [
+        {
+         "number": 8,
+         "denomination": 6,
+         "bonus": "",
+         "types": [
+          "acid"
+         ]
+        }
+       ]
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.CgclJRZmdyd30H68"
+  },
+  {
+   "_id": "xIXE8PCEvtbEwxXH",
+   "name": "Боевые действия",
+   "type": "feat",
+   "img": "icons/svg/sword.svg",
+   "system": {
+    "description": {
+     "value": "<p>Сигнал в конце хода → Разрешение в начале следующего. Раунды 1–2: одно действие, с 3-го раунда: два.</p><h3>Тропа просыпается <small>(Смягчение)</small></h3>\n<p><b>Сигнал.</b> Тропа под ногами вздрагивает. Мелкие камешки сами катятся в сторону головы.</p><p><b>Смягчение.</b> Сойти с тропы в заросли или замереть на месте: слепой охотник не чувствует неподвижных.</p><p><b>Разрешение.</b> Все на теле: спасбросок Ловкости СЛ 17, при провале ничком и сдвиг на 15 футов к голове.</p><p><b>Сорвано.</b> Тело перекатывается вхолостую. Вы стоите на земле, а не на нём.</p><h3>Раскрытая пасть <small>(Нейтрализация)</small></h3>\n<p><b>Сигнал.</b> Голова поднимается над тропой, пасть раскрывается во всю ширину. Слышно мокрое хлюпанье и стук чужих костей внутри.</p><p><b>Нейтрализация.</b> Заклинить пасть бревном (Атлетика СЛ 15): до конца раунда все попадания по Голове критические. Или цель замирает и молчит — он её теряет.</p><p><b>Разрешение.</b> Заглатывание цели без броска атаки: спасбросок Ловкости СЛ 17, чтобы увернуться.</p><p><b>Сорвано.</b> Пасть смыкается на бревне. Он трясёт головой и не может её закрыть.</p><p><i>Цель — тот, кто больше всех шумел в этом раунде.</i></p><h3>Переваривание <small>(Нейтрализация)</small></h3>\n<p><b>Сигнал.</b> Брюхо вздувается и ходит волнами. Изнутри доносится глухой крик.</p><p><b>Нейтрализация.</b> Нанести 25+ урона по Горлу или Брюху до Разрешения — он отрыгивает всех проглоченных.</p><p><b>Разрешение.</b> Каждый проглоченный получает 28 (8к6) урона кислотой и 1 степень истощения.</p><p><b>Сорвано.</b> Его скручивает судорогой. Проглоченные вылетают на тропу в облаке слизи.</p><p><i>Только если внутри кто-то есть.</i></p><h3>Кольца <small>(Смягчение, фаза 2)</small></h3>\n<p><b>Сигнал.</b> Хвост обходит партию полукругом. Тело начинает стягиваться в кольцо, сжимая всех внутри.</p><p><b>Смягчение.</b> Выскочить из кольца (выйти за 20 футов от головы) или подставить поваленный ствол под тело: кольцо не сомкнётся до конца.</p><p><b>Разрешение.</b> Все внутри: спасбросок Силы СЛ 18, 33 (6к10) дробящего урона и опутан при провале, половина урона при успехе.</p><p><b>Сорвано.</b> Кольцо упирается в ствол и не смыкается.</p><h3>Уползти <small>(Нейтрализация, фаза 3)</small></h3>\n<p><b>Сигнал.</b> Голова разворачивается на восток. Тело начинает скользить вперёд, сначала медленно.</p><p><b>Нейтрализация.</b> Сломать Хвост или перегородить тропу поваленным стволом.</p><p><b>Разрешение.</b> Он уползает на 60 футов к логову. Если догнать не успели за 3 раунда, бой продолжится в логове, и он восстановит 50 хитов.</p><p><b>Сорвано.</b> Хвост бьёт по стволу, тело встаёт поперёк тропы. Бежать некуда.</p><p></p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.xIXE8PCEvtbEwxXH"
+  },
+  {
+   "_id": "3hoXqKAPFthyEUgY",
+   "name": "Фазы",
+   "type": "feat",
+   "img": "icons/svg/clockwork.svg",
+   "system": {
+    "description": {
+     "value": "<p>Засада: тропа оживает, все на теле совершают спасбросок Ловкости СЛ 16 или сбиты с ног.<br>Ниже 50%: открывается Боевое действие «Кольца».<br>Ниже 25%: уползает к логову на восток. Не догнали за 3 раунда, и бой продолжится в логове на следующий день, а он восстановит 50 хитов.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.3hoXqKAPFthyEUgY"
+  },
+  {
+   "_id": "i4zKHCJaA4CSEcCB",
+   "name": "Логово",
+   "type": "feat",
+   "img": "icons/svg/house.svg",
+   "system": {
+    "description": {
+     "value": "<p>Тропа съезжает: всех, кто стоит на теле, сдвигает на 10 футов.<br>В заросли падает дерево: новое низкое укрытие поперёк тропы.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!8AxngAVr8mq2M5Z2.i4zKHCJaA4CSEcCB"
+  }
+ ],
+ "prototypeToken": {
+  "name": "Пожиратель троп",
+  "displayName": 20,
+  "displayBars": 20,
+  "actorLink": false,
+  "disposition": -1,
+  "width": 3,
+  "height": 3,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "texture": {
+   "src": "modules/monstryatina/assets/eater/token.webp",
+   "scaleX": 1.3,
+   "scaleY": 1.3,
+   "fit": "contain"
+  },
+  "sight": {
+   "enabled": true,
+   "range": 0,
+   "visionMode": "darkvision"
+  },
+  "ring": {
+   "enabled": false
+  }
+ },
+ "flags": {
+  "monstryatina": {
+   "id": "eater"
+  }
+ }
+}

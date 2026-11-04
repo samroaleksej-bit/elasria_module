@@ -36,7 +36,7 @@ function weapon(name, desc, o) {
   return { _id: rid(), name, type: "weapon", img: o.img || "icons/creatures/claws/claw-scaled-red.webp",
     system: { description: { value: p(desc) }, type: { value: "natural", baseItem: "" }, proficient: 1, equipped: true,
       properties: o.fin ? ["fin"] : [], range: { reach: o.reach || 5, units: "ft" },
-      damage: { base: dp(o.n, o.d, "", "slashing") },
+      damage: { base: dp(o.n, o.d, "", o.type || "slashing") },
       activities: { [id]: { _id: id, type: "attack", activation: { type: o.act || "action", value: o.cost || 1 },
         consumption: { targets: o.legCost ? [{ type: "attribute", target: "resources.legact.value", value: String(o.legCost) }] : [] },
         attack: { ability: o.fin ? "dex" : "str", bonus: "", flat: false, type: { value: "melee", classification: "weapon" } },
@@ -49,7 +49,7 @@ function actor(o) {
   return { _id, _key: `!actors!${_id}`, folder: null, name: o.name, type: "npc", img: o.portrait,
     system: { abilities: o.abilities,
       attributes: { ac: { flat: o.ac, calc: "natural" }, hp: { value: o.hp, max: o.hp, formula: o.hpf },
-        movement: { walk: 40, climb: 40, units: "ft" }, senses: { darkvision: 60, units: "ft" } },
+        movement: { ...(o.move || { walk: 40, climb: 40 }), units: "ft" }, senses: { ...(o.senses || { darkvision: 60 }), units: "ft" } },
       details: { cr: o.cr, type: { value: "monstrosity", subtype: o.subtype }, alignment: "без мировоззрения",
         biography: { value: o.bio } },
       traits: { size: o.size, dr: { value: o.dr || [] }, di: { value: o.di || [] }, ci: { value: o.ci || [] }, languages: { value: [] } },
@@ -58,7 +58,7 @@ function actor(o) {
     prototypeToken: { name: o.name, displayName: 20, displayBars: 20, actorLink: false, disposition: -1,
       width: o.w, height: o.w, bar1: { attribute: "attributes.hp" },
       texture: { src: o.token, scaleX: o.scale, scaleY: o.scale, fit: "contain" },
-      sight: { enabled: true, range: 60, visionMode: "darkvision" }, ring: { enabled: false } },
+      sight: { enabled: true, range: o.sightRange ?? 60, visionMode: "darkvision" }, ring: { enabled: false } },
     flags: { monstryatina: { id: o.id } } };
 }
 
@@ -117,5 +117,43 @@ const nymph = actor({ id: "sickle-nymph", name: "Нимфа Серповика",
     weapon("Клинок", N.actions[1][1], { n: 1, d: 10, reach: 5, fin: true }), grab,
     feat("Отскок", N.reactions[0][1], { act: "reaction" })] });
 
-for (const [f, a] of [["sickle", sickle], ["sickle-nymph", nymph]]) fs.writeFileSync(path.join(OUT, f + ".json"), JSON.stringify(a, null, 1));
+// ---------- Пожиратель троп ----------
+const E = window.BOSSES.find(x => x.id === "eater"), EART = "modules/monstryatina/assets/eater/";
+const eAb = ab(E.stats); ["str", "con"].forEach(k => eAb[k].proficient = 1);
+const ET = Object.fromEntries(E.traits);
+const segHTML = `<table><tr><th>Часть</th><th>КД</th><th>Урон</th><th>Где</th><th>Сломана</th></tr>${E.segments.map(r => `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td></tr>`).join("")}</table><p><i>${E.segnote} На пульте Монстрятины есть трекер частей.</i></p>`;
+const eBa = E.ba.map(a => `<h3>${a.n} <small>(${a.t}${a.ph !== "все" ? ", фаза " + a.ph : ""})</small></h3>
+<p><b>Сигнал.</b> ${a.s}</p><p><b>${a.t}.</b> ${a.c}</p><p><b>Разрешение.</b> ${a.r}</p><p><b>Сорвано.</b> ${a.x}</p>${a.note ? `<p><i>${a.note}</i></p>` : ""}`).join("");
+const eaterItems = [
+  feat("Тропа", ET["Тропа"]), feat("Слепой охотник", ET["Слепой охотник"]),
+  feat("Длинное тело", ET["Длинное тело"], { act: "special", save: { ab: "dex", dc: 17 } }),
+  feat("Шкура тропы (3/день)", ET["Шкура тропы (3/день)"], { act: "special", uses: 3 }),
+  feat("Сегменты тела", `${ET["Сегменты тела"]}</p>${segHTML}<p>`, { img: "icons/svg/target.svg" }),
+  feat("Мультиатака", E.actions[0][1], { act: "action" }),
+  weapon("Укус", E.actions[1][1], { n: 2, d: 12, reach: 10, type: "piercing", img: "icons/creatures/abilities/mouth-teeth-long-red.webp" }),
+  weapon("Хвост", E.actions[2][1], { n: 2, d: 10, reach: 15, type: "bludgeoning", img: "icons/creatures/abilities/tail-strike-bone-orange.webp" }),
+  feat("Заглатывание", E.actions[3][1], { act: "action", img: "icons/magic/acid/dissolve-bone-white.webp" }),
+  feat("Уйти под тропу", E.reactions[0][1], { act: "reaction" }),
+  feat("Сдвиг тропы", E.legendary[0][1], { act: "legendary", legCost: 1, save: { ab: "dex", dc: 17 } }),
+  weapon("Укус (легендарное)", E.legendary[1][1], { n: 2, d: 12, reach: 10, type: "piercing", act: "legendary", legCost: 1, img: "icons/creatures/abilities/mouth-teeth-long-red.webp" }),
+  feat("Уползти (2 действия)", E.legendary[2][1], { act: "legendary", cost: 2, legCost: 2 }),
+  feat("Кольца (Боевое действие)", E.ba[3].r, { act: "special", save: { ab: "str", dc: 18, half: true, dmg: [dp(6, 10, "", "bludgeoning")] } }),
+  feat("Переваривание (Боевое действие)", E.ba[2].r, { act: "special", save: { ab: "con", dc: 17, dmg: [dp(8, 6, "", "acid")] } }),
+  feat("Боевые действия", `Сигнал в конце хода → Разрешение в начале следующего. Раунды 1–2: одно действие, с 3-го раунда: два.</p>${eBa}<p>`, { img: "icons/svg/sword.svg" }),
+  feat("Фазы", E.phases.join("<br>"), { img: "icons/svg/clockwork.svg" }),
+  feat("Логово", E.lair.join("<br>"), { img: "icons/svg/house.svg" }),
+];
+const eater = actor({ id: "eater", name: "Пожиратель троп", portrait: EART + "portrait.webp", token: EART + "token.webp",
+  abilities: eAb, ac: 16, hp: 200, hpf: "16d12 + 96", cr: 9, subtype: "удав-крокодил", size: "huge", w: 3, scale: 1.3,
+  move: { walk: 30, swim: 40 }, senses: { tremorsense: 120 }, sightRange: 0,
+  ci: ["blinded", "prone"], skills: { ste: { value: 2, ability: "dex" } },
+  resources: { legact: { value: 3, max: 3 }, legres: { value: 3, max: 3 } },
+  bio: `<blockquote>${E.quote}</blockquote><p><b>${E.cls}</b> · гекс ${E.hex}</p>
+<h3>Фавориты</h3><p>${E.fav.join(", ")}</p><h3>Фолы</h3><p>${E.fol.join(", ")}</p>
+<h3>Знания</h3>${E.lore.map(l => `<p><b>СЛ ${l[0]}.</b> ${l[1]} <i>(${l[2]})</i></p>`).join("")}
+<h3>Тактика</h3><p><b>Лёгкая:</b> ${E.tactics.easy}</p><p><b>Средняя:</b> ${E.tactics.mid}</p><p><b>Сложная:</b> ${E.tactics.hard}</p>
+<h3>Добыча</h3>${E.loot.map(l => `<p><b>${l[0]}</b> (${l[1]}). ${l[2]}</p>`).join("")}<h3>Крючок</h3><p>${E.hook}</p>`,
+  items: eaterItems });
+
+for (const [f, a] of [["sickle", sickle], ["sickle-nymph", nymph], ["eater", eater]]) fs.writeFileSync(path.join(OUT, f + ".json"), JSON.stringify(a, null, 1));
 console.log("ok", sickle.items.length, nymph.items.length);

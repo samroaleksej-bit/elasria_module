@@ -6,7 +6,7 @@
 import { BOSSES, TONES } from "./bosses.js";
 
 const MID = "monstryatina";
-const M = { VERSION: "0.1.1", BOSSES };
+const M = { VERSION: "0.2.0", BOSSES };
 const CH = "module." + MID;
 const ROOT = `modules/${MID}/`;
 const isGM = () => !!game.user?.isGM;
@@ -17,7 +17,7 @@ const url = (p) => !p ? "" : String(p).split("/").map(seg => /%[0-9A-Fa-f]{2}/.t
 
 /* ================================================================ состояние */
 
-const DEFAULT_STATE = { boss: "sickle", signal: null, target: null, phase: 1 };
+const DEFAULT_STATE = { boss: "sickle", signal: null, target: null, phase: 1, segs: {} };
 let CUR = null;
 const seen = new Set();
 
@@ -202,6 +202,7 @@ M._render = function (p) {
   const stage = document.createElement("div");
   stage.id = "monstr-stage";
   if (!p.art) stage.classList.add("mx-noart");
+  if (p.fit === "contain") stage.classList.add("mx-contain");
   stage.style.setProperty("--mx-accent", p.accent);
   stage.style.setProperty("--mx-glow", p.glow);
   stage.innerHTML = `
@@ -274,7 +275,7 @@ M.Track = {
 /* ================================================================ токены на сцене */
 
 M.bossToken = function (id = bossId()) {
-  const b = BOSSES[id]; if (!canvas?.tokens) return null;
+  const b = BOSSES[id]; if (!globalThis.canvas?.tokens) return null;
   const is = (t) => t.actor?.getFlag?.(MID, "id") === id || b.match?.test(t.name) || b.match?.test(t.actor?.name ?? "");
   return canvas.tokens.controlled.find(is) ?? canvas.tokens.placeables.find(is) ?? null;
 };
@@ -320,7 +321,7 @@ M.signal = async function (key, id = bossId()) {
   if (a.target && !target) M.warn("цель не наведена — плашка уйдёт без имени (клавиша T)");
   await save(s => { s.boss = id; s.signal = key; s.target = target; });
   await M.broadcast({ kicker: t.kicker, accent: t.accent, glow: t.glow, title: a.title,
-    text: a.signal + (target ? ` <b style="color:${t.accent}">${esc(target)}</b> — под тенью.` : ""),
+    text: a.signal + (target ? ` <b style="color:${t.accent}">${esc(target)}</b>${a.targetText ?? ""}` : ""),
     meta: hints ? `<b>${a.kind}:</b> ${a.counter}` : null, art: M.artPath(id, key, "signal"), duration: 7500,
     screen: a.screen?.signal, sound: M.sfxPath(id, key + "-signal") });
   if (a.note) ui.notifications.info(`${b.name} — ${a.title}: ${a.note}`);
@@ -375,6 +376,37 @@ M.banner = function (title, text = "", tone = "info") {
 };
 M.fx = (name, opts = {}) => M.Screen.play([[name, opts]]);
 M.fxAll = (name, opts = {}) => M.broadcast({ silent: true, screen: [[name, opts]] });
+
+/* ---------- части тела ---------- */
+M.segDmg = (id, sid) => Number(state().segs?.[`${id}.${sid}`] ?? 0);
+/** Урон по части тела: копит урон части, снимает хиты с босса, на поломке — плашка всем и −1 легендарное сопротивление. */
+M.segHit = async function (sid, dmg, id = bossId()) {
+  const b = BOSSES[id], sg = b?.segments?.find(x => x.id === sid); if (!sg || !dmg) return;
+  const before = M.segDmg(id, sid), after = Math.max(0, before + dmg);
+  await save(s => { s.segs = s.segs || {}; s.segs[`${id}.${sid}`] = after; });
+  const tok = M.bossToken(id), actor = tok?.actor;
+  if (actor && dmg > 0) {
+    const hp = actor.system.attributes.hp.value;
+    const upd = { "system.attributes.hp.value": Math.max(0, hp - dmg) };
+    if (before < sg.hp && after >= sg.hp && actor.system.resources?.legres) upd["system.resources.legres.value"] = Math.max(0, (actor.system.resources.legres.value ?? 0) - 1);
+    try { await actor.update(upd); } catch (e) { console.warn(e); }
+  }
+  if (before < sg.hp && after >= sg.hp) {
+    await M.broadcast({ kicker: `${b.name} · часть тела сломана`, accent: "#E8C46A", glow: "rgba(232,196,106,.5)", title: sg.name, text: sg.broken,
+      meta: "<b>−1 легендарное сопротивление.</b>", art: ROOT + `assets/${id}/seg-${sid}.webp`, duration: 7000, fit: "contain",
+      screen: [["shake", { power: 16, duration: 700 }], ["flash", { color: "#E8C46A", opacity: .35 }]], sound: M.sfxPath(id, "none") });
+  }
+};
+M.segReset = (id = bossId()) => save(s => { for (const k of Object.keys(s.segs || {})) if (k.startsWith(id + ".")) delete s.segs[k]; });
+/** Метки частей тела на сцену — тайлы цепочкой от токена босса (двигай как надо). */
+M.segPlace = async function (id = bossId()) {
+  const b = BOSSES[id]; if (!b?.segments || !canvas?.scene) return;
+  const g = canvas.grid.size, bt = M.bossToken(id), c = bt ? { x: bt.x, y: bt.y + bt.h / 2 - g / 2 } : canvas.stage.pivot;
+  const tiles = b.segments.map((sg, i) => ({ texture: { src: ROOT + `assets/${id}/seg-${sg.id}.webp` }, x: c.x + i * g * 2, y: c.y, width: g, height: g,
+    elevation: 0, sort: 10, flags: { [MID]: { seg: sg.id } } }));
+  await canvas.scene.createEmbeddedDocuments("Tile", tiles);
+  ui.notifications.info(`${b.name}: метки частей тела на сцене — растащи их вдоль тела.`);
+};
 
 /* ================================================================ связка с боем */
 
@@ -460,9 +492,18 @@ M.Panel = {
         ${b.summon ? sec("summon", `Призыв · ${esc(b.summon.actor)}`, `
           <div class="mp-grid c3">${[1, 2, 3].map(n => `<button data-do="summon" data-n="${n}"${n === b.summon.count ? ' class="on"' : ""}>${n}</button>`).join("")}</div>
           <p class="mp-hint">Ставит токены вокруг босса (или в центр экрана), актёра берёт из компендиума.</p>`) : ""}
+        ${b.segments ? sec("segs", `Части тела · сломано ${b.segments.filter(x => M.segDmg(id, x.id) >= x.hp).length} из ${b.segments.length}`, b.segments.map(x => {
+          const d = M.segDmg(id, x.id), br = d >= x.hp;
+          return `<div class="mp-seg${br ? " broken" : ""}" title="${esc(x.where)}. Сломана: ${esc(x.broken)}">
+            <span class="mp-name">${x.name} <small>КД ${x.ac}</small></span>
+            <span class="mp-bar"><i style="width:${Math.min(100, d / x.hp * 100)}%"></i><b>${Math.min(d, x.hp)}/${x.hp}</b></span>
+            <input type="number" class="mp-dmg" data-seg="${x.id}" placeholder="урон" min="-99" max="999">
+            <button data-do="seg" data-k="${x.id}" title="Нанести урон (Enter)">−</button></div>`;
+        }).join("") + `<div class="mp-grid" style="margin-top:5px"><button data-do="seg-place">Метки на сцену</button><button data-do="seg-reset">Сбросить части</button></div>
+          <p class="mp-hint">Урон по части идёт и в хиты босса. Сломана — плашка всем и −1 легендарное сопротивление.</p>`) : ""}
         ${sec("phase", "Фазы", b.phases.map(p => `<button class="wide${s.phase === p.n ? " on" : ""}" data-do="phase" data-n="${p.n}" title="${esc(p.text)}">${p.n}. ${esc(p.title)}${p.n > 1 ? ` · ${p.hp} хитов` : ""}</button>`).join(""))}
         ${sec("sfx", "Звуки всем", `
-          <div class="mp-grid">${Object.entries(b.sfx || {}).map(([k, f]) => `<button data-do="sfx" data-n="${f}">${({ strike: "Удар клинка", clash: "Звон клинков", roar: "Визг", nymph: "Писк нимфы" })[k] ?? k}</button>`).join("")}</div>`)}
+          <div class="mp-grid">${Object.entries(b.sfx || {}).map(([k, f]) => `<button data-do="sfx" data-n="${f}">${({ strike: "Удар клинка", clash: "Звон клинков", roar: "Рёв", nymph: "Писк нимфы", bite: "Укус", tail: "Удар хвоста", swallow: "Глоток" })[k] ?? k}</button>`).join("")}</div>`)}
         ${sec("banner", "Своя плашка", `
           <input class="mp-in" data-in="title" placeholder="Заголовок">
           <textarea class="mp-in" data-in="text" rows="2" placeholder="Текст"></textarea>
@@ -489,7 +530,10 @@ M.Panel = {
       };
       document.addEventListener("mousemove", move); document.addEventListener("mouseup", up);
     });
-    el.addEventListener("keydown", (ev) => ev.stopPropagation());
+    el.addEventListener("keydown", (ev) => {
+      ev.stopPropagation();
+      if (ev.key === "Enter" && ev.target.classList?.contains("mp-dmg")) { const v = Number(ev.target.value); if (v) M.segHit(ev.target.dataset.seg, v); }
+    });
     el.addEventListener("change", (ev) => { if (ev.target.classList.contains("mp-boss")) save(s => { s.boss = ev.target.value; s.signal = null; s.phase = 1; }); });
     el.addEventListener("click", (ev) => {
       const btn = ev.target.closest("[data-do]"); if (!btn) return;
@@ -499,6 +543,9 @@ M.Panel = {
         case "full": case "soft": case "none": return M.resolve(k, d);
         case "phase": return M.phase(Number(n));
         case "summon": return M.summon(id, Number(n));
+        case "seg": { const inp = el.querySelector(`.mp-dmg[data-seg="${k}"]`); const v = Number(inp?.value); if (!v) return M.warn("впиши урон"); return M.segHit(k, v, id); }
+        case "seg-place": return M.segPlace(id);
+        case "seg-reset": return M.segReset(id);
         case "sfx": return M.sound(id, n);
         case "fx": return M.fxAll(n);
         case "t-motion": return game.settings.set(MID, "motion", !game.settings.get(MID, "motion")).then(() => this.render());
