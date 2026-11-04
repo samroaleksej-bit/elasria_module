@@ -1,0 +1,402 @@
+{
+ "_id": "OgklZu9HhDFaHYAn",
+ "_key": "!actors!OgklZu9HhDFaHYAn",
+ "folder": null,
+ "name": "Нимфа Серповика",
+ "type": "npc",
+ "img": "modules/monstryatina/assets/sickle/nymph-portrait.webp",
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 14,
+    "proficient": 0
+   },
+   "dex": {
+    "value": 17,
+    "proficient": 1
+   },
+   "con": {
+    "value": 14,
+    "proficient": 0
+   },
+   "int": {
+    "value": 3,
+    "proficient": 0
+   },
+   "wis": {
+    "value": 12,
+    "proficient": 0
+   },
+   "cha": {
+    "value": 5,
+    "proficient": 0
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 15,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 39,
+    "max": 39,
+    "formula": "6d8 + 12"
+   },
+   "movement": {
+    "walk": 40,
+    "climb": 40,
+    "units": "ft"
+   },
+   "senses": {
+    "darkvision": 60,
+    "units": "ft"
+   }
+  },
+  "details": {
+   "cr": 3,
+   "type": {
+    "value": "monstrosity",
+    "subtype": "молодой ящер-богомол"
+   },
+   "alignment": "без мировоззрения",
+   "biography": {
+    "value": "<p>Призывается Боевым действием Серповика «Клич гнезда» (3 нимфы).</p>"
+   }
+  },
+  "traits": {
+   "size": "med",
+   "dr": {
+    "value": []
+   },
+   "di": {
+    "value": []
+   },
+   "ci": {
+    "value": [
+     "frightened"
+    ]
+   },
+   "languages": {
+    "value": []
+   }
+  },
+  "skills": {
+   "ste": {
+    "value": 1,
+    "ability": "dex"
+   },
+   "ath": {
+    "value": 1,
+    "ability": "str"
+   }
+  },
+  "resources": {}
+ },
+ "items": [
+  {
+   "_id": "hmBmLJUWE1QhMT3J",
+   "name": "Лазун",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Лазает по коре и лианам без проверок.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!OgklZu9HhDFaHYAn.hmBmLJUWE1QhMT3J"
+  },
+  {
+   "_id": "7s9cgt13SHoHWlYQ",
+   "name": "Утащить",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Если нимфа держит цель в захвате, она лезет вверх вместе с ней на половину скорости. Если цель держат две нимфы, они тащат её на полной скорости.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!OgklZu9HhDFaHYAn.7s9cgt13SHoHWlYQ"
+  },
+  {
+   "_id": "K6tbTFMQQcR80QJn",
+   "name": "Зов отца",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Если Серповик в 60 футах, нимфа совершает атаки с преимуществом по цели, которую он атаковал в этом раунде.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!OgklZu9HhDFaHYAn.K6tbTFMQQcR80QJn"
+  },
+  {
+   "_id": "NJBb1O8tU6JMmpBA",
+   "name": "Мультиатака",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Нимфа совершает две атаки Клинком или атаку Клинком и Захват.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "cJW0fsMAtrewANFH": {
+      "_id": "cJW0fsMAtrewANFH",
+      "type": "utility",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!OgklZu9HhDFaHYAn.NJBb1O8tU6JMmpBA"
+  },
+  {
+   "_id": "PnqiVtMUaZ4V7elc",
+   "name": "Клинок",
+   "type": "weapon",
+   "img": "icons/creatures/claws/claw-scaled-red.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +5 к попаданию, досягаемость 5 фт. Попадание: 8 (1к10 + 3) рубящего урона.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [
+     "fin"
+    ],
+    "range": {
+     "reach": 5,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 1,
+      "denomination": 10,
+      "bonus": "",
+      "types": [
+       "slashing"
+      ]
+     }
+    },
+    "activities": {
+     "AM36CZ8OzMdrb0go": {
+      "_id": "AM36CZ8OzMdrb0go",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "dex",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!OgklZu9HhDFaHYAn.PnqiVtMUaZ4V7elc"
+  },
+  {
+   "_id": "yvyhjdDxfNzCg0qs",
+   "name": "Захват",
+   "type": "weapon",
+   "img": "icons/magic/control/debuff-chains-ropes-net-white.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +4 к попаданию. Попадание: Средняя или меньшая цель схвачена (СЛ высвобождения 15).</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 5,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": null,
+      "denomination": null,
+      "types": []
+     }
+    },
+    "activities": {
+     "MI6JtLJNJkmhuN2N": {
+      "_id": "MI6JtLJNJkmhuN2N",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!OgklZu9HhDFaHYAn.yvyhjdDxfNzCg0qs"
+  },
+  {
+   "_id": "8DrGZRXahMUfrzVP",
+   "name": "Отскок",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Когда по нимфе попадают рукопашной атакой, она прыгает на 15 футов, не провоцируя атак.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "Nj59MSj3jvRAC9BI": {
+      "_id": "Nj59MSj3jvRAC9BI",
+      "type": "utility",
+      "activation": {
+       "type": "reaction",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!OgklZu9HhDFaHYAn.8DrGZRXahMUfrzVP"
+  }
+ ],
+ "prototypeToken": {
+  "name": "Нимфа Серповика",
+  "displayName": 20,
+  "displayBars": 20,
+  "actorLink": false,
+  "disposition": -1,
+  "width": 1,
+  "height": 1,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "texture": {
+   "src": "modules/monstryatina/assets/sickle/nymph-token.webp",
+   "scaleX": 1.3,
+   "scaleY": 1.3,
+   "fit": "contain"
+  },
+  "sight": {
+   "enabled": true,
+   "range": 60,
+   "visionMode": "darkvision"
+  },
+  "ring": {
+   "enabled": false
+  }
+ },
+ "flags": {
+  "monstryatina": {
+   "id": "sickle-nymph"
+  }
+ }
+}

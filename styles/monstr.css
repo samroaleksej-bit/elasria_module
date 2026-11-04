@@ -1,0 +1,332 @@
+/* Монстрятина — стили (движок «Кармины») */
+#monstr-stage{
+    position:fixed; inset:0; z-index:9998; pointer-events:none; overflow:hidden;
+    font-family:"Yeseva One","Signika",Georgia,serif;
+    opacity:0; animation:mxIn .7s ease-out forwards;
+  }
+  #monstr-stage.mx-out{animation:mxOut .8s ease-in forwards}
+  @keyframes mxIn{to{opacity:1}}
+  @keyframes mxOut{to{opacity:0}}
+
+  /* фон на весь экран, с медленным наездом */
+  #monstr-stage .mx-bg{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; object-position:center 42%;
+    transform:scale(1.02); animation:mxKen 11s linear forwards;
+  }
+  @keyframes mxKen{to{transform:scale(1.09)}}
+  #monstr-stage .mx-bg.mx-missing{display:none}
+
+  /* затемнение: сверху лёгкое, книзу плотное — под текст */
+  #monstr-stage .mx-scrim{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(180deg,
+        rgba(8,10,7,.62) 0%, rgba(8,10,7,.18) 26%,
+        rgba(8,10,7,.34) 48%, rgba(8,10,7,.88) 76%, rgba(8,10,7,.98) 100%),
+      radial-gradient(ellipse at 50% 40%, transparent 30%, var(--mx-glow) 135%);
+  }
+  #monstr-stage.mx-noart .mx-scrim{background:rgba(8,10,7,.93)}
+
+  /* подпись внизу */
+  #monstr-stage .mx-caption{
+    position:absolute; left:0; right:0; bottom:8vh;
+    padding:0 7vw; max-width:1180px; margin:0 auto;
+  }
+  #monstr-stage .mx-bar{
+    width:64px; height:3px; background:var(--mx-accent); margin:0 0 18px;
+    transform-origin:left; transform:scaleX(0);
+    animation:mxBar .7s .15s cubic-bezier(.2,.9,.25,1) forwards;
+  }
+  @keyframes mxBar{to{transform:scaleX(1)}}
+  #monstr-stage .mx-kicker{
+    font-family:"Signika",system-ui,sans-serif; font-weight:600;
+    font-size:13px; letter-spacing:.4em; text-transform:uppercase;
+    color:var(--mx-accent); margin:0 0 12px;
+    opacity:0; animation:mxUp .6s .2s ease-out forwards;
+  }
+  #monstr-stage .mx-title{
+    font-size:clamp(42px,6.4vw,92px); line-height:.98; color:#F4F1E4;
+    margin:0 0 18px; letter-spacing:.005em;
+    text-shadow:0 4px 40px rgba(0,0,0,.95), 0 1px 3px rgba(0,0,0,.9);
+    opacity:0; animation:mxUp .7s .3s ease-out forwards;
+  }
+  #monstr-stage .mx-text{
+    font-family:"Signika",system-ui,sans-serif; font-size:clamp(16px,1.5vw,21px);
+    line-height:1.5; color:#D6D3C4; margin:0; max-width:66ch;
+    text-shadow:0 2px 14px rgba(0,0,0,.9);
+    opacity:0; animation:mxUp .7s .42s ease-out forwards;
+  }
+  #monstr-stage .mx-meta{
+    font-family:"Signika",system-ui,sans-serif; font-size:clamp(14px,1.2vw,17px);
+    color:#A9A695; margin:18px 0 0; padding:14px 0 0; max-width:66ch;
+    border-top:1px solid rgba(255,255,255,.16);
+    opacity:0; animation:mxUp .7s .54s ease-out forwards;
+  }
+  #monstr-stage .mx-meta b{color:var(--mx-accent); font-weight:600}
+  @keyframes mxUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+  /* полоса прогресса — видно, сколько плашка ещё провисит */
+  #monstr-stage .mx-timer{
+    position:absolute; left:0; bottom:0; height:2px; background:var(--mx-accent);
+    width:100%; transform-origin:left; transform:scaleX(1); opacity:.5;
+  }
+
+  /* — часы Кармины — */
+  #monstr-clock{
+    position:fixed; left:14px; bottom:14px; z-index:9997; pointer-events:none;
+    background:rgba(12,16,10,.9); border:1px solid #8E6510; padding:9px 12px 10px;
+    font-family:"Signika",system-ui,sans-serif; box-shadow:0 8px 30px rgba(0,0,0,.6);
+  }
+  #monstr-clock .mc-lbl{
+    font-size:10px; letter-spacing:.22em; text-transform:uppercase;
+    color:#C9963A; margin:0 0 6px;
+  }
+  #monstr-clock .mc-ticks{display:flex; gap:5px}
+  #monstr-clock .mc-ticks i{
+    display:block; width:26px; height:7px; background:rgba(255,255,255,.12);
+    border:1px solid rgba(201,150,58,.45); transition:background .4s ease;
+  }
+  #monstr-clock .mc-ticks i.on{background:#C42743; border-color:#C42743}
+  #monstr-clock .mc-txt{font-size:12.5px; color:#BDBBAC; margin:7px 0 0; max-width:230px}
+
+  /* — экранные эффекты — */
+  #monstr-fx{position:fixed; inset:0; z-index:9996; pointer-events:none; overflow:hidden}
+  #monstr-fx .mf-flash{position:absolute; inset:0; opacity:0}
+  @keyframes mfFlash{0%{opacity:0}12%{opacity:1}100%{opacity:0}}
+
+  #monstr-fx .mf-ring{
+    position:absolute; left:50%; top:50%; border-radius:50%;
+    border:2px solid var(--mf-c); transform:translate(-50%,-50%) scale(0); opacity:0;
+  }
+  @keyframes mfRingOut{0%{transform:translate(-50%,-50%) scale(.05);opacity:.9}100%{transform:translate(-50%,-50%) scale(2.6);opacity:0}}
+  @keyframes mfRingIn {0%{transform:translate(-50%,-50%) scale(2.6);opacity:0}18%{opacity:.9}100%{transform:translate(-50%,-50%) scale(.05);opacity:0}}
+
+  #monstr-fx .mf-tide{
+    position:absolute; left:0; right:0; bottom:0; height:0;
+    background:linear-gradient(0deg, var(--mf-c) 0%, transparent 100%);
+  }
+  #monstr-fx canvas.mf-petals{position:absolute; inset:0; width:100%; height:100%}
+
+  /* — пульт мастера — */
+  #monstr-panel{
+    position:fixed; z-index:10000; width:372px;
+    background:rgba(12,16,10,.97); border:1px solid #C42743;
+    box-shadow:0 18px 60px rgba(0,0,0,.75);
+    font-family:"Signika",system-ui,sans-serif; color:#DCDACB; user-select:none;
+  }
+  #monstr-panel .mp-head{
+    display:flex; align-items:center; gap:8px; cursor:move;
+    padding:9px 10px 9px 13px; background:#1A2115; border-bottom:1px solid #3A2026;
+  }
+  #monstr-panel .mp-head b{font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:#C9963A; flex:1}
+  #monstr-panel .mp-head i{cursor:pointer; font-style:normal; color:#8A8F7E; padding:0 5px; font-size:15px}
+  #monstr-panel .mp-head i:hover{color:#E4677C}
+  #monstr-panel .mp-body{padding:10px 12px 13px; max-height:72vh; overflow-y:auto}
+  #monstr-panel .mp-sect{
+    font-size:9.5px; letter-spacing:.19em; text-transform:uppercase;
+    color:#6E7563; margin:13px 0 6px; padding-bottom:3px; border-bottom:1px solid #262E21;
+  }
+  #monstr-panel .mp-sect:first-child{margin-top:0}
+  #monstr-panel .mp-row{display:flex; align-items:center; gap:4px; margin:0 0 5px}
+  #monstr-panel .mp-name{flex:1; font-size:12.5px; color:#D8D6C6; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  #monstr-panel button{
+    font-family:inherit; font-size:11px; line-height:1; cursor:pointer;
+    background:#212A1C; color:#C6C4B4; border:1px solid #35402E; padding:6px 8px;
+    transition:background .12s, color .12s;
+  }
+  #monstr-panel button:hover{background:#2E3A27; color:#fff}
+  #monstr-panel button:focus-visible{outline:2px solid #C9963A; outline-offset:1px}
+  #monstr-panel button.b-sig{border-color:#6E5420; color:#C9963A}
+  #monstr-panel button.b-sig:hover{background:#3A2E13}
+  #monstr-panel button.b-res{border-color:#6E2030; color:#E4677C}
+  #monstr-panel button.b-res:hover{background:#3A1620}
+  #monstr-panel button.b-soft{border-color:#6A4A16; color:#D8912F}
+  #monstr-panel button.b-none{border-color:#2F5434; color:#7FBA86}
+  #monstr-panel button.b-none:hover{background:#1B2E1D}
+  #monstr-panel button.wide{width:100%; padding:8px; margin:0 0 5px; font-size:12px}
+  #monstr-panel button.on{background:#3A1620; border-color:#C42743; color:#F2B4BE}
+  #monstr-panel .mp-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:4px}
+  #monstr-panel .mp-grid.c5{grid-template-columns:repeat(5,1fr)}
+  #monstr-panel .mp-hint{font-size:10.5px; color:#6E7563; margin:7px 0 0; line-height:1.45}
+  #monstr-panel .mp-active{
+    background:#241A0C; border-left:3px solid #C9963A; padding:8px 10px;
+    font-size:11.5px; line-height:1.45; color:#D6CDB4; margin:0 0 10px;
+  }
+  #monstr-panel .mp-active b{color:#C9963A}
+  #monstr-panel .mp-pick{
+    width:100%; margin:0 0 5px; padding:6px 8px; font-family:inherit; font-size:12px;
+    background:#212A1C; color:#C6C4B4; border:1px solid #35402E;
+  }
+  #monstr-panel .mp-res{
+    background:#12180F; border:1px solid #2A3324; padding:8px 10px; margin:0 0 10px;
+  }
+  #monstr-panel .mp-res-h{
+    font-size:9.5px; letter-spacing:.18em; text-transform:uppercase;
+    color:#6E7563; margin:0 0 6px; padding-bottom:5px; border-bottom:1px solid #232B1F;
+  }
+  #monstr-panel .mp-res-row{
+    display:flex; justify-content:space-between; gap:8px; align-items:baseline;
+    font-size:11.5px; padding:4px 0; border-left:3px solid transparent; padding-left:7px;
+  }
+  #monstr-panel .mp-res-row span{color:#7E8472; font-size:10.5px; white-space:nowrap}
+  #monstr-panel .mp-res-row.ok{border-left-color:#6FA874}
+  #monstr-panel .mp-res-row.ok b:last-child{color:#7FBA86}
+  #monstr-panel .mp-res-row.no{border-left-color:#C42743}
+  #monstr-panel .mp-res-row.no b:last-child{color:#E4677C}
+
+  /* — экран выбора — */
+  #monstr-choice{
+    position:fixed; inset:0; z-index:9999; overflow:hidden;
+    background:rgba(6,8,5,.88); backdrop-filter:blur(3px);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-family:"Signika",system-ui,sans-serif;
+    opacity:0; animation:mxIn .5s ease-out forwards;
+  }
+  #monstr-choice.mx-out{animation:mxOut .5s ease-in forwards}
+  #monstr-choice .mc-q{
+    font-family:"Yeseva One",Georgia,serif; color:#F4F1E4;
+    font-size:clamp(28px,3.6vw,48px); line-height:1.1; text-align:center;
+    margin:0 0 10px; padding:0 6vw; max-width:22ch; text-wrap:balance;
+    text-shadow:0 3px 30px rgba(0,0,0,.9);
+  }
+  #monstr-choice .mc-sub{
+    color:#9E9B8B; font-size:15px; margin:0 0 40px; text-align:center;
+    padding:0 6vw; max-width:70ch;
+  }
+  #monstr-choice .mc-opts{
+    display:flex; gap:18px; flex-wrap:wrap; justify-content:center;
+    padding:0 5vw; max-width:1280px;
+  }
+  #monstr-choice .mc-opt{
+    width:300px; min-height:210px; cursor:pointer; text-align:left;
+    background:rgba(16,20,13,.96); border:1px solid #313A29;
+    border-top:3px solid var(--mc-c); padding:20px 22px 22px;
+    display:flex; flex-direction:column; gap:10px;
+    transition:transform .16s ease, border-color .16s ease, background .16s ease;
+    opacity:0; animation:mxUp .55s ease-out forwards;
+  }
+  #monstr-choice .mc-opt:nth-child(1){animation-delay:.12s}
+  #monstr-choice .mc-opt:nth-child(2){animation-delay:.22s}
+  #monstr-choice .mc-opt:nth-child(3){animation-delay:.32s}
+  #monstr-choice .mc-opt:hover{transform:translateY(-6px); background:rgba(26,32,21,.98); border-color:var(--mc-c)}
+  #monstr-choice .mc-opt:focus-visible{outline:2px solid var(--mc-c); outline-offset:3px}
+  #monstr-choice .mc-tier{
+    font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:var(--mc-c);
+  }
+  #monstr-choice .mc-label{
+    font-family:"Yeseva One",Georgia,serif; font-size:23px; color:#EDEADC; line-height:1.15;
+  }
+  #monstr-choice .mc-text{font-size:13.5px; line-height:1.5; color:#A8A695; margin:0}
+  #monstr-choice .mc-cost{
+    font-size:12px; color:var(--mc-c); margin-top:auto; padding-top:10px;
+    border-top:1px solid rgba(255,255,255,.1);
+  }
+  #monstr-choice.mc-done .mc-opt{pointer-events:none; opacity:.28; transform:none}
+  #monstr-choice.mc-done .mc-opt.mc-picked{opacity:1; border-color:var(--mc-c); background:rgba(32,40,26,.99)}
+  #monstr-choice .mc-foot{
+    margin-top:34px; font-size:13px; color:#6E7563; text-align:center; min-height:20px;
+  }
+
+  /* — трекер активного Сигнала, виден всем — */
+  #monstr-signal{
+    position:fixed; right:14px; top:96px; z-index:9995; width:292px; pointer-events:none;
+    background:rgba(12,16,10,.94); border:1px solid #C9963A; border-left-width:4px;
+    font-family:"Signika",system-ui,sans-serif; box-shadow:0 10px 36px rgba(0,0,0,.6);
+    padding:11px 14px 13px; animation:mxUp .45s ease-out both;
+  }
+  #monstr-signal .ms-k{font-size:9.5px; letter-spacing:.22em; text-transform:uppercase; color:#C9963A; margin:0 0 4px}
+  #monstr-signal .ms-t{font-family:"Yeseva One",Georgia,serif; font-size:19px; color:#EDEADC; margin:0 0 8px}
+  #monstr-signal .ms-l{font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; color:#7FBA86; margin:0 0 3px}
+  #monstr-signal .ms-c{font-size:12.5px; line-height:1.45; color:#BDBBAC; margin:0}
+
+  @media (prefers-reduced-motion:reduce){
+    #monstr-stage *{animation-duration:.01s !important}
+    #monstr-fx{display:none}
+    #monstr-signal{animation:none}
+  }
+
+/* ── модуль 3.0: пульт ─────────────────────────────────────────────────── */
+#monstr-panel{max-height:86vh; display:flex; flex-direction:column}
+#monstr-panel .mp-body{max-height:none; flex:1; overflow-y:auto}
+#monstr-panel details{margin:0 0 2px}
+#monstr-panel details > summary{list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center}
+#monstr-panel details > summary::-webkit-details-marker{display:none}
+#monstr-panel details > summary::after{content:"▸"; color:#6E7563; font-size:11px; transition:transform .15s}
+#monstr-panel details[open] > summary::after{transform:rotate(90deg)}
+#monstr-panel details > summary:hover{color:#C9963A}
+#monstr-panel .mp-grid.c3{grid-template-columns:repeat(3,1fr)}
+#monstr-panel .mp-row.off .mp-name{color:#6E7563}
+#monstr-panel .mp-row.live{background:#241A0C; outline:1px solid #6E5420}
+#monstr-panel .mp-clue{margin-top:6px; padding-top:6px; border-top:1px solid #3A2E13; color:#9FC7A3; font-size:11px}
+#monstr-panel .mp-clue b{color:#7FBA86}
+#monstr-panel .mp-note{position:relative; padding:8px 26px 8px 10px; margin:0 0 10px; font-size:12px; line-height:1.45;
+  border-left:3px solid #C9963A; background:#241A0C; color:#E6DCC0; animation:mpNote 1.4s ease-out}
+#monstr-panel .mp-note.res{border-left-color:#C42743; background:#2A1219}
+#monstr-panel .mp-note.phase{border-left-color:#E4677C; background:#2C1620}
+#monstr-panel .mp-note.info{border-left-color:#5E9463; background:#14211A}
+#monstr-panel .mp-note i{position:absolute; right:7px; top:6px; cursor:pointer; font-style:normal; color:#8A8F7E}
+@keyframes mpNote{0%,30%,60%{box-shadow:0 0 0 0 rgba(201,150,58,.0)}15%,45%{box-shadow:0 0 0 3px rgba(201,150,58,.55)}}
+#monstr-panel .mp-buds{display:grid; grid-template-columns:repeat(6,1fr); gap:4px}
+#monstr-panel .kb{position:relative; padding:5px 2px 4px; display:flex; flex-direction:column; align-items:center; gap:1px; font-size:13px}
+#monstr-panel .kb small{font-size:8.5px; color:#8A8F7E; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+#monstr-panel .kb.alive::after{content:""; position:absolute; top:3px; right:3px; width:5px; height:5px; border-radius:50%; background:#7FBA86}
+#monstr-panel .kb.burst{background:#3A1620; border-color:#6E2030; color:#E4677C; text-decoration:line-through}
+#monstr-panel .kb.saved{background:#1B2E1D; border-color:#2F5434; color:#7FBA86}
+#monstr-panel .mp-cl{display:block; width:100%; text-align:left; margin:0 0 4px; padding:6px 8px; line-height:1.35}
+#monstr-panel .mp-cl b{display:block; font-size:12px; color:#D8D6C6}
+#monstr-panel .mp-cl span{font-size:10.5px; color:#7E8472}
+#monstr-panel .mp-cl.on{background:#1B2E1D; border-color:#2F5434}
+#monstr-panel .mp-cl.on b{color:#7FBA86}
+#monstr-panel .mp-in{width:100%; margin:0 0 5px; padding:6px 8px; font-family:inherit; font-size:12px; box-sizing:border-box;
+  background:#212A1C; color:#DCDACB; border:1px solid #35402E; resize:vertical}
+#monstr-panel .mp-res-h{font-size:9.5px}
+
+/* кнопка запуска пульта у мастера */
+#monstr-launch{position:fixed; left:12px; bottom:118px; z-index:9990; width:38px; height:38px; padding:0; border-radius:50%;
+  background:#1A2115; border:1px solid #C42743; color:#E4677C; font-size:20px; line-height:1; cursor:pointer;
+  box-shadow:0 6px 20px rgba(0,0,0,.6)}
+#monstr-launch:hover{background:#2A1219; color:#fff}
+
+/* трекер улик у игроков */
+#monstr-clues{position:fixed; left:14px; bottom:108px; z-index:9996; pointer-events:none; width:270px;
+  background:rgba(12,16,10,.92); border:1px solid #2F5434; padding:9px 12px 8px; font-family:"Signika",system-ui,sans-serif;
+  box-shadow:0 8px 30px rgba(0,0,0,.6); animation:mxUp .45s ease-out both}
+#monstr-clues .mq-lbl{font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:#7FBA86; margin:0 0 6px}
+#monstr-clues .mq-row{font-size:11.5px; line-height:1.35; color:#BDBBAC; margin:0 0 5px}
+#monstr-clues .mq-row b{display:block; color:#EDEADC; font-size:12.5px}
+#monstr-signal .ms-x{margin:8px 0 0; padding-top:7px; border-top:1px solid rgba(255,255,255,.12); font-size:12px; color:#7FBA86}
+#monstr-clock.mc-pulse{animation:mcPulse 1.6s ease-out}
+@keyframes mcPulse{0%{box-shadow:0 0 0 0 rgba(196,39,67,.8)}100%{box-shadow:0 0 0 22px rgba(196,39,67,0)}}
+#monstr-clock .mc-ticks i.new{animation:mcTick 1s ease-out}
+@keyframes mcTick{0%{transform:scaleY(2.4);background:#fff}100%{transform:none}}
+#monstr-choice .mc-foot a{color:#C9963A; cursor:pointer; margin-left:8px; text-decoration:underline}
+/* GM sees the choice as a translucent preview and keeps the canvas usable */
+#monstr-choice.gm{pointer-events:none; background:rgba(6,8,5,.45)}
+#monstr-choice.gm .mc-opt{pointer-events:none}
+#monstr-choice.gm .mc-foot,#monstr-choice.gm .mc-foot a{pointer-events:auto}
+#monstr-panel .mp-res-cost{display:block; width:100%; margin-top:2px; font-size:11px; line-height:1.35; color:#8E8B78}
+#monstr-panel .mp-res-row{flex-wrap:wrap}
+
+/* ── Монстрятина ─────────────────────────────────────────────── */
+#monstr-fx .mf-flash{position:absolute; inset:0; opacity:0}
+@keyframes mfFlash{0%{opacity:0}12%{opacity:var(--mf-o,.5)}100%{opacity:0}}
+#monstr-fx .mf-shadow{position:absolute; inset:0; opacity:0;
+  background:radial-gradient(ellipse 60% 45% at 50% 62%, transparent 0%, rgba(0,0,0,.25) 55%, rgba(0,0,0,.9) 100%),
+             linear-gradient(180deg, rgba(0,0,0,.85) 0%, transparent 45%)}
+@keyframes mfShadow{0%{opacity:0}35%{opacity:1}85%{opacity:1}100%{opacity:0}}
+#monstr-fx .mf-fog{position:absolute; inset:-10%; opacity:0; filter:blur(30px);
+  background:radial-gradient(ellipse at 30% 60%, var(--mf-c) 0%, transparent 55%),
+             radial-gradient(ellipse at 70% 45%, var(--mf-c) 0%, transparent 60%),
+             radial-gradient(ellipse at 50% 80%, var(--mf-c) 0%, transparent 65%)}
+@keyframes mfFog{0%{opacity:0;transform:scale(1.15)}30%{opacity:1}75%{opacity:.85}100%{opacity:0;transform:scale(1)}}
+#monstr-fx canvas.mf-leaves{position:absolute; inset:0; width:100%; height:100%}
+#monstr-panel{border-color:var(--mp-accent,#C42743)}
+#monstr-panel .mp-head select.mp-boss{width:auto; max-width:150px; padding:3px 4px; font-size:11px; background:#212A1C; color:#DCDACB; border:1px solid #35402E}
+#monstr-panel .mp-tag{font-style:normal; font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:#B892E8; border:1px solid #5B3E85; padding:1px 4px; margin-left:4px}
+#monstr-panel .mp-note.sig{border-left-color:#C9963A}
+#monstr-signal .ms-x b{color:#E4677C}
+#monstr-launch{position:fixed; left:12px; bottom:162px; z-index:9990; width:38px; height:38px; padding:0; border-radius:50%;
+  background:#1A2115; border:1px solid #E4677C; color:#E4677C; font-size:19px; line-height:1; cursor:pointer;
+  box-shadow:0 6px 20px rgba(0,0,0,.6)}
+#monstr-launch:hover{background:#2A1219; color:#fff}

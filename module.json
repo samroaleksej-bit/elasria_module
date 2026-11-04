@@ -1,0 +1,21 @@
+{
+  "id": "monstryatina",
+  "title": "Монстрятина · боссы джунглей",
+  "description": "<p>Боссы «Скрытых земель людоящеров» с Боевыми действиями как у Кармины: пульт мастера, Сигнал и Разрешение с полноэкранными артами, звуком и тряской у всех игроков, фазы, призыв миньонов на сцену. Компендиум готовых актёров dnd5e. Первый босс — Серповик и его нимфы. Shift+M или кнопка ☠ — пульт.</p>",
+  "version": "0.1.0",
+  "authors": [{ "name": "Verlierboy", "url": "https://t.me/circleofdms" }],
+  "compatibility": { "minimum": "13", "verified": "14" },
+  "relationships": {
+    "systems": [{ "id": "dnd5e", "type": "system", "compatibility": { "minimum": "4.0.0" } }]
+  },
+  "socket": true,
+  "esmodules": ["scripts/monstr.js"],
+  "styles": ["styles/monstr.css"],
+  "packs": [
+    { "name": "actors", "label": "Монстрятина · боссы", "path": "packs/actors", "type": "Actor", "system": "dnd5e", "ownership": { "PLAYER": "NONE", "ASSISTANT": "OWNER" }, "flags": {} }
+  ],
+  "packFolders": [{ "name": "Монстрятина", "color": "#5a1220", "packs": ["actors"] }],
+  "url": "https://github.com/samroaleksej-bit/elasria_module/tree/monstryatina",
+  "manifest": "https://raw.githubusercontent.com/samroaleksej-bit/elasria_module/monstryatina/module.json",
+  "download": "https://github.com/samroaleksej-bit/elasria_module/archive/refs/heads/monstryatina.zip"
+}

@@ -1,0 +1,946 @@
+{
+ "_id": "1YmICxHUGxEpRVsp",
+ "_key": "!actors!1YmICxHUGxEpRVsp",
+ "folder": null,
+ "name": "Серповик",
+ "type": "npc",
+ "img": "modules/monstryatina/assets/sickle/portrait.webp",
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 20,
+    "proficient": 0
+   },
+   "dex": {
+    "value": 20,
+    "proficient": 1
+   },
+   "con": {
+    "value": 18,
+    "proficient": 1
+   },
+   "int": {
+    "value": 6,
+    "proficient": 0
+   },
+   "wis": {
+    "value": 16,
+    "proficient": 1
+   },
+   "cha": {
+    "value": 8,
+    "proficient": 0
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 17,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 210,
+    "max": 210,
+    "formula": "20d12 + 80"
+   },
+   "movement": {
+    "walk": 40,
+    "climb": 40,
+    "units": "ft"
+   },
+   "senses": {
+    "darkvision": 60,
+    "units": "ft"
+   }
+  },
+  "details": {
+   "cr": 10,
+   "type": {
+    "value": "monstrosity",
+    "subtype": "ящер-богомол"
+   },
+   "alignment": "без мировоззрения",
+   "biography": {
+    "value": "<blockquote>Мы искали его на земле три дня. А он всё это время смотрел на нас сверху. — следопыт Рогатого Клыка</blockquote><p><b>Скрытник · Штурмовик</b> · гекс Д-19</p>\n<h3>Фавориты</h3><p>Следопыты и лучники, Огонь, Полёт и левитация, Подрубание веток (Атлетика), Заклинания паутины и опутывания</p><h3>Фолы</h3><p>Чистые бойцы ближнего боя без дальнобойного оружия, Маленькие и лёгкие герои на ветках, Те, кто стоит под кронами</p>\n<h3>Знания</h3><p><b>СЛ 15.</b> Охотится только сверху. Гнездо держит в кронах на высоте 60 футов. Нападает из листвы, прыгая с ветки на ветку. <i>(улика «туша на высоте»)</i></p><p><b>СЛ 19.</b> Розовый сок на его клинках горит. Огонь гасит «Розовую кромку». <i>(улика «сброшенный панцирь»)</i></p><p><b>СЛ 24.</b> Перед «Вихрем» он стрекочет. Тот, кто знает сигнал, успевает пригнуться. <i>(улика «рассказ следопыта»)</i></p>\n<h3>Тактика</h3><p><b>Лёгкая:</b> Нападает с ветки, но после первого ранения спускается на средний ярус. Пикирование только на того, кто стоит отдельно.</p><p><b>Средняя:</b> Бей и прячься: атака сверху, бонусом в листву. Пикирование на заклинателей. Сигнал Вихря, когда рядом трое и больше.</p><p><b>Сложная:</b> ☠ Не спускается вовсе. В первом раунде подрубает ветку под партией, хватает лёгкого героя и уносит в крону. Добивает тех, кто упал в овраг.</p>\n<h3>Добыча</h3><p><b>Клинок Серповика</b> (Оружие (длинный меч или глефа), редкое, требует настройки). +1. Если атакуете цель ниже себя, критическое попадание на 19–20.</p><p><b>Хитиновая мантия</b> (Доспех (средний), необычный). Лазание без проверок, преимущество на Атлетику при прыжках.</p>"
+   }
+  },
+  "traits": {
+   "size": "huge",
+   "dr": {
+    "value": [
+     "poison"
+    ]
+   },
+   "di": {
+    "value": []
+   },
+   "ci": {
+    "value": [
+     "frightened",
+     "poisoned"
+    ]
+   },
+   "languages": {
+    "value": []
+   }
+  },
+  "skills": {
+   "ste": {
+    "value": 2,
+    "ability": "dex"
+   },
+   "prc": {
+    "value": 1,
+    "ability": "wis"
+   },
+   "ath": {
+    "value": 1,
+    "ability": "str"
+   }
+  },
+  "resources": {
+   "legact": {
+    "value": 3,
+    "max": 3
+   },
+   "legres": {
+    "value": 3,
+    "max": 3
+   }
+  }
+ },
+ "items": [
+  {
+   "_id": "a5rnTHuUUHQNYpxR",
+   "name": "Охотник крон",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Если Серповик атакует цель, которая находится хотя бы на 10 футов ниже него, он совершает бросок с преимуществом и наносит дополнительно 9 (2к8) рубящего урона.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.a5rnTHuUUHQNYpxR"
+  },
+  {
+   "_id": "RdQD5YhF5QNJ44xu",
+   "name": "Тень в листве",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Серповик может бонусным действием совершить действие «Засада» в тусклом свете или в листве кроны.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "ZujsAs6IT2dqIFAl": {
+      "_id": "ZujsAs6IT2dqIFAl",
+      "type": "utility",
+      "activation": {
+       "type": "bonus",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.RdQD5YhF5QNJ44xu"
+  },
+  {
+   "_id": "4dwvP5FkzrwAuGMo",
+   "name": "Прыгун",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Серповик прыгает на 40 футов без разбега. Во время прыжка он не провоцирует атаки.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.4dwvP5FkzrwAuGMo"
+  },
+  {
+   "_id": "4C1NNGFQ6yRpKvuy",
+   "name": "Розовая кромка",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Клинки покрыты горючим соком и наносят дополнительно 7 (2к6) урона ядом. Если Серповик получает урон огнём, кромка гаснет до конца его следующего хода.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.4C1NNGFQ6yRpKvuy"
+  },
+  {
+   "_id": "X2gYezje9nNiCKi5",
+   "name": "Панцирь охотника (3/день)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Если Серповик проваливает спасбросок, он может преуспеть. Каждый раз, когда он падает вместе с подрубленной веткой, число использований уменьшается на 1.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "3",
+     "spent": 0,
+     "recovery": [
+      {
+       "period": "day",
+       "type": "recoverAll"
+      }
+     ]
+    },
+    "activities": {
+     "2324VrapeaMoTEQo": {
+      "_id": "2324VrapeaMoTEQo",
+      "type": "utility",
+      "activation": {
+       "type": "special",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": [
+        {
+         "type": "itemUses",
+         "value": "1"
+        }
+       ]
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.X2gYezje9nNiCKi5"
+  },
+  {
+   "_id": "2ox3hEa4N5b3l8JQ",
+   "name": "Мультиатака",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Серповик совершает две атаки Клинком. Одну из них он может заменить Захватом.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "qnmIdVRSEcg4iQ3c": {
+      "_id": "qnmIdVRSEcg4iQ3c",
+      "type": "utility",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.2ox3hEa4N5b3l8JQ"
+  },
+  {
+   "_id": "TuSAmt99N24mOiEI",
+   "name": "Клинок",
+   "type": "weapon",
+   "img": "icons/creatures/claws/claw-scaled-red.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +9 к попаданию, досягаемость 10 фт. Попадание: 16 (2к10 + 5) рубящего урона плюс урон «Розовой кромки».</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 10,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 2,
+      "denomination": 10,
+      "bonus": "",
+      "types": [
+       "slashing"
+      ]
+     }
+    },
+    "activities": {
+     "2197VApT2yoz2IvM": {
+      "_id": "2197VApT2yoz2IvM",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": [
+        {
+         "number": 2,
+         "denomination": 6,
+         "bonus": "",
+         "types": [
+          "poison"
+         ]
+        }
+       ]
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.TuSAmt99N24mOiEI"
+  },
+  {
+   "_id": "mSsoOAeVZ44Q7bVL",
+   "name": "Захват",
+   "type": "weapon",
+   "img": "icons/magic/control/debuff-chains-ropes-net-white.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +9 к попаданию, досягаемость 10 фт. Попадание: цель схвачена (СЛ высвобождения 18). Пока цель схвачена, Серповик может взбираться с ней в крону. СЛ высвобождения 18.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 10,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": null,
+      "denomination": null,
+      "types": []
+     }
+    },
+    "activities": {
+     "V6DlBkPGIFUwUbsH": {
+      "_id": "V6DlBkPGIFUwUbsH",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.mSsoOAeVZ44Q7bVL"
+  },
+  {
+   "_id": "S3ciegfaL6limPpC",
+   "name": "Прыжок в крону",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Серповик прыгает до 40 футов вверх или вниз между ярусами.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "9APWyzdoY8j5FhnL": {
+      "_id": "9APWyzdoY8j5FhnL",
+      "type": "utility",
+      "activation": {
+       "type": "bonus",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.S3ciegfaL6limPpC"
+  },
+  {
+   "_id": "keqOID9eztaazfo5",
+   "name": "Сброс высоты (1/раунд)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Когда Серповик падает, он приземляется на ноги и не получает урона от первых 30 футов падения. Не работает, если упал вместе с подрубленной веткой.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "WVB17XPJvzEEJSPN": {
+      "_id": "WVB17XPJvzEEJSPN",
+      "type": "utility",
+      "activation": {
+       "type": "reaction",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.keqOID9eztaazfo5"
+  },
+  {
+   "_id": "T209BE78wev2RT7W",
+   "name": "Прыжок",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Серповик перемещается на 40 футов прыжками или лазанием, не провоцируя атак.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "moXg4XNSHB2I2qQA": {
+      "_id": "moXg4XNSHB2I2qQA",
+      "type": "utility",
+      "activation": {
+       "type": "legendary",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": [
+        {
+         "type": "attribute",
+         "target": "resources.legact.value",
+         "value": "1"
+        }
+       ]
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.T209BE78wev2RT7W"
+  },
+  {
+   "_id": "Q3kn6RkhMaYKUhuS",
+   "name": "Клинок (легендарное)",
+   "type": "weapon",
+   "img": "icons/creatures/claws/claw-scaled-red.webp",
+   "system": {
+    "description": {
+     "value": "<p>Серповик совершает одну атаку Клинком.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 10,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 2,
+      "denomination": 10,
+      "bonus": "",
+      "types": [
+       "slashing"
+      ]
+     }
+    },
+    "activities": {
+     "ylKo3YuQ2ht5aiyb": {
+      "_id": "ylKo3YuQ2ht5aiyb",
+      "type": "attack",
+      "activation": {
+       "type": "legendary",
+       "value": 1
+      },
+      "consumption": {
+       "targets": [
+        {
+         "type": "attribute",
+         "target": "resources.legact.value",
+         "value": "1"
+        }
+       ]
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": [
+        {
+         "number": 2,
+         "denomination": 6,
+         "bonus": "",
+         "types": [
+          "poison"
+         ]
+        }
+       ]
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.Q3kn6RkhMaYKUhuS"
+  },
+  {
+   "_id": "7HKWRTLgcMnKpnMN",
+   "name": "Пикирование (2 действия)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Серповик прыгает с высоты на цель в 40 футах ниже него: атака Клинком с преимуществом. При попадании цель совершает спасбросок Силы СЛ 18 или сбита с ног.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "Yo4dQzXOXg5FZA1X": {
+      "_id": "Yo4dQzXOXg5FZA1X",
+      "type": "save",
+      "activation": {
+       "type": "legendary",
+       "value": 2,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": [
+        {
+         "type": "attribute",
+         "target": "resources.legact.value",
+         "value": "2"
+        }
+       ]
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      },
+      "save": {
+       "ability": [
+        "str"
+       ],
+       "dc": {
+        "calculation": "",
+        "formula": "18"
+       }
+      },
+      "damage": {
+       "onSave": "none",
+       "parts": []
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.7HKWRTLgcMnKpnMN"
+  },
+  {
+   "_id": "T41lSjh67deq617r",
+   "name": "Вихрь (Боевое действие)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Каждое существо в 15 футах: спасбросок Ловкости СЛ 18, 44 (8к10) рубящего урона при провале, половина при успехе. Все лианы в 15 футах перерублены: подъём там только Атлетикой СЛ 15.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "mbDIiuDodcfNDYTF": {
+      "_id": "mbDIiuDodcfNDYTF",
+      "type": "save",
+      "activation": {
+       "type": "special",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {
+       "template": {
+        "type": "radius",
+        "size": "15",
+        "units": "ft"
+       },
+       "affects": {
+        "type": "creature"
+       }
+      },
+      "duration": {
+       "units": "inst"
+      },
+      "save": {
+       "ability": [
+        "dex"
+       ],
+       "dc": {
+        "calculation": "",
+        "formula": "18"
+       }
+      },
+      "damage": {
+       "onSave": "half",
+       "parts": [
+        {
+         "number": 8,
+         "denomination": 10,
+         "bonus": "",
+         "types": [
+          "slashing"
+         ]
+        }
+       ]
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.T41lSjh67deq617r"
+  },
+  {
+   "_id": "RyM7V7SLXkeTOAHx",
+   "name": "Розовый туман (Боевое действие)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Облако 20 футов вокруг Серповика: спасбросок Телосложения СЛ 17 или отравлен на минуту. Внутри облака он сильно заслонён.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "EheevvmNhdaZ1cVt": {
+      "_id": "EheevvmNhdaZ1cVt",
+      "type": "save",
+      "activation": {
+       "type": "special",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {
+       "template": {
+        "type": "radius",
+        "size": "20",
+        "units": "ft"
+       },
+       "affects": {
+        "type": "creature"
+       }
+      },
+      "duration": {
+       "units": "inst"
+      },
+      "save": {
+       "ability": [
+        "con"
+       ],
+       "dc": {
+        "calculation": "",
+        "formula": "17"
+       }
+      },
+      "damage": {
+       "onSave": "none",
+       "parts": []
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.RyM7V7SLXkeTOAHx"
+  },
+  {
+   "_id": "y4Xa9mNAckUUp1Yt",
+   "name": "Боевые действия",
+   "type": "feat",
+   "img": "icons/svg/sword.svg",
+   "system": {
+    "description": {
+     "value": "<p>Сигнал в конце хода → Разрешение в начале следующего. Раунды 1–2: одно действие, с 3-го раунда: два.</p><h3>Вихрь <small>(Смягчение)</small></h3>\n<p><b>Сигнал.</b> Серповик разводит клинки в стороны. Сухой стрёкот, как трещотка, всё громче и быстрее.</p><p><b>Смягчение.</b> Улика «Стрекот»: все знают, что сейчас будет. Уйти из 15 футов или встать за ствол: укрытие 3/4 даёт половину урона.</p><p><b>Разрешение.</b> Каждое существо в 15 футах: спасбросок Ловкости СЛ 18, 44 (8к10) рубящего урона при провале, половина при успехе. Все лианы в 15 футах перерублены: подъём там только Атлетикой СЛ 15.</p><p><b>Сорвано.</b> Стрёкот обрывается. Клинки режут только листву.</p><h3>Тень сверху <small>(Нейтрализация, фаза 1)</small></h3>\n<p><b>Сигнал.</b> Серповик замирает на ветке прямо над одним героем. На того падает узкая тень, и листья вокруг него перестают шевелиться.</p><p><b>Нейтрализация.</b> Цель уходит под укрытие сверху (поваленное дерево, ствол), или рядом с ней встаёт союзник: одиночку больше не выделить. Можно подрубить ветку под ним.</p><p><b>Разрешение.</b> Пикирование: атака +9 с преимуществом, 27 (4к10 + 5) рубящего урона, цель схвачена. Серповик уносит её на 30 футов вверх, в крону.</p><p><b>Сорвано.</b> Он прыгает, но цели на месте нет. Клинки врезаются в землю.</p><p><i>Цель — самый лёгкий или самый одинокий герой. Наведись на него перед Сигналом.</i></p><h3>Розовый туман <small>(Нейтрализация)</small></h3>\n<p><b>Сигнал.</b> Он трёт клинок о клинок. Сок на кромках вспенивается и начинает парить розовым.</p><p><b>Нейтрализация.</b> Улика «панцирь»: сок горит. Огонь по нему до Разрешения — вспышка обжигает самого Серповика (14 (4к6) огнём), кромка гаснет.</p><p><b>Разрешение.</b> Облако 20 футов вокруг Серповика: спасбросок Телосложения СЛ 17 или отравлен на минуту. Внутри облака он сильно заслонён.</p><p><b>Сорвано.</b> Сок вспыхивает у него на руках. Серповик с визгом отскакивает.</p><h3>Подрубить мост <small>(Нейтрализация, фаза 2)</small></h3>\n<p><b>Сигнал.</b> Клинки врезаются в основание ветки, на которой стоят герои. Древесина стонет, ветка проседает.</p><p><b>Нейтрализация.</b> Уйти с ветки. Или удержать её: двое героев, Атлетика СЛ 16 у каждого. Или удар огнём по его клинкам.</p><p><b>Разрешение.</b> Ветка рушится. Все на ней падают на ярус ниже: 10 (3к6) дробящего урона, ничком. Ветки больше нет.</p><p><b>Сорвано.</b> Ветка трещит, но держится. Серповик теряет опору и сам повисает на клинке.</p><h3>Клич гнезда <small>(Нейтрализация)</small></h3>\n<p><b>Сигнал.</b> Серповик бьёт клинками по коре, частая дробь. Из гнезда в кроне высовываются узкие головы: нимфы проснулись.</p><p><b>Нейтрализация.</b> Поджечь гнездо (огонь по гнезду в кроне, 15+ урона) или подрубить ветку под ним: нимфы падают вниз с гнездом.</p><p><b>Разрешение.</b> По лианам спускаются 3 нимфы Серповика. Они хватают ближайших и тянут вверх, к отцу.</p><p><b>Сорвано.</b> Гнездо вспыхивает. Писк обрывается, наверх больше никто не зовёт.</p><p></p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.y4Xa9mNAckUUp1Yt"
+  },
+  {
+   "_id": "Csp21QE1YYV8QrSu",
+   "name": "Слабое место: Ветки-мосты",
+   "type": "feat",
+   "img": "icons/svg/target.svg",
+   "system": {
+    "description": {
+     "value": "<p>Его сила — высота. Каждая подрубленная ветка, с которой он падает, отнимает у него одно легендарное сопротивление и 3к6 хитов. Без веток он становится обычным зверем на земле.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.Csp21QE1YYV8QrSu"
+  },
+  {
+   "_id": "1k0OYCXZcombJYM0",
+   "name": "Фазы",
+   "type": "feat",
+   "img": "icons/svg/clockwork.svg",
+   "system": {
+    "description": {
+     "value": "<p>100–50%: держится в кронах и на ветках, нападает сверху и прячется.<br>Ниже 50%: каждый свой ход срубает одну ветку-мост. Стоящие на ней падают на ярус ниже.<br>Ниже 25%: спускается на землю. +1 атака Клинком в Мультиатаке, но без укрытия и высоты.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!1YmICxHUGxEpRVsp.1k0OYCXZcombJYM0"
+  }
+ ],
+ "prototypeToken": {
+  "name": "Серповик",
+  "displayName": 20,
+  "displayBars": 20,
+  "actorLink": false,
+  "disposition": -1,
+  "width": 3,
+  "height": 3,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "texture": {
+   "src": "modules/monstryatina/assets/sickle/token.webp",
+   "scaleX": 1.25,
+   "scaleY": 1.25,
+   "fit": "contain"
+  },
+  "sight": {
+   "enabled": true,
+   "range": 60,
+   "visionMode": "darkvision"
+  },
+  "ring": {
+   "enabled": false
+  }
+ },
+ "flags": {
+  "monstryatina": {
+   "id": "sickle"
+  }
+ }
+}
