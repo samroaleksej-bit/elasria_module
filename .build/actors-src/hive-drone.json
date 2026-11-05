@@ -1,0 +1,268 @@
+{
+ "_id": "J0jsdSxqyVcrexgJ",
+ "_key": "!actors!J0jsdSxqyVcrexgJ",
+ "folder": null,
+ "name": "Трутень-богомол",
+ "type": "npc",
+ "img": "modules/monstryatina/assets/hive/drone-token.webp",
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 14,
+    "proficient": 0
+   },
+   "dex": {
+    "value": 15,
+    "proficient": 0
+   },
+   "con": {
+    "value": 12,
+    "proficient": 0
+   },
+   "int": {
+    "value": 2,
+    "proficient": 0
+   },
+   "wis": {
+    "value": 10,
+    "proficient": 0
+   },
+   "cha": {
+    "value": 3,
+    "proficient": 0
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 14,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 27,
+    "max": 27,
+    "formula": "5d8 + 5"
+   },
+   "movement": {
+    "walk": 40,
+    "climb": 30,
+    "units": "ft"
+   },
+   "senses": {
+    "darkvision": 60,
+    "units": "ft"
+   }
+  },
+  "details": {
+   "cr": 2,
+   "type": {
+    "value": "monstrosity",
+    "subtype": "выводок Матки"
+   },
+   "alignment": "без мировоззрения",
+   "biography": {
+    "value": "<p><b>Выводок Матки роя.</b> Среднее чудовище (насекомое), без мировоззрения.</p><p>Кто выходит из туннеля (к6 за каждого): 1–2 — Трутень-богомол; 3 — Плевун; 4 — Прыгун; 5 — Рой жалящих мошек; 6 — Щитожук.</p>"
+   }
+  },
+  "traits": {
+   "size": "med",
+   "dr": {
+    "value": []
+   },
+   "di": {
+    "value": []
+   },
+   "ci": {
+    "value": [
+     "frightened"
+    ]
+   },
+   "languages": {
+    "value": []
+   }
+  },
+  "skills": {},
+  "resources": {}
+ },
+ "items": [
+  {
+   "_id": "q3sN5acJvzOZsvKf",
+   "name": "Стая",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Преимущество на атаку, если в 5 футах от цели есть другой трутень.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!J0jsdSxqyVcrexgJ.q3sN5acJvzOZsvKf"
+  },
+  {
+   "_id": "lOarBiDx9IHmGpWo",
+   "name": "Феромонный след",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Преимущество на атаки по существу, помеченному Маткой.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!J0jsdSxqyVcrexgJ.lOarBiDx9IHmGpWo"
+  },
+  {
+   "_id": "Uic3hFMJFBvgD5Ex",
+   "name": "Мультиатака",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Трутень совершает две атаки Укусом.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "PIyeIzadH6UKVwPt": {
+      "_id": "PIyeIzadH6UKVwPt",
+      "type": "utility",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!J0jsdSxqyVcrexgJ.Uic3hFMJFBvgD5Ex"
+  },
+  {
+   "_id": "wCrZC8xezkjqT3fE",
+   "name": "Укус",
+   "type": "weapon",
+   "img": "icons/creatures/claws/claw-scaled-red.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +4 к попаданию, досягаемость 5 фт. Попадание: 6 (1к8 + 2) колющего урона.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 5,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 1,
+      "denomination": 8,
+      "bonus": "",
+      "types": [
+       "piercing"
+      ]
+     }
+    },
+    "activities": {
+     "Jyw0BMN7whz9tceq": {
+      "_id": "Jyw0BMN7whz9tceq",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!J0jsdSxqyVcrexgJ.wCrZC8xezkjqT3fE"
+  }
+ ],
+ "prototypeToken": {
+  "name": "Трутень-богомол",
+  "displayName": 20,
+  "displayBars": 20,
+  "actorLink": false,
+  "disposition": -1,
+  "width": 1,
+  "height": 1,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "texture": {
+   "src": "modules/monstryatina/assets/hive/drone-token.webp",
+   "scaleX": 1.25,
+   "scaleY": 1.25,
+   "fit": "contain"
+  },
+  "sight": {
+   "enabled": true,
+   "range": 60,
+   "visionMode": "darkvision"
+  },
+  "ring": {
+   "enabled": false
+  }
+ },
+ "flags": {
+  "monstryatina": {
+   "id": "hive-drone"
+  }
+ }
+}

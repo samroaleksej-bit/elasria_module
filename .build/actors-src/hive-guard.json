@@ -1,0 +1,351 @@
+{
+ "_id": "LVVgD1DcP3kEYa5G",
+ "_key": "!actors!LVVgD1DcP3kEYa5G",
+ "folder": null,
+ "name": "Жало-гвардеец",
+ "type": "npc",
+ "img": "modules/monstryatina/assets/hive/guard-token.webp",
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 19,
+    "proficient": 1
+   },
+   "dex": {
+    "value": 12,
+    "proficient": 0
+   },
+   "con": {
+    "value": 15,
+    "proficient": 1
+   },
+   "int": {
+    "value": 4,
+    "proficient": 0
+   },
+   "wis": {
+    "value": 12,
+    "proficient": 0
+   },
+   "cha": {
+    "value": 6,
+    "proficient": 0
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 18,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 90,
+    "max": 90,
+    "formula": "12d10 + 24"
+   },
+   "movement": {
+    "walk": 30,
+    "climb": 20,
+    "units": "ft"
+   },
+   "senses": {
+    "darkvision": 60,
+    "units": "ft"
+   }
+  },
+  "details": {
+   "cr": 6,
+   "type": {
+    "value": "monstrosity",
+    "subtype": "выводок Матки"
+   },
+   "alignment": "без мировоззрения",
+   "biography": {
+    "value": "<p><b>Выводок Матки роя.</b> Большое чудовище (насекомое), без мировоззрения.</p><p>Кто выходит из туннеля (к6 за каждого): 1–2 — Трутень-богомол; 3 — Плевун; 4 — Прыгун; 5 — Рой жалящих мошек; 6 — Щитожук.</p>"
+   }
+  },
+  "traits": {
+   "size": "lg",
+   "dr": {
+    "value": [
+     "poison"
+    ]
+   },
+   "di": {
+    "value": []
+   },
+   "ci": {
+    "value": [
+     "poisoned",
+     "frightened"
+    ]
+   },
+   "languages": {
+    "value": []
+   }
+  },
+  "skills": {},
+  "resources": {}
+ },
+ "items": [
+  {
+   "_id": "O341VsOnwCR40zrT",
+   "name": "Королевский запах",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Пока гвардеец в 5 футах от Матки, атаки по Матке совершаются с помехой.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!LVVgD1DcP3kEYa5G.O341VsOnwCR40zrT"
+  },
+  {
+   "_id": "DjzgqbJ0zeDzV0QQ",
+   "name": "Мультиатака",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Гвардеец совершает две атаки Жвалами и атаку Жалом.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "iG5UKmYurGSKKeyu": {
+      "_id": "iG5UKmYurGSKKeyu",
+      "type": "utility",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!LVVgD1DcP3kEYa5G.DjzgqbJ0zeDzV0QQ"
+  },
+  {
+   "_id": "Ugwv9UUiElD2pbSD",
+   "name": "Жвалы",
+   "type": "weapon",
+   "img": "icons/creatures/claws/claw-scaled-red.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +7 к попаданию, досягаемость 5 фт. Попадание: 13 (2к8 + 4) колющего урона.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 5,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 2,
+      "denomination": 8,
+      "bonus": "",
+      "types": [
+       "piercing"
+      ]
+     }
+    },
+    "activities": {
+     "IpK8r4rAC2qSWYoG": {
+      "_id": "IpK8r4rAC2qSWYoG",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!LVVgD1DcP3kEYa5G.Ugwv9UUiElD2pbSD"
+  },
+  {
+   "_id": "i1l0DDWe3cMued4V",
+   "name": "Жало",
+   "type": "weapon",
+   "img": "icons/creatures/claws/claw-scaled-red.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +7 к попаданию, досягаемость 10 фт. Попадание: 9 (1к10 + 4) колющего урона, спасбросок Телосложения СЛ 15 или отравлен и скорость 0 до конца своего следующего хода.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 10,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 1,
+      "denomination": 10,
+      "bonus": "",
+      "types": [
+       "piercing"
+      ]
+     }
+    },
+    "activities": {
+     "fhEdoq2aOcektezS": {
+      "_id": "fhEdoq2aOcektezS",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!LVVgD1DcP3kEYa5G.i1l0DDWe3cMued4V"
+  },
+  {
+   "_id": "4gdfuOMw0sC6m8OA",
+   "name": "Телохранитель",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Когда по Матке в 5 футах попадают атакой, гвардеец принимает попадание на себя.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "zM30mM3yXF5CRHbr": {
+      "_id": "zM30mM3yXF5CRHbr",
+      "type": "utility",
+      "activation": {
+       "type": "reaction",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!LVVgD1DcP3kEYa5G.4gdfuOMw0sC6m8OA"
+  }
+ ],
+ "prototypeToken": {
+  "name": "Жало-гвардеец",
+  "displayName": 20,
+  "displayBars": 20,
+  "actorLink": false,
+  "disposition": -1,
+  "width": 2,
+  "height": 2,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "texture": {
+   "src": "modules/monstryatina/assets/hive/guard-token.webp",
+   "scaleX": 1.25,
+   "scaleY": 1.25,
+   "fit": "contain"
+  },
+  "sight": {
+   "enabled": true,
+   "range": 60,
+   "visionMode": "darkvision"
+  },
+  "ring": {
+   "enabled": false
+  }
+ },
+ "flags": {
+  "monstryatina": {
+   "id": "hive-guard"
+  }
+ }
+}

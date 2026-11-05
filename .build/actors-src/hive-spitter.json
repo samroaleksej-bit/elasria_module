@@ -1,0 +1,302 @@
+{
+ "_id": "Qa0E3PjDw5YH678W",
+ "_key": "!actors!Qa0E3PjDw5YH678W",
+ "folder": null,
+ "name": "Плевун",
+ "type": "npc",
+ "img": "modules/monstryatina/assets/hive/spitter-token.webp",
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 10,
+    "proficient": 0
+   },
+   "dex": {
+    "value": 14,
+    "proficient": 0
+   },
+   "con": {
+    "value": 13,
+    "proficient": 0
+   },
+   "int": {
+    "value": 2,
+    "proficient": 0
+   },
+   "wis": {
+    "value": 12,
+    "proficient": 0
+   },
+   "cha": {
+    "value": 3,
+    "proficient": 0
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 15,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 33,
+    "max": 33,
+    "formula": "6d8 + 6"
+   },
+   "movement": {
+    "walk": 25,
+    "climb": 25,
+    "units": "ft"
+   },
+   "senses": {
+    "darkvision": 60,
+    "units": "ft"
+   }
+  },
+  "details": {
+   "cr": 3,
+   "type": {
+    "value": "monstrosity",
+    "subtype": "выводок Матки"
+   },
+   "alignment": "без мировоззрения",
+   "biography": {
+    "value": "<p><b>Выводок Матки роя.</b> Среднее чудовище (жук), без мировоззрения.</p><p>Кто выходит из туннеля (к6 за каждого): 1–2 — Трутень-богомол; 3 — Плевун; 4 — Прыгун; 5 — Рой жалящих мошек; 6 — Щитожук.</p>"
+   }
+  },
+  "traits": {
+   "size": "med",
+   "dr": {
+    "value": [
+     "acid"
+    ]
+   },
+   "di": {
+    "value": []
+   },
+   "ci": {
+    "value": [
+     "frightened"
+    ]
+   },
+   "languages": {
+    "value": []
+   }
+  },
+  "skills": {},
+  "resources": {}
+ },
+ "items": [
+  {
+   "_id": "tdUK3GtAb59ukuzt",
+   "name": "Бурдюк",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Когда плевун умирает от огня или критического попадания, он лопается: 7 (2к6) урона кислотой всем в 5 футах.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!Qa0E3PjDw5YH678W.tdUK3GtAb59ukuzt"
+  },
+  {
+   "_id": "fUJicJNShMhfNMGL",
+   "name": "Сторонится",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Плевун держится за трутнями и не подходит ближе 20 футов к героям, если может.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!Qa0E3PjDw5YH678W.fUJicJNShMhfNMGL"
+  },
+  {
+   "_id": "MmJQYlmGEAdHWoR0",
+   "name": "Кислотный плевок",
+   "type": "weapon",
+   "img": "icons/creatures/claws/claw-scaled-red.webp",
+   "system": {
+    "description": {
+     "value": "<p>Дальнобойная атака: +4 к попаданию, дистанция 30/60 фт. Попадание: 9 (2к8) урона кислотой. Доспех цели разъедается: КД −1 до конца боя или пока его не отчистят действием (накапливается до −3).</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "value": 30,
+     "long": 60,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 2,
+      "denomination": 8,
+      "bonus": "",
+      "types": [
+       "piercing"
+      ]
+     }
+    },
+    "activities": {
+     "YV6tMRSdXEVSABPk": {
+      "_id": "YV6tMRSdXEVSABPk",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "dex",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "ranged",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!Qa0E3PjDw5YH678W.MmJQYlmGEAdHWoR0"
+  },
+  {
+   "_id": "u6uw63ZRzayE5aTY",
+   "name": "Брызги (перезарядка 5–6)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Плевун выстреливает кислотой в точку в 60 футах. Каждое существо в радиусе 10 футов: спасбросок Ловкости СЛ 15, 14 (4к6) урона кислотой при провале, половина при успехе.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "8kzmoMrKZ1rzOG3g": {
+      "_id": "8kzmoMrKZ1rzOG3g",
+      "type": "save",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {
+       "template": {
+        "type": "radius",
+        "size": "10",
+        "units": "ft"
+       },
+       "affects": {
+        "type": "creature"
+       }
+      },
+      "duration": {
+       "units": "inst"
+      },
+      "save": {
+       "ability": [
+        "dex"
+       ],
+       "dc": {
+        "calculation": "",
+        "formula": "15"
+       }
+      },
+      "damage": {
+       "onSave": "half",
+       "parts": [
+        {
+         "number": 4,
+         "denomination": 6,
+         "bonus": "",
+         "types": [
+          "acid"
+         ]
+        }
+       ]
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!Qa0E3PjDw5YH678W.u6uw63ZRzayE5aTY"
+  }
+ ],
+ "prototypeToken": {
+  "name": "Плевун",
+  "displayName": 20,
+  "displayBars": 20,
+  "actorLink": false,
+  "disposition": -1,
+  "width": 1,
+  "height": 1,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "texture": {
+   "src": "modules/monstryatina/assets/hive/spitter-token.webp",
+   "scaleX": 1.25,
+   "scaleY": 1.25,
+   "fit": "contain"
+  },
+  "sight": {
+   "enabled": true,
+   "range": 60,
+   "visionMode": "darkvision"
+  },
+  "ring": {
+   "enabled": false
+  }
+ },
+ "flags": {
+  "monstryatina": {
+   "id": "hive-spitter"
+  }
+ }
+}

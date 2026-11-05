@@ -214,5 +214,78 @@ const PARTS = [["head", 0], ["throat", 1], ["belly", 2], ["tail", 3]].map(([sid,
   return ["eater-" + sid, a];
 });
 
-for (const [f, a] of [["sickle", sickle], ["sickle-nymph", nymph], ["eater", eater], ["bud", bud], ["bud-guest", guest], ...PARTS]) fs.writeFileSync(path.join(OUT, f + ".json"), JSON.stringify(a, null, 1));
+// ---------- Матка роя и выводок ----------
+const Q = window.BOSSES.find(x => x.id === "hive"), QART = "modules/monstryatina/assets/hive/";
+const qAb = ab(Q.stats); ["con", "wis"].forEach(k => qAb[k].proficient = 1);
+const QT = Object.fromEntries(Q.traits);
+const qBa = Q.ba.map(a => `<h3>${a.n} <small>(${a.t}${a.ph !== "все" ? ", фаза " + a.ph : ""})</small></h3>
+<p><b>Сигнал.</b> ${a.s}</p><p><b>${a.t}.</b> ${a.c}</p><p><b>Разрешение.</b> ${a.r}</p><p><b>Сорвано.</b> ${a.x}</p>`).join("");
+const hiveItems = [
+  ...["Улей", "Мать", "Светящееся брюхо", "Узнавание"].map(n => feat(n, QT[n])),
+  feat("Хитин королевы (3/день)", QT["Хитин королевы (3/день)"], { act: "special", uses: 3 }),
+  feat("Мультиатака", Q.actions[0][1], { act: "action" }),
+  weapon("Жвалы", Q.actions[1][1], { n: 3, d: 8, reach: 10, img: "icons/creatures/abilities/mouth-teeth-sharp.webp" }),
+  weapon("Жало", Q.actions[2][1], { n: 2, d: 10, reach: 15, type: "piercing", img: "icons/creatures/abilities/stinger-poison-scorpion-brown.webp" }),
+  feat("Приказ роя", Q.bonus[0][1], { act: "bonus" }),
+  feat("Щит выводка", Q.reactions[0][1], { act: "reaction" }),
+  feat("Приказ", Q.legendary[0][1], { act: "legendary", legCost: 1 }),
+  weapon("Жало (2 действия)", Q.legendary[1][1], { n: 2, d: 10, reach: 15, type: "piercing", act: "legendary", cost: 2, legCost: 2, img: "icons/creatures/abilities/stinger-poison-scorpion-brown.webp" }),
+  feat("Волна феромона (2 действия)", Q.legendary[2][1], { act: "legendary", cost: 2, legCost: 2 }),
+  feat("Обвал (Боевое действие)", Q.ba[4].r, { act: "special", save: { ab: "dex", dc: 17, dmg: [dp(4, 10, "", "bludgeoning")] } }),
+  feat("Боевые действия", `Сигнал в конце хода → Разрешение в начале следующего. Раунды 1–2: одно действие, с 3-го раунда: два.</p>${qBa}<p>`, { img: "icons/svg/sword.svg" }),
+  feat("Слабое место: " + Q.weak[0], Q.weak[1] + " Трекер туннелей — на пульте Монстрятины.", { img: "icons/svg/target.svg" }),
+  feat("Фазы", Q.phases.join("<br>"), { img: "icons/svg/clockwork.svg" }),
+  feat("Логово", Q.lair.join("<br>"), { img: "icons/svg/house.svg" }),
+];
+const tbl = window.SUMMONS.hive.table;
+const queen = actor({ id: "hive", name: "Матка роя", portrait: QART + "portrait.webp", token: QART + "token.webp",
+  abilities: qAb, ac: 17, hp: 225, hpf: "18d12 + 108", cr: 11, subtype: "насекомое-рептилия", size: "huge", w: 3, scale: 1.3,
+  move: { walk: 10 }, senses: { darkvision: 120, tremorsense: 60 }, sightRange: 120,
+  dr: ["acid"], di: ["poison"], ci: ["poisoned", "frightened"], skills: { prc: { value: 1, ability: "wis" } },
+  resources: { legact: { value: 3, max: 3 }, legres: { value: 3, max: 3 } },
+  bio: `<blockquote>${Q.quote}</blockquote><p><b>${Q.cls}</b> · гекс ${Q.hex}</p><p>Говорит феромонами.</p>
+<h3>Фавориты</h3><p>${Q.fav.join(", ")}</p><h3>Фолы</h3><p>${Q.fol.join(", ")}</p>
+<h3>Знания</h3>${Q.lore.map(l => `<p><b>СЛ ${l[0]}.</b> ${l[1]} <i>(${l[2]})</i></p>`).join("")}
+<h3>${tbl.title}</h3><table>${tbl.rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("")}</table><p><i>${tbl.note}</i></p>
+<h3>Тактика</h3><p><b>Лёгкая:</b> ${Q.tactics.easy}</p><p><b>Средняя:</b> ${Q.tactics.mid}</p><p><b>Сложная:</b> ${Q.tactics.hard}</p>
+<h3>Добыча</h3>${Q.loot.map(l => `<p><b>${l[0]}</b> (${l[1]}). ${l[2]}</p>`).join("")}<h3>Крючок</h3><p>${Q.hook}</p>`,
+  items: hiveItems });
+
+const SZ = { "Среднее": "med", "Средний": "med", "Большое": "lg" };
+const DT = { "колющего": "piercing", "рубящего": "slashing", "дробящего": "bludgeoning", "кислотой": "acid" };
+const RES = { "кислота": "acid", "яд": "poison", "дробящий": "bludgeoning", "колющий": "piercing", "рубящий": "slashing" };
+const CI = { "испуг": "frightened", "отравление": "poisoned", "очарование": "charmed", "захват": "grappled", "паралич": "paralyzed", "окаменение": "petrified", "сбивание с ног": "prone", "опутывание": "restrained", "ошеломление": "stunned" };
+const broodFiles = { "Трутень-богомол": "drone", "Плевун": "spitter", "Прыгун": "jumper", "Рой жалящих мошек": "swarm", "Щитожук": "shield", "Жало-гвардеец": "guard" };
+const BROOD = window.SUMMONS.hive.list.map(m => {
+  const items = [];
+  for (const [n, d] of m.traits) items.push(feat(n, d));
+  for (const [n, d] of m.actions) {
+    const at = d.match(/атака: \+(\d+).*?Попадание: \d+ \((\d+)к(\d+)(?: \+ \d+)?\) (\S+)/);
+    const reach = Number((d.match(/досягаемость (\d+)/) || [])[1] || 5), rng = d.match(/дистанция (\d+)/);
+    if (at) {
+      const w = weapon(n, d, { n: +at[2], d: +at[3], reach, type: DT[at[4]] || "piercing", fin: /Ловк/.test(n) });
+      if (rng) { const act = Object.values(w.system.activities)[0]; act.attack.type.value = "ranged"; act.attack.ability = "dex"; w.system.range = { value: +rng[1], long: 60, units: "ft" }; }
+      items.push(w);
+    } else if (/спасбросок (\S+) СЛ (\d+)/.test(d)) {
+      const [, abl, dc] = d.match(/спасбросок (\S+) СЛ (\d+)/), dm = d.match(/\d+ \((\d+)к(\d+)\) урона (\S+)/);
+      items.push(feat(n, d, { act: "action", save: { ab: { "Ловкости": "dex", "Телосложения": "con", "Силы": "str", "Мудрости": "wis" }[abl] || "dex", dc: +dc, half: /половина/.test(d), area: Number((d.match(/радиусе (\d+)/) || [])[1]) || undefined, dmg: dm ? [dp(+dm[1], +dm[2], "", DT[dm[3]] || "acid")] : [] } }));
+    } else items.push(feat(n, d, { act: "action" }));
+  }
+  for (const [n, d] of m.reactions) items.push(feat(n, d, { act: "reaction" }));
+  const f = broodFiles[m.name], hpm = m.hp.match(/(\d+) \((.+)\)/);
+  const spd = m.speed; const walk = +(spd.match(/^(\d+)/) || [0, 30])[1]; const climb = +((spd.match(/лазая (\d+)/) || [])[1] || 0); const fly = +((spd.match(/летая (\d+)/) || [])[1] || 0);
+  const sizeWord = m.type.split(" ")[0];
+  const a = actor({ id: "hive-" + f, name: m.name, portrait: QART + `${f}-token.webp`, token: QART + `${f}-token.webp`,
+    abilities: (() => { const x = ab(m.stats); if (/Лов/.test(m.saves)) x.dex.proficient = 1; if (/Тел/.test(m.saves)) x.con.proficient = 1; if (/Сил/.test(m.saves)) x.str.proficient = 1; return x; })(),
+    ac: Number(m.ac.match(/\d+/)[0]), hp: +hpm[1], hpf: hpm[2].replace(/к/g, "d"), cr: +m.cr, subtype: "выводок Матки", size: SZ[sizeWord] || "med",
+    w: SZ[sizeWord] === "lg" ? 2 : 1, scale: 1.25, move: { walk, ...(climb ? { climb } : {}), ...(fly ? { fly } : {}) },
+    senses: { darkvision: 60 }, sightRange: 60,
+    dr: m.res === "—" ? [] : m.res.split(/, /).map(x => RES[x]).filter(Boolean),
+    ci: m.imm.split(/, /).map(x => CI[x]).filter(Boolean), skills: {},
+    bio: `<p><b>Выводок Матки роя.</b> ${m.type}.</p><p>${tbl.title}: ${tbl.rows.map(r => r.join(" — ")).join("; ")}.</p>`, items });
+  if (m.name === "Рой жалящих мошек") a.system.details.type = { value: "swarm", subtype: "", swarm: "tiny" };
+  return ["hive-" + f, a];
+});
+
+for (const [f, a] of [["sickle", sickle], ["sickle-nymph", nymph], ["eater", eater], ["bud", bud], ["bud-guest", guest], ...PARTS, ["hive", queen], ...BROOD]) fs.writeFileSync(path.join(OUT, f + ".json"), JSON.stringify(a, null, 1));
 console.log("ok", sickle.items.length, nymph.items.length);

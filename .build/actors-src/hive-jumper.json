@@ -1,0 +1,329 @@
+{
+ "_id": "rISANpPm49bXMa8n",
+ "_key": "!actors!rISANpPm49bXMa8n",
+ "folder": null,
+ "name": "Прыгун",
+ "type": "npc",
+ "img": "modules/monstryatina/assets/hive/jumper-token.webp",
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 16,
+    "proficient": 0
+   },
+   "dex": {
+    "value": 16,
+    "proficient": 0
+   },
+   "con": {
+    "value": 14,
+    "proficient": 0
+   },
+   "int": {
+    "value": 2,
+    "proficient": 0
+   },
+   "wis": {
+    "value": 11,
+    "proficient": 0
+   },
+   "cha": {
+    "value": 3,
+    "proficient": 0
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 15,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 45,
+    "max": 45,
+    "formula": "7d8 + 14"
+   },
+   "movement": {
+    "walk": 30,
+    "units": "ft"
+   },
+   "senses": {
+    "darkvision": 60,
+    "units": "ft"
+   }
+  },
+  "details": {
+   "cr": 3,
+   "type": {
+    "value": "monstrosity",
+    "subtype": "выводок Матки"
+   },
+   "alignment": "без мировоззрения",
+   "biography": {
+    "value": "<p><b>Выводок Матки роя.</b> Среднее чудовище (насекомое-кузнечик), без мировоззрения.</p><p>Кто выходит из туннеля (к6 за каждого): 1–2 — Трутень-богомол; 3 — Плевун; 4 — Прыгун; 5 — Рой жалящих мошек; 6 — Щитожук.</p>"
+   }
+  },
+  "traits": {
+   "size": "med",
+   "dr": {
+    "value": []
+   },
+   "di": {
+    "value": []
+   },
+   "ci": {
+    "value": [
+     "frightened"
+    ]
+   },
+   "languages": {
+    "value": []
+   }
+  },
+  "skills": {},
+  "resources": {}
+ },
+ "items": [
+  {
+   "_id": "bcEYX8fxZfZA6ugC",
+   "name": "Прыжок-таран",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Если прыгун перед атакой прыгнул по прямой на 20+ футов, цель совершает спасбросок Силы СЛ 15 или сбита с ног.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!rISANpPm49bXMa8n.bcEYX8fxZfZA6ugC"
+  },
+  {
+   "_id": "PFBb2OcciPfbJvXO",
+   "name": "Прыгает, а не ходит",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Во время прыжка прыгун не провоцирует атак.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!rISANpPm49bXMa8n.PFBb2OcciPfbJvXO"
+  },
+  {
+   "_id": "QtYJLh3s7fWFIgVz",
+   "name": "Мультиатака",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Прыгун совершает атаку Лапами и атаку Жвалами.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "L857Ca6yfeZrkRSJ": {
+      "_id": "L857Ca6yfeZrkRSJ",
+      "type": "utility",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!rISANpPm49bXMa8n.QtYJLh3s7fWFIgVz"
+  },
+  {
+   "_id": "XyYE7mIaHgGuAQ6Q",
+   "name": "Лапы",
+   "type": "weapon",
+   "img": "icons/creatures/claws/claw-scaled-red.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +5 к попаданию, досягаемость 5 фт. Попадание: 10 (2к6 + 3) дробящего урона.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 5,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 2,
+      "denomination": 6,
+      "bonus": "",
+      "types": [
+       "bludgeoning"
+      ]
+     }
+    },
+    "activities": {
+     "H0Tegcltmy30vlwv": {
+      "_id": "H0Tegcltmy30vlwv",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!rISANpPm49bXMa8n.XyYE7mIaHgGuAQ6Q"
+  },
+  {
+   "_id": "r6sk7DfGVhq37dSd",
+   "name": "Жвалы",
+   "type": "weapon",
+   "img": "icons/creatures/claws/claw-scaled-red.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +5 к попаданию, досягаемость 5 фт. Попадание: 8 (1к10 + 3) колющего урона.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 5,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 1,
+      "denomination": 10,
+      "bonus": "",
+      "types": [
+       "piercing"
+      ]
+     }
+    },
+    "activities": {
+     "ASwwOMLArCF1GQDI": {
+      "_id": "ASwwOMLArCF1GQDI",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!rISANpPm49bXMa8n.r6sk7DfGVhq37dSd"
+  }
+ ],
+ "prototypeToken": {
+  "name": "Прыгун",
+  "displayName": 20,
+  "displayBars": 20,
+  "actorLink": false,
+  "disposition": -1,
+  "width": 1,
+  "height": 1,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "texture": {
+   "src": "modules/monstryatina/assets/hive/jumper-token.webp",
+   "scaleX": 1.25,
+   "scaleY": 1.25,
+   "fit": "contain"
+  },
+  "sight": {
+   "enabled": true,
+   "range": 60,
+   "visionMode": "darkvision"
+  },
+  "ring": {
+   "enabled": false
+  }
+ },
+ "flags": {
+  "monstryatina": {
+   "id": "hive-jumper"
+  }
+ }
+}

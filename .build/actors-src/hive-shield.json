@@ -1,0 +1,247 @@
+{
+ "_id": "TBQgReIja0yn7yBz",
+ "_key": "!actors!TBQgReIja0yn7yBz",
+ "folder": null,
+ "name": "Щитожук",
+ "type": "npc",
+ "img": "modules/monstryatina/assets/hive/shield-token.webp",
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 18,
+    "proficient": 0
+   },
+   "dex": {
+    "value": 8,
+    "proficient": 0
+   },
+   "con": {
+    "value": 16,
+    "proficient": 1
+   },
+   "int": {
+    "value": 2,
+    "proficient": 0
+   },
+   "wis": {
+    "value": 10,
+    "proficient": 0
+   },
+   "cha": {
+    "value": 3,
+    "proficient": 0
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 18,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 68,
+    "max": 68,
+    "formula": "8d10 + 24"
+   },
+   "movement": {
+    "walk": 25,
+    "units": "ft"
+   },
+   "senses": {
+    "darkvision": 60,
+    "units": "ft"
+   }
+  },
+  "details": {
+   "cr": 4,
+   "type": {
+    "value": "monstrosity",
+    "subtype": "выводок Матки"
+   },
+   "alignment": "без мировоззрения",
+   "biography": {
+    "value": "<p><b>Выводок Матки роя.</b> Большое чудовище (жук), без мировоззрения.</p><p>Кто выходит из туннеля (к6 за каждого): 1–2 — Трутень-богомол; 3 — Плевун; 4 — Прыгун; 5 — Рой жалящих мошек; 6 — Щитожук.</p>"
+   }
+  },
+  "traits": {
+   "size": "lg",
+   "dr": {
+    "value": [
+     "piercing"
+    ]
+   },
+   "di": {
+    "value": []
+   },
+   "ci": {
+    "value": [
+     "frightened",
+     "prone"
+    ]
+   },
+   "languages": {
+    "value": []
+   }
+  },
+  "skills": {},
+  "resources": {}
+ },
+ "items": [
+  {
+   "_id": "bdOOTbiNkyrcZkf2",
+   "name": "Живой щит",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Существа, которые стоят в 5 футах позади щитожука, получают половинное укрытие.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!TBQgReIja0yn7yBz.bdOOTbiNkyrcZkf2"
+  },
+  {
+   "_id": "yaVokATst7F7Ebqn",
+   "name": "Таран",
+   "type": "weapon",
+   "img": "icons/creatures/claws/claw-scaled-red.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +6 к попаданию, досягаемость 5 фт. Попадание: 15 (2к10 + 4) дробящего урона, Большую или меньшую цель отталкивает на 10 футов.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 5,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 2,
+      "denomination": 10,
+      "bonus": "",
+      "types": [
+       "bludgeoning"
+      ]
+     }
+    },
+    "activities": {
+     "WZHZuZl3q67N76vS": {
+      "_id": "WZHZuZl3q67N76vS",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!TBQgReIja0yn7yBz.yaVokATst7F7Ebqn"
+  },
+  {
+   "_id": "tuXMdLb068SQUxhD",
+   "name": "Прикрыть",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Когда по союзнику в 5 футах попадают атакой, щитожук становится целью этой атаки вместо него.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "Jwnbhhuz4vhmMLkV": {
+      "_id": "Jwnbhhuz4vhmMLkV",
+      "type": "utility",
+      "activation": {
+       "type": "reaction",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!TBQgReIja0yn7yBz.tuXMdLb068SQUxhD"
+  }
+ ],
+ "prototypeToken": {
+  "name": "Щитожук",
+  "displayName": 20,
+  "displayBars": 20,
+  "actorLink": false,
+  "disposition": -1,
+  "width": 2,
+  "height": 2,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "texture": {
+   "src": "modules/monstryatina/assets/hive/shield-token.webp",
+   "scaleX": 1.25,
+   "scaleY": 1.25,
+   "fit": "contain"
+  },
+  "sight": {
+   "enabled": true,
+   "range": 60,
+   "visionMode": "darkvision"
+  },
+  "ring": {
+   "enabled": false
+  }
+ },
+ "flags": {
+  "monstryatina": {
+   "id": "hive-shield"
+  }
+ }
+}

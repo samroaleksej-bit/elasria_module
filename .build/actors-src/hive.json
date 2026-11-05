@@ -1,0 +1,845 @@
+{
+ "_id": "9VJb1UvYjKOiy3WJ",
+ "_key": "!actors!9VJb1UvYjKOiy3WJ",
+ "folder": null,
+ "name": "Матка роя",
+ "type": "npc",
+ "img": "modules/monstryatina/assets/hive/portrait.webp",
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 20,
+    "proficient": 0
+   },
+   "dex": {
+    "value": 6,
+    "proficient": 0
+   },
+   "con": {
+    "value": 22,
+    "proficient": 1
+   },
+   "int": {
+    "value": 10,
+    "proficient": 0
+   },
+   "wis": {
+    "value": 14,
+    "proficient": 1
+   },
+   "cha": {
+    "value": 16,
+    "proficient": 0
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 17,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 225,
+    "max": 225,
+    "formula": "18d12 + 108"
+   },
+   "movement": {
+    "walk": 10,
+    "units": "ft"
+   },
+   "senses": {
+    "darkvision": 120,
+    "tremorsense": 60,
+    "units": "ft"
+   }
+  },
+  "details": {
+   "cr": 11,
+   "type": {
+    "value": "monstrosity",
+    "subtype": "насекомое-рептилия"
+   },
+   "alignment": "без мировоззрения",
+   "biography": {
+    "value": "<blockquote>Убить её несложно. Сложно дойти до неё через её детей. — Каргош Сломанный Рог</blockquote><p><b>Лидер · Элита</b> · гекс П-21</p><p>Говорит феромонами.</p>\n<h3>Фавориты</h3><p>Урон по области: огонь, волшебники, Завал туннелей (Атлетика), Ловушки облавы, Феромоновая железа</p><h3>Фолы</h3><p>Одиночные бойцы ближнего боя, Герои без брони против толпы, Те, кто тратит ходы на трутней</p>\n<h3>Знания</h3><p><b>СЛ 15.</b> Выводок лезет из туннелей. Закрытый туннель — меньше врагов. <i>(улика «пустые коконы»)</i></p><p><b>СЛ 19.</b> Железа трутня сбивает выводок с толку: на миг они принимают Матку за чужую. <i>(улика «мёртвый трутень»)</i></p><p><b>СЛ 24.</b> Брюхо светится и мягкое. Удар туда смертелен. <i>(улика «узор на коре»)</i></p>\n<h3>Кто выходит из туннеля (к6 за каждого)</h3><table><tr><td>1–2</td><td>Трутень-богомол</td></tr><tr><td>3</td><td>Плевун</td></tr><tr><td>4</td><td>Прыгун</td></tr><tr><td>5</td><td>Рой жалящих мошек</td></tr><tr><td>6</td><td>Щитожук</td></tr></table><p><i>Коконы и «Подъём» дают только трутней. Жала-гвардейцы выходят только из королевских коконов (Боевое действие «Королевская стража»).</i></p>\n<h3>Тактика</h3><p><b>Лёгкая:</b> Трутни атакуют ближайших, Матка жалит только тех, кто подошёл.</p><p><b>Средняя:</b> Метит феромоном заклинателя, трутни идут на него. Щит выводка на каждое попадание.</p><p><b>Сложная:</b> ☠ Все трутни на одну цель за раунд. Зов выводка в тот раунд, когда партия заваливает туннель. Брюхо закрыто до последнего.</p>\n<h3>Добыча</h3><p><b>Феромоновая железа</b> (Чудесный предмет, редкий). 1/день: насекомые и паукообразные в 30 фт. совершают спасбросок Мудрости СЛ 17 или подчиняются вам на 1 минуту.</p><p><b>Хитин королевы</b> (Доспех (тяжёлый), редкий). КД 17, сопротивление яду, без помехи на Скрытность.</p><h3>Крючок</h3><p>Герой без семьи или потерявший детей: Матка «узнаёт» его как чужого родителя и щадит в первом раунде.</p>"
+   }
+  },
+  "traits": {
+   "size": "huge",
+   "dr": {
+    "value": [
+     "acid"
+    ]
+   },
+   "di": {
+    "value": [
+     "poison"
+    ]
+   },
+   "ci": {
+    "value": [
+     "poisoned",
+     "frightened"
+    ]
+   },
+   "languages": {
+    "value": []
+   }
+  },
+  "skills": {
+   "prc": {
+    "value": 1,
+    "ability": "wis"
+   }
+  },
+  "resources": {
+   "legact": {
+    "value": 3,
+    "max": 3
+   },
+   "legres": {
+    "value": 3,
+    "max": 3
+   }
+  }
+ },
+ "items": [
+  {
+   "_id": "Yenqrz0EgjjkUdav",
+   "name": "Улей",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>На инициативе 20 из двух случайных открытых туннелей выходит по 2 трутня. На поле не больше 8 трутней.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.Yenqrz0EgjjkUdav"
+  },
+  {
+   "_id": "jiLX8DneEfDjbJDp",
+   "name": "Мать",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Трутни в 30 футах от Матки получают +2 к броскам атаки.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.jiLX8DneEfDjbJDp"
+  },
+  {
+   "_id": "sC5yMhDVw2AfL72Z",
+   "name": "Светящееся брюхо",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Брюхо излучает тусклый свет на 20 футов. С уликой «узор на коре» атаки по брюху критуют на 19–20.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.sC5yMhDVw2AfL72Z"
+  },
+  {
+   "_id": "OnjisffNG68b4gWJ",
+   "name": "Узнавание",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Матка не атакует героя без семьи или потерявшего детей в первом раунде. Почему — пусть выяснит сам.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.OnjisffNG68b4gWJ"
+  },
+  {
+   "_id": "guYfceQzhowsI1pi",
+   "name": "Хитин королевы (3/день)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Если Матка проваливает спасбросок, она может преуспеть. За каждый заваленный туннель −1 использование.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "3",
+     "spent": 0,
+     "recovery": [
+      {
+       "period": "day",
+       "type": "recoverAll"
+      }
+     ]
+    },
+    "activities": {
+     "0p0mUNmTbuK08fbz": {
+      "_id": "0p0mUNmTbuK08fbz",
+      "type": "utility",
+      "activation": {
+       "type": "special",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": [
+        {
+         "type": "itemUses",
+         "value": "1"
+        }
+       ]
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.guYfceQzhowsI1pi"
+  },
+  {
+   "_id": "QFMCkYKJF14QmWYi",
+   "name": "Мультиатака",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Матка совершает атаку Жвалами и атаку Жалом.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "A0J6KcZ6MPzsAhY3": {
+      "_id": "A0J6KcZ6MPzsAhY3",
+      "type": "utility",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.QFMCkYKJF14QmWYi"
+  },
+  {
+   "_id": "7w48D9TjZ5jRXDfK",
+   "name": "Жвалы",
+   "type": "weapon",
+   "img": "icons/creatures/abilities/mouth-teeth-sharp.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +9 к попаданию, досягаемость 10 фт. Попадание: 18 (3к8 + 5) рубящего урона.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 10,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 3,
+      "denomination": 8,
+      "bonus": "",
+      "types": [
+       "slashing"
+      ]
+     }
+    },
+    "activities": {
+     "6ALpjNkRgxnStkFU": {
+      "_id": "6ALpjNkRgxnStkFU",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.7w48D9TjZ5jRXDfK"
+  },
+  {
+   "_id": "bT9lDtQjMNjMTHKB",
+   "name": "Жало",
+   "type": "weapon",
+   "img": "icons/creatures/abilities/stinger-poison-scorpion-brown.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +9 к попаданию, досягаемость 15 фт. Попадание: 16 (2к10 + 5) колющего урона, спасбросок Телосложения СЛ 18 или цель помечена феромоном на 1 минуту: трутни атакуют её с преимуществом.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 15,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 2,
+      "denomination": 10,
+      "bonus": "",
+      "types": [
+       "piercing"
+      ]
+     }
+    },
+    "activities": {
+     "ohZymlcpIRjjX4rn": {
+      "_id": "ohZymlcpIRjjX4rn",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.bT9lDtQjMNjMTHKB"
+  },
+  {
+   "_id": "1iTtcUtgfarFGsrP",
+   "name": "Приказ роя",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>До двух трутней перемещаются и атакуют.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "WvIz4nj1LNIFAFbI": {
+      "_id": "WvIz4nj1LNIFAFbI",
+      "type": "utility",
+      "activation": {
+       "type": "bonus",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.1iTtcUtgfarFGsrP"
+  },
+  {
+   "_id": "QqlXTk8xHVgmAfcv",
+   "name": "Щит выводка",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Когда по Матке попадает атака, трутень в 5 футах от неё становится целью вместо неё.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "lJJSHXvrFpC78Cr0": {
+      "_id": "lJJSHXvrFpC78Cr0",
+      "type": "utility",
+      "activation": {
+       "type": "reaction",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.QqlXTk8xHVgmAfcv"
+  },
+  {
+   "_id": "JsGRe9QCebApoNIH",
+   "name": "Приказ",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Один трутень атакует.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "LJPjcqRzZwcLqX3r": {
+      "_id": "LJPjcqRzZwcLqX3r",
+      "type": "utility",
+      "activation": {
+       "type": "legendary",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": [
+        {
+         "type": "attribute",
+         "target": "resources.legact.value",
+         "value": "1"
+        }
+       ]
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.JsGRe9QCebApoNIH"
+  },
+  {
+   "_id": "fVs9nKNV5mqMGHro",
+   "name": "Жало (2 действия)",
+   "type": "weapon",
+   "img": "icons/creatures/abilities/stinger-poison-scorpion-brown.webp",
+   "system": {
+    "description": {
+     "value": "<p>Матка совершает атаку Жалом.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 15,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 2,
+      "denomination": 10,
+      "bonus": "",
+      "types": [
+       "piercing"
+      ]
+     }
+    },
+    "activities": {
+     "d1QFyv9mgFaWgxsL": {
+      "_id": "d1QFyv9mgFaWgxsL",
+      "type": "attack",
+      "activation": {
+       "type": "legendary",
+       "value": 2
+      },
+      "consumption": {
+       "targets": [
+        {
+         "type": "attribute",
+         "target": "resources.legact.value",
+         "value": "2"
+        }
+       ]
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.fVs9nKNV5mqMGHro"
+  },
+  {
+   "_id": "k21lQSxnXLvkXm1A",
+   "name": "Волна феромона (2 действия)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Все трутни перемещаются на свою скорость.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "PTXR5TEICOC8RQk0": {
+      "_id": "PTXR5TEICOC8RQk0",
+      "type": "utility",
+      "activation": {
+       "type": "legendary",
+       "value": 2,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": [
+        {
+         "type": "attribute",
+         "target": "resources.legact.value",
+         "value": "2"
+        }
+       ]
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.k21lQSxnXLvkXm1A"
+  },
+  {
+   "_id": "59MdGhh7cC4NXPP2",
+   "name": "Обвал (Боевое действие)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Два сталактита падают на клетки героев: спасбросок Ловкости СЛ 17, 22 (4к10) дробящего урона.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "56tEdKUCBjHm7xRP": {
+      "_id": "56tEdKUCBjHm7xRP",
+      "type": "save",
+      "activation": {
+       "type": "special",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      },
+      "save": {
+       "ability": [
+        "dex"
+       ],
+       "dc": {
+        "calculation": "",
+        "formula": "17"
+       }
+      },
+      "damage": {
+       "onSave": "none",
+       "parts": [
+        {
+         "number": 4,
+         "denomination": 10,
+         "bonus": "",
+         "types": [
+          "bludgeoning"
+         ]
+        }
+       ]
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.59MdGhh7cC4NXPP2"
+  },
+  {
+   "_id": "l1c0W6M6SXt9CtNf",
+   "name": "Боевые действия",
+   "type": "feat",
+   "img": "icons/svg/sword.svg",
+   "system": {
+    "description": {
+     "value": "<p>Сигнал в конце хода → Разрешение в начале следующего. Раунды 1–2: одно действие, с 3-го раунда: два.</p><h3>Зов выводка <small>(Нейтрализация)</small></h3>\n<p><b>Сигнал.</b> Брюхо пульсирует светом. Из туннелей доносится нарастающий стрёкот сотен лапок.</p><p><b>Нейтрализация.</b> Завалить туннель до Разрешения (Атлетика СЛ 15 или 15 урона по своду). Ловушки облавы режут выводок вдвое.</p><p><b>Разрешение.</b> Из каждого открытого туннеля выходит по 2 трутня.</p><p><b>Сорвано.</b> Стрёкот обрывается грохотом камней. Туннель молчит.</p><h3>Феромонная метка <small>(Нейтрализация)</small></h3>\n<p><b>Сигнал.</b> Жало качается из стороны в сторону, как маятник, и замирает, указывая на одного героя.</p><p><b>Нейтрализация.</b> Улика «мёртвый трутень»: облить себя соком феромоновой железы. Или уйти за пределы 60 футов её чувства вибрации.</p><p><b>Разрешение.</b> Цель помечена до конца боя: все трутни атакуют её с преимуществом и идут к ней.</p><p><b>Сорвано.</b> Запах сбивает выводок. Трутни кружат на месте.</p><h3>Королевская стража <small>(Нейтрализация, фаза 2)</small></h3>\n<p><b>Сигнал.</b> У самого гнезда трескаются два огромных кокона, крупнее остальных. Изнутри — хитин цвета старой бронзы.</p><p><b>Нейтрализация.</b> Разбить королевские коконы до Разрешения (КД 15, 30 хитов каждый) или завалить на них сталактит.</p><p><b>Разрешение.</b> Вылупляются 2 Жала-гвардейца. Пока гвардеец в 5 футах от Матки, атаки по ней совершаются с помехой.</p><p><b>Сорвано.</b> Кокон лопается мёртвым. Матка визжит на весь улей.</p><h3>Подъём <small>(Смягчение, фаза 2)</small></h3>\n<p><b>Сигнал.</b> Матка упирается лапами в пол. Гнездо трещит, огромное тело начинает подниматься.</p><p><b>Смягчение.</b> Обрушить сталактит на неё в момент подъёма: она падает ничком, брюхо открыто.</p><p><b>Разрешение.</b> Матка встаёт: скорость 30 фт., лазая 30 фт. Все коконы лопаются (6 трутней).</p><p><b>Сорвано.</b> Сталактит бьёт её в спину. Она валится набок, светящееся брюхо вверх.</p><h3>Обвал <small>(Смягчение, фаза 3)</small></h3>\n<p><b>Сигнал.</b> Свод над героями трещит. Сверху сыплется каменная крошка.</p><p><b>Смягчение.</b> Уйти из-под трещины (места падения видны) или подставить щит: половина урона.</p><p><b>Разрешение.</b> Два сталактита падают на клетки героев: спасбросок Ловкости СЛ 17, 22 (4к10) дробящего урона.</p><p><b>Сорвано.</b> Камни падают в пустоту. Пыль оседает.</p><p></p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.l1c0W6M6SXt9CtNf"
+  },
+  {
+   "_id": "BmyQnyEz3G1S0L9g",
+   "name": "Слабое место: Туннели",
+   "type": "feat",
+   "img": "icons/svg/target.svg",
+   "system": {
+    "description": {
+     "value": "<p>Улей живёт туннелями. Каждый заваленный туннель — это меньше выводка и минус одно легендарное сопротивление. Партия, которая завалит все три, бьётся с одной Маткой. Трекер туннелей — на пульте Монстрятины.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.BmyQnyEz3G1S0L9g"
+  },
+  {
+   "_id": "jQVMVL1Qrw34a4p0",
+   "name": "Фазы",
+   "type": "feat",
+   "img": "icons/svg/clockwork.svg",
+   "system": {
+    "description": {
+     "value": "<p>Матка неподвижна в гнезде, из туннелей лезет выводок.<br>Ниже 50%: поднимается, все коконы лопаются (6 трутней), ползёт по залу. Брюхо открыто.<br>Ниже 25%: пещера трещит, каждый раунд падает случайный сталактит (4к10 в 10 фт.).</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.jQVMVL1Qrw34a4p0"
+  },
+  {
+   "_id": "yYQw1ujIA73I4IZf",
+   "name": "Логово",
+   "type": "feat",
+   "img": "icons/svg/house.svg",
+   "system": {
+    "description": {
+     "value": "<p>Выводок: из двух случайных открытых туннелей выходит по 2 трутня.<br>Кокон рядом с шумом лопается: +1 трутень.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!9VJb1UvYjKOiy3WJ.yYQw1ujIA73I4IZf"
+  }
+ ],
+ "prototypeToken": {
+  "name": "Матка роя",
+  "displayName": 20,
+  "displayBars": 20,
+  "actorLink": false,
+  "disposition": -1,
+  "width": 3,
+  "height": 3,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "texture": {
+   "src": "modules/monstryatina/assets/hive/token.webp",
+   "scaleX": 1.3,
+   "scaleY": 1.3,
+   "fit": "contain"
+  },
+  "sight": {
+   "enabled": true,
+   "range": 120,
+   "visionMode": "darkvision"
+  },
+  "ring": {
+   "enabled": false
+  }
+ },
+ "flags": {
+  "monstryatina": {
+   "id": "hive"
+  }
+ }
+}

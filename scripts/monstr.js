@@ -6,7 +6,7 @@
 import { BOSSES, TONES } from "./bosses.js";
 
 const MID = "monstryatina";
-const M = { VERSION: "0.4.0", BOSSES };
+const M = { VERSION: "0.5.0", BOSSES };
 const CH = "module." + MID;
 const ROOT = `modules/${MID}/`;
 const isGM = () => !!game.user?.isGM;
@@ -27,6 +27,7 @@ Hooks.once("init", () => {
   S("state", { scope: "world", config: false, type: Object, default: DEFAULT_STATE, onChange: (v) => { if (v && typeof v === "object") CUR = v; M.refresh(); } });
   S("hints", { name: "Подсказывать игрокам, как сорвать Действие", hint: "Выключено — способ противодействия видит только мастер.", scope: "world", config: true, type: Boolean, default: false });
   S("rolls", { name: "Бросать урон на Разрешении", hint: "Плашка покажет выпавший урон. Смягчено — половина.", scope: "world", config: true, type: Boolean, default: true });
+  S("autoSummon", { name: "Ставить призванных автоматически", hint: "На Разрешении призыва (например, «Королевская стража») токены сразу встают вокруг босса.", scope: "world", config: true, type: Boolean, default: false });
   S("chat", { name: "Дублировать плашки в чат", scope: "world", config: true, type: Boolean, default: false });
   S("volume", { name: "Громкость звуков", scope: "client", config: true, type: Number, range: { min: 0, max: 1, step: 0.05 }, default: 0.8 });
   S("motion", { name: "Тряска и вспышки экрана", hint: "Только у вас. Укачивает — выключите.", scope: "client", config: true, type: Boolean, default: true });
@@ -185,6 +186,33 @@ M.Screen = {
     };
     requestAnimationFrame(tick);
   },
+  /** Жуки: тёмные многоногие точки разбегаются по экрану. */
+  bugs({ count = 120, duration = 3200 } = {}) {
+    if (M._reduced()) return;
+    const cv = document.createElement("canvas"); cv.className = "mf-leaves"; cv.width = innerWidth; cv.height = innerHeight;
+    this.layer().appendChild(cv);
+    const ctx = cv.getContext("2d"), edge = () => { const s = Math.floor(Math.random() * 4); return s === 0 ? [Math.random() * cv.width, -20] : s === 1 ? [cv.width + 20, Math.random() * cv.height] : s === 2 ? [Math.random() * cv.width, cv.height + 20] : [-20, Math.random() * cv.height]; };
+    const P = Array.from({ length: count }, () => { const [x, y] = edge(); const a = Math.atan2(cv.height / 2 - y + (Math.random() - .5) * 400, cv.width / 2 - x + (Math.random() - .5) * 600);
+      return { x, y, a, sp: 3 + Math.random() * 5, r: 4 + Math.random() * 6, ph: Math.random() * 6 }; });
+    const t0 = performance.now();
+    const tick = (now) => {
+      const p = (now - t0) / duration; if (p >= 1) return cv.remove();
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      for (const q of P) {
+        q.a += (Math.random() - .5) * .35; q.x += Math.cos(q.a) * q.sp; q.y += Math.sin(q.a) * q.sp; q.ph += .9;
+        ctx.save(); ctx.translate(q.x, q.y); ctx.rotate(q.a); ctx.globalAlpha = .85 * (1 - p * p);
+        ctx.strokeStyle = "#1a120a"; ctx.lineWidth = 1.2;
+        for (let k = -1; k <= 1; k++) { const w = Math.sin(q.ph + k) * q.r * .5; ctx.beginPath(); ctx.moveTo(k * q.r * .5, 0); ctx.lineTo(k * q.r * .5 + w, -q.r * 1.1); ctx.moveTo(k * q.r * .5, 0); ctx.lineTo(k * q.r * .5 - w, q.r * 1.1); ctx.stroke(); }
+        ctx.fillStyle = "#2a1c0e"; ctx.beginPath(); ctx.ellipse(0, 0, q.r, q.r * .55, 0, 0, 7); ctx.fill();
+        ctx.fillStyle = "rgba(232,162,58,.7)"; ctx.beginPath(); ctx.ellipse(-q.r * .5, 0, q.r * .35, q.r * .3, 0, 0, 7); ctx.fill();
+        ctx.restore();
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  },
+  /** Пыль и каменная крошка сверху. */
+  dust({ count = 100, duration = 3000 } = {}) { this.leaves({ count, duration, spin: false, colors: ["#8A7A5A", "#6E5E44", "#B0A080", "#4A3E2C"] }); },
   play(list) {
     if (!Array.isArray(list)) return;
     for (const [name, opts] of list) { try { this[name]?.(opts || {}); } catch (e) { console.warn("Monstryatina FX:", name, e); } }
@@ -281,18 +309,31 @@ M.bossToken = function (id = bossId()) {
 };
 
 /** Поставить миньонов вокруг босса (или в центр экрана) из компендиума модуля. */
-M.summon = async function (id = bossId(), count) {
+const getActor = async (name) => {
+  let actor = game.actors.find(a => a.name === name);
+  const pack = game.packs.get(`${MID}.actors`);
+  if (!actor && pack) {
+    const idx = (await pack.getIndex()).find(e => e.name === name);
+    if (idx) actor = await game.actors.importFromCompendium(pack, idx._id, {}, { keepId: false });
+  }
+  return actor;
+};
+/** Призыв. name — какой миньон (для боссов с выводком), "roll" — случайно по таблице к6. */
+M.summon = async function (id = bossId(), count, name) {
   if (!isGM()) return;
   const b = BOSSES[id], sm = b?.summon; if (!sm) return M.warn("у этого босса нет призыва");
   if (!canvas?.scene) return M.warn("нет активной сцены");
   count ??= sm.count;
-  const pack = game.packs.get(`${MID}.actors`);
-  let actor = game.actors.find(a => a.name === sm.actor);
-  if (!actor && pack) {
-    const idx = (await pack.getIndex()).find(e => e.name === sm.actor);
-    if (idx) actor = await game.actors.importFromCompendium(pack, idx._id, {}, { keepId: false });
+  if (name === "roll" && sm.table) {
+    const got = [];
+    for (let i = 0; i < count; i++) { const r = Math.ceil(Math.random() * sm.table.length); got.push(sm.table[r - 1]); }
+    const tally = {}; got.forEach(n => tally[n] = (tally[n] || 0) + 1);
+    for (const [n, c] of Object.entries(tally)) await M.summon(id, c, n);
+    return;
   }
-  if (!actor) return M.warn(`не нашёл актёра «${sm.actor}»`);
+  name ??= sm.actor;
+  const actor = await getActor(name);
+  if (!actor) return M.warn(`не нашёл актёра «${name}»`);
   const grid = canvas.grid.size, bt = M.bossToken(id);
   const c = bt ? bt.center : canvas.stage.pivot;
   const docs = [];
@@ -306,7 +347,7 @@ M.summon = async function (id = bossId(), count) {
   }
   await canvas.scene.createEmbeddedDocuments("Token", docs);
   M.sound(id, sm.sound ?? "nymph");
-  ui.notifications.info(`${b.name}: на сцене ${count} × ${sm.actor}.`);
+  ui.notifications.info(`${b.name}: на сцене ${count} × ${name}.`);
 };
 
 /* ================================================================ API */
@@ -356,7 +397,10 @@ M.resolve = async function (key, outcome = "full", id = bossId()) {
   await M.broadcast({ kicker: t.kicker, accent: t.accent, glow: t.glow, title: a.title, text, meta,
     art: M.artPath(id, key, outcome === "none" ? "none" : "res"), art2: outcome === "none" ? M.artPath(id, key, "signal") : null, duration: outcome === "none" ? 5000 : 7000,
     screen: a.screen?.[outcome === "none" ? "none" : "full"], sound: M.sfxPath(id, outcome === "none" ? "none" : key + "-res") });
-  if (a.summon && outcome !== "none") M.Panel.flash("res", `«${a.title}» сработал — поставь миньонов кнопкой «Призыв» на пульте.`);
+  if (a.summon && outcome !== "none") {
+    if (a.summonActor && game.settings.get(MID, "autoSummon")) M.summon(id, a.summonCount ?? 2, a.summonActor);
+    else M.Panel.flash("res", `«${a.title}» сработал — поставь ${a.summonActor ? `${a.summonCount ?? ""} × ${a.summonActor}` : "миньонов"} кнопкой на пульте.`);
+  }
 };
 
 M.phase = async function (n, id = bossId()) {
@@ -370,6 +414,13 @@ M.phase = async function (n, id = bossId()) {
     sound: M.sfxPath(id, "phase") });
 };
 
+/** Плашка начала боя (общий арт босса со свитой). */
+M.intro = async function (id = bossId()) {
+  const b = BOSSES[id], it = b?.intro; if (!it) return;
+  await save(s => { s.boss = id; s.phase = 1; s.signal = null; s.target = null; });
+  await M.broadcast({ kicker: "БОСС", accent: b.accent, glow: "rgba(0,0,0,.5)", title: it.title ?? b.name, text: it.text, art: ROOT + `assets/${id}/${it.art}`, duration: 9000,
+    screen: [["rumble", { power: 4, duration: 2500 }], ["bugs", { count: 140 }]], sound: M.sfxPath(id, "phase") });
+};
 M.banner = function (title, text = "", tone = "info") {
   const t = TONES[tone] ?? TONES.info;
   return M.broadcast({ kicker: t.kicker, accent: t.accent, glow: t.glow, title, text, meta: null, art: null, duration: 6500 });
@@ -536,7 +587,11 @@ M.Panel = {
             <button class="b-soft" data-do="soft" data-k="${k}" title="Смягчено">СМЯГ</button>
             <button class="b-none" data-do="none" data-k="${k}" title="Сорвано">НЕЙТ</button></div>`;
         }).join("") + `<p class="mp-hint">Серое — не в эту фазу (кнопки всё равно работают). Раунды 1–2: одно Действие, с 3-го — два.</p>`)}
-        ${b.summon ? sec("summon", `Призыв · ${esc(b.summon.actor)}`, `
+        ${b.summon?.list ? sec("summon", "Выводок", `
+          ${b.summon.list.map(n => `<div class="mp-row"><span class="mp-name">${esc(n)}</span>${[1, 2, 4].map(c => `<button data-do="summon" data-n="${c}" data-a="${esc(n)}">+${c}</button>`).join("")}</div>`).join("")}
+          <div class="mp-grid c3" style="margin-top:4px">${[2, 4, 6].map(c => `<button data-do="summon" data-n="${c}" data-a="roll" title="${esc(b.summon.tableNote ?? "")}">к6 ×${c}</button>`).join("")}</div>
+          <p class="mp-hint">${esc(b.summon.tableNote ?? "")}</p>`)
+        : b.summon ? sec("summon", `Призыв · ${esc(b.summon.actor)}`, `
           <div class="mp-grid c3">${[1, 2, 3].map(n => `<button data-do="summon" data-n="${n}"${n === b.summon.count ? ' class="on"' : ""}>${n}</button>`).join("")}</div>
           <p class="mp-hint">Ставит токены вокруг босса (или в центр экрана), актёра берёт из компендиума.</p>`) : ""}
         ${b.segments ? sec("segs", `${b.segTitle ?? "Части тела"} · сломано ${b.segments.filter(x => M.segDmg(id, x.id) >= x.hp).length} из ${b.segments.length}`, b.segments.map(x => {
@@ -548,15 +603,15 @@ M.Panel = {
             <button data-do="seg" data-k="${x.id}" title="Нанести урон (Enter)">−</button></div>`;
         }).join("") + `<div class="mp-grid" style="margin-top:5px">${b.segNoPlace ? "" : `<button data-do="seg-place">Части на сцену</button>`}<button data-do="seg-reset">Сбросить</button></div>
           <p class="mp-hint">${b.segHint ?? "Урон по части идёт и в хиты босса. Сломана — плашка всем и −1 легендарное сопротивление."}</p>`) : ""}
-        ${sec("phase", "Фазы", b.phases.map(p => `<button class="wide${s.phase === p.n ? " on" : ""}" data-do="phase" data-n="${p.n}" title="${esc(p.text)}">${p.n}. ${esc(p.title)}${p.n > 1 ? ` · ${p.hp} хитов` : ""}</button>`).join(""))}
+        ${sec("phase", "Фазы", (b.intro ? `<button class="wide" data-do="intro">Начало боя — плашка со свитой</button>` : "") + b.phases.map(p => `<button class="wide${s.phase === p.n ? " on" : ""}" data-do="phase" data-n="${p.n}" title="${esc(p.text)}">${p.n}. ${esc(p.title)}${p.n > 1 ? ` · ${p.hp} хитов` : ""}</button>`).join(""))}
         ${sec("sfx", "Звуки всем", `
-          <div class="mp-grid">${Object.entries(b.sfx || {}).map(([k, f]) => `<button data-do="sfx" data-n="${f}">${({ strike: "Удар клинка", clash: "Звон клинков", roar: "Рёв", nymph: "Писк нимфы", bite: "Укус", tail: "Удар хвоста", swallow: "Глоток", thorn: "Шипы", guest: "Стон гостя", bloom: "Цветение" })[k] ?? k}</button>`).join("")}</div>`)}
+          <div class="mp-grid">${Object.entries(b.sfx || {}).map(([k, f]) => `<button data-do="sfx" data-n="${f}">${({ strike: "Удар клинка", clash: "Звон клинков", roar: "Рёв", nymph: "Писк нимфы", bite: "Укус", tail: "Удар хвоста", swallow: "Глоток", thorn: "Шипы", guest: "Стон гостя", bloom: "Цветение", chitter: "Стрёкот", spit: "Плевок", sting: "Жало" })[k] ?? k}</button>`).join("")}</div>`)}
         ${sec("banner", "Своя плашка", `
           <input class="mp-in" data-in="title" placeholder="Заголовок">
           <textarea class="mp-in" data-in="text" rows="2" placeholder="Текст"></textarea>
           <div class="mp-grid"><select class="mp-in" data-in="tone">${Object.entries(TONES).map(([k, t]) => `<option value="${k}">${t.kicker.toLowerCase()}</option>`).join("")}</select><button data-do="banner">Показать всем</button></div>`)}
         ${sec("fx", "Эффекты вручную", `
-          <div class="mp-grid">${[["shake", "Тряска"], ["rumble", "Гул"], ["spin", "Раскрутка"], ["drop", "Падение"], ["leaves", "Листья"], ["shadow", "Тень"], ["fog", "Туман"], ["drum", "Дробь"]].map(([k, n]) => `<button data-do="fx" data-n="${k}" title="Всем игрокам">${n}</button>`).join("")}</div>
+          <div class="mp-grid">${[["shake", "Тряска"], ["rumble", "Гул"], ["spin", "Раскрутка"], ["drop", "Падение"], ["leaves", "Листья"], ["shadow", "Тень"], ["fog", "Туман"], ["drum", "Дробь"], ["bugs", "Жуки"], ["dust", "Пыль"]].map(([k, n]) => `<button data-do="fx" data-n="${k}" title="Всем игрокам">${n}</button>`).join("")}</div>
           <button class="wide${game.settings.get(MID, "motion") ? " on" : ""}" data-do="t-motion" style="margin-top:5px">Тряска экрана (у меня)</button>`)}
       </div>`;
     el.querySelector(".mp-body").scrollTop = scroll;
@@ -589,7 +644,8 @@ M.Panel = {
         case "signal": return M.signal(k);
         case "full": case "soft": case "none": return M.resolve(k, d);
         case "phase": return M.phase(Number(n));
-        case "summon": return M.summon(id, Number(n));
+        case "intro": return M.intro(id);
+        case "summon": return M.summon(id, Number(n), btn.dataset.a || undefined);
         case "seg": { const inp = el.querySelector(`.mp-dmg[data-seg="${k}"]`); const v = Number(inp?.value); if (!v) return M.warn("впиши урон"); return M.segHit(k, v, id); }
         case "seg-place": return M.segPlace(id);
         case "seg-reset": return M.segReset(id);

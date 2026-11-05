@@ -1,0 +1,239 @@
+{
+ "_id": "U88yXt6qcXJi8oEE",
+ "_key": "!actors!U88yXt6qcXJi8oEE",
+ "folder": null,
+ "name": "Рой жалящих мошек",
+ "type": "npc",
+ "img": "modules/monstryatina/assets/hive/swarm-token.webp",
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 3,
+    "proficient": 0
+   },
+   "dex": {
+    "value": 14,
+    "proficient": 0
+   },
+   "con": {
+    "value": 10,
+    "proficient": 0
+   },
+   "int": {
+    "value": 1,
+    "proficient": 0
+   },
+   "wis": {
+    "value": 7,
+    "proficient": 0
+   },
+   "cha": {
+    "value": 1,
+    "proficient": 0
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 12,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 22,
+    "max": 22,
+    "formula": "5d8"
+   },
+   "movement": {
+    "walk": 10,
+    "fly": 30,
+    "units": "ft"
+   },
+   "senses": {
+    "darkvision": 60,
+    "units": "ft"
+   }
+  },
+  "details": {
+   "cr": 2,
+   "type": {
+    "value": "swarm",
+    "subtype": "",
+    "swarm": "tiny"
+   },
+   "alignment": "без мировоззрения",
+   "biography": {
+    "value": "<p><b>Выводок Матки роя.</b> Средний рой Крошечных насекомых, без мировоззрения.</p><p>Кто выходит из туннеля (к6 за каждого): 1–2 — Трутень-богомол; 3 — Плевун; 4 — Прыгун; 5 — Рой жалящих мошек; 6 — Щитожук.</p>"
+   }
+  },
+  "traits": {
+   "size": "med",
+   "dr": {
+    "value": [
+     "bludgeoning",
+     "piercing",
+     "slashing"
+    ]
+   },
+   "di": {
+    "value": []
+   },
+   "ci": {
+    "value": [
+     "charmed",
+     "frightened",
+     "grappled",
+     "paralyzed",
+     "petrified",
+     "prone",
+     "restrained",
+     "stunned"
+    ]
+   },
+   "languages": {
+    "value": []
+   }
+  },
+  "skills": {},
+  "resources": {}
+ },
+ "items": [
+  {
+   "_id": "Vsxdgr0PkkZgi9rU",
+   "name": "Рой",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Рой занимает пространство другого существа и проходит через щели размером с насекомое. Не восстанавливает хиты и не получает временных.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!U88yXt6qcXJi8oEE.Vsxdgr0PkkZgi9rU"
+  },
+  {
+   "_id": "zWm5y3EpmpXqmNOk",
+   "name": "Облепили",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Пока рой в пространстве существа, у того помеха на Внимательность, а спасброски концентрации — со СЛ +2.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!U88yXt6qcXJi8oEE.zWm5y3EpmpXqmNOk"
+  },
+  {
+   "_id": "bJCJnNJdhcyZCXNN",
+   "name": "Жала",
+   "type": "weapon",
+   "img": "icons/creatures/claws/claw-scaled-red.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +4 к попаданию, досягаемость 0 фт., одно существо в пространстве роя. Попадание: 10 (4к4) колющего урона, или 5 (2к4), если у роя половина хитов или меньше.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 5,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 4,
+      "denomination": 4,
+      "bonus": "",
+      "types": [
+       "piercing"
+      ]
+     }
+    },
+    "activities": {
+     "fDhyQWB9RvcMsTPH": {
+      "_id": "fDhyQWB9RvcMsTPH",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!U88yXt6qcXJi8oEE.bJCJnNJdhcyZCXNN"
+  }
+ ],
+ "prototypeToken": {
+  "name": "Рой жалящих мошек",
+  "displayName": 20,
+  "displayBars": 20,
+  "actorLink": false,
+  "disposition": -1,
+  "width": 1,
+  "height": 1,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "texture": {
+   "src": "modules/monstryatina/assets/hive/swarm-token.webp",
+   "scaleX": 1.25,
+   "scaleY": 1.25,
+   "fit": "contain"
+  },
+  "sight": {
+   "enabled": true,
+   "range": 60,
+   "visionMode": "darkvision"
+  },
+  "ring": {
+   "enabled": false
+  }
+ },
+ "flags": {
+  "monstryatina": {
+   "id": "hive-swarm"
+  }
+ }
+}
