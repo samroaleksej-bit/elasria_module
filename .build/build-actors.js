@@ -200,5 +200,19 @@ const guest = actor({ id: "bud-guest", name: "Спящий гость", portrait
     weapon("Лоза", G.actions[1][1], { n: 1, d: 8, reach: 10, img: "icons/magic/nature/root-vine-thorned-coil-green.webp" }),
     feat("Объятия", G.actions[2][1], { act: "action" })] });
 
-for (const [f, a] of [["sickle", sickle], ["sickle-nymph", nymph], ["eater", eater], ["bud", bud], ["bud-guest", guest]]) fs.writeFileSync(path.join(OUT, f + ".json"), JSON.stringify(a, null, 1));
+// ---------- Части тела Пожирателя: отдельные токены ----------
+const ALLC = ["blinded", "charmed", "deafened", "frightened", "grappled", "paralyzed", "petrified", "poisoned", "prone", "restrained", "stunned", "unconscious", "exhaustion"];
+const PARTS = [["head", 0], ["throat", 1], ["belly", 2], ["tail", 3]].map(([sid, i]) => {
+  const r = E.segments[i], acv = Number(String(r[1]).replace(/\D/g, "")), hpv = Number(r[2]);
+  const a = actor({ id: "eater-part-" + sid, name: `Пожиратель троп: ${r[0]}`, portrait: EART + `seg-${sid}.webp`, token: EART + `seg-${sid}.webp`,
+    abilities: (() => { const x = ab(E.stats); ["str", "con"].forEach(k => x[k].proficient = 1); return x; })(), ac: acv, hp: hpv, hpf: String(hpv), cr: 0, subtype: "часть тела", size: "lg", w: 2, scale: 1,
+    move: { walk: 0 }, senses: {}, sightRange: 0, ci: ALLC, skills: {},
+    bio: `<p><b>Часть тела Пожирателя троп.</b> ${r[3]}.</p><p>Урон по этой части идёт и в хиты Пожирателя (модуль считает сам).</p><p><b>Сломана (${hpv} урона):</b> ${r[4]}</p><p>−1 использование «Шкуры тропы».</p>`,
+    items: [feat("Часть тела", `${r[3]}. Атакуется как обычная цель. Сломана: ${r[4]}`, { img: "icons/svg/target.svg" })] });
+  a.flags.monstryatina.part = "eater." + sid; a.prototypeToken.actorLink = true; a.prototypeToken.displayBars = 50; a.prototypeToken.displayName = 30;
+  a.prototypeToken.sight.enabled = false; a.system.details.xp = { value: 0 };
+  return ["eater-" + sid, a];
+});
+
+for (const [f, a] of [["sickle", sickle], ["sickle-nymph", nymph], ["eater", eater], ["bud", bud], ["bud-guest", guest], ...PARTS]) fs.writeFileSync(path.join(OUT, f + ".json"), JSON.stringify(a, null, 1));
 console.log("ok", sickle.items.length, nymph.items.length);

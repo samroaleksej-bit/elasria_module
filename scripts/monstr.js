@@ -6,7 +6,7 @@
 import { BOSSES, TONES } from "./bosses.js";
 
 const MID = "monstryatina";
-const M = { VERSION: "0.3.0", BOSSES };
+const M = { VERSION: "0.4.0", BOSSES };
 const CH = "module." + MID;
 const ROOT = `modules/${MID}/`;
 const isGM = () => !!game.user?.isGM;
@@ -276,7 +276,7 @@ M.Track = {
 
 M.bossToken = function (id = bossId()) {
   const b = BOSSES[id]; if (!globalThis.canvas?.tokens) return null;
-  const is = (t) => t.actor?.getFlag?.(MID, "id") === id || b.match?.test(t.name) || b.match?.test(t.actor?.name ?? "");
+  const is = (t) => !t.actor?.getFlag?.(MID, "part") && (t.actor?.getFlag?.(MID, "id") === id || b.match?.test(t.name) || b.match?.test(t.actor?.name ?? ""));
   return canvas.tokens.controlled.find(is) ?? canvas.tokens.placeables.find(is) ?? null;
 };
 
@@ -379,39 +379,86 @@ M.fxAll = (name, opts = {}) => M.broadcast({ silent: true, screen: [[name, opts]
 
 /* ---------- части тела ---------- */
 M.segDmg = (id, sid) => Number(state().segs?.[`${id}.${sid}`] ?? 0);
-/** Урон по части тела: копит урон части, снимает хиты с босса, на поломке — плашка всем и −1 легендарное сопротивление. */
-M.segHit = async function (sid, dmg, id = bossId()) {
+/** Актёр части тела (отдельный токен, по которому бьют игроки): флаг monstryatina.part = "<босс>.<часть>". */
+M.partActor = (id, sid) => game.actors?.find(a => a.getFlag?.(MID, "part") === `${id}.${sid}`) ?? null;
+const partName = (b, sg) => `${b.name}: ${sg.name}`;
+
+/** Урон по части тела: копит урон части, снимает хиты с босса, на поломке — плашка всем и −1 легендарное сопротивление.
+ *  opts.fromPart — урон уже нанесён по токену части (не трогаем её хиты повторно). */
+M.segHit = async function (sid, dmg, id = bossId(), opts = {}) {
   const b = BOSSES[id], sg = b?.segments?.find(x => x.id === sid); if (!sg || !dmg) return;
   const before = M.segDmg(id, sid), after = Math.max(0, before + dmg);
   await save(s => { s.segs = s.segs || {}; s.segs[`${id}.${sid}`] = after; });
-  const tok = M.bossToken(id), actor = tok?.actor;
-  if (actor && (dmg > 0 && !b.segNoBossDmg || before < sg.hp && after >= sg.hp)) {
+  const pa = M.partActor(id, sid);
+  if (pa && !opts.fromPart) {
+    try { await pa.update({ "system.attributes.hp.value": Math.max(0, sg.hp - after) }, { [MID]: true }); } catch (e) { console.warn(e); }
+  }
+  const tok = M.bossToken(id), actor = tok?.actor ?? game.actors?.find(a => a.getFlag?.(MID, "id") === id);
+  const broke = before < sg.hp && after >= sg.hp;
+  if (actor && ((dmg > 0 && !b.segNoBossDmg) || broke)) {
     const hp = actor.system.attributes.hp.value;
     const upd = b.segNoBossDmg ? {} : { "system.attributes.hp.value": Math.max(0, hp - dmg) };
-    if (before < sg.hp && after >= sg.hp && actor.system.resources?.legres) upd["system.resources.legres.value"] = Math.max(0, (actor.system.resources.legres.value ?? 0) - 1);
-    try { await actor.update(upd); } catch (e) { console.warn(e); }
+    if (broke && actor.system.resources?.legres) upd["system.resources.legres.value"] = Math.max(0, (actor.system.resources.legres.value ?? 0) - 1);
+    try { await actor.update(upd, { [MID]: true }); } catch (e) { console.warn(e); }
   }
-  if (before < sg.hp && after >= sg.hp) {
+  if (broke) {
     await M.broadcast({ kicker: `${b.name} · ${b.segKicker ?? "часть тела сломана"}`, accent: "#E8C46A", glow: "rgba(232,196,106,.5)", title: sg.name, text: sg.broken,
       meta: b.segMeta ?? "<b>−1 легендарное сопротивление.</b>", art: ROOT + (sg.img ? `assets/${id}/${sg.img}` : `assets/${id}/seg-${sid}.webp`), duration: 7000, fit: sg.img ? null : "contain",
       screen: [["shake", { power: 16, duration: 700 }], ["flash", { color: "#E8C46A", opacity: .35 }]], sound: M.sfxPath(id, "none") });
+    if (pa) { try { await pa.toggleStatusEffect?.("dead", { active: true, overlay: true }); } catch (e) { } }
   }
 };
-M.segReset = (id = bossId()) => save(s => { for (const k of Object.keys(s.segs || {})) if (k.startsWith(id + ".")) delete s.segs[k]; });
-/** Метки частей тела на сцену — тайлы цепочкой от токена босса (двигай как надо). */
+M.segReset = async (id = bossId()) => {
+  await save(s => { for (const k of Object.keys(s.segs || {})) if (k.startsWith(id + ".")) delete s.segs[k]; });
+  for (const sg of BOSSES[id]?.segments ?? []) {
+    const pa = M.partActor(id, sg.id); if (!pa) continue;
+    try { await pa.update({ "system.attributes.hp.value": sg.hp }, { [MID]: true }); } catch (e) { }
+    try { await pa.toggleStatusEffect?.("dead", { active: false, overlay: true }); } catch (e) { }
+  }
+};
+/** Части тела на сцену: токены-части из компендиума (по ним бьют как по обычной цели) цепочкой от токена босса.
+ *  Если актёров частей нет — тайлы-метки. */
 M.segPlace = async function (id = bossId()) {
   const b = BOSSES[id]; if (!b?.segments || !canvas?.scene) return;
-  const g = canvas.grid.size, bt = M.bossToken(id), c = bt ? { x: bt.x, y: bt.y + bt.h / 2 - g / 2 } : canvas.stage.pivot;
+  const g = canvas.grid.size, bt = M.bossToken(id), c = bt ? { x: bt.x, y: bt.y + bt.h / 2 - g } : { x: canvas.stage.pivot.x, y: canvas.stage.pivot.y };
+  const pack = game.packs.get(`${MID}.actors`), idx = pack ? await pack.getIndex({ fields: ["flags"] }) : null;
+  const docs = [];
+  for (const [i, sg] of b.segments.entries()) {
+    let a = M.partActor(id, sg.id);
+    if (!a && idx) {
+      const e = idx.find(x => x.flags?.[MID]?.part === `${id}.${sg.id}`) ?? idx.find(x => x.name === partName(b, sg));
+      if (e) a = await game.actors.importFromCompendium(pack, e._id, {}, { keepId: false });
+    }
+    if (!a) continue;
+    const td = (await a.getTokenDocument({ x: c.x + (bt ? bt.w : 0) + i * g * 2, y: c.y })).toObject();
+    docs.push(td);
+  }
+  if (docs.length) {
+    await canvas.scene.createEmbeddedDocuments("Token", docs);
+    return ui.notifications.info(`${b.name}: части тела на сцене — растащи их вдоль тела. Игроки бьют по ним как по обычным целям, урон уходит в хиты босса.`);
+  }
   const tiles = b.segments.map((sg, i) => ({ texture: { src: ROOT + `assets/${id}/seg-${sg.id}.webp` }, x: c.x + i * g * 2, y: c.y, width: g, height: g,
     elevation: 0, sort: 10, flags: { [MID]: { seg: sg.id } } }));
   await canvas.scene.createEmbeddedDocuments("Tile", tiles);
-  ui.notifications.info(`${b.name}: метки частей тела на сцене — растащи их вдоль тела.`);
+  ui.notifications.info(`${b.name}: метки частей тела на сцене.`);
 };
+/* Урон по токену части тела → трекер и хиты босса (обрабатывает один активный мастер). */
+Hooks.on("preUpdateActor", (actor, diff, opts) => {
+  if (!actor.getFlag?.(MID, "part") || opts?.[MID]) return;
+  if (foundry.utils.getProperty(diff, "system.attributes.hp.value") === undefined) return;
+  opts.monstrOldHp = actor.system.attributes.hp.value;
+});
+Hooks.on("updateActor", (actor, diff, opts) => {
+  const tag = actor.getFlag?.(MID, "part"); if (!tag || opts?.[MID] || opts?.monstrOldHp === undefined) return;
+  if (!isGM() || game.users.activeGM?.id !== game.user.id) return;
+  const [id, sid] = tag.split("."), dmg = opts.monstrOldHp - actor.system.attributes.hp.value;
+  if (dmg) M.segHit(sid, dmg, id, { fromPart: true });
+});
 
 /* ================================================================ связка с боем */
 
 const rhythm = (round) => (round >= 3 ? 2 : 1);
-const isBoss = (c) => { const b = boss(); return !!c && (c.actor?.getFlag?.(MID, "id") === bossId() || b.match?.test(c.name ?? c.actor?.name ?? "")); };
+const isBoss = (c) => { const b = boss(); return !!c && !c.actor?.getFlag?.(MID, "part") && (c.actor?.getFlag?.(MID, "id") === bossId() || b.match?.test(c.name ?? c.actor?.name ?? "")); };
 
 Hooks.on("updateCombat", (combat, diff) => {
   if (!isGM() || game.users.activeGM?.id !== game.user.id) return;
@@ -428,7 +475,7 @@ Hooks.on("updateCombat", (combat, diff) => {
 
 Hooks.on("updateActor", (actor, diff) => {
   if (!isGM() || game.users.activeGM?.id !== game.user.id) return;
-  if (diff?.system?.attributes?.hp?.value === undefined) return;
+  if (diff?.system?.attributes?.hp?.value === undefined || actor.getFlag(MID, "part")) return;
   for (const [id, b] of Object.entries(BOSSES)) {
     if (actor.getFlag(MID, "id") !== id && !b.match?.test(actor.name)) continue;
     const hp = actor.system.attributes.hp.value, s = state();
@@ -499,7 +546,7 @@ M.Panel = {
             <span class="mp-bar"><i style="width:${Math.min(100, d / x.hp * 100)}%"></i><b>${Math.min(d, x.hp)}/${x.hp}</b></span>
             <input type="number" class="mp-dmg" data-seg="${x.id}" placeholder="урон" min="-99" max="999">
             <button data-do="seg" data-k="${x.id}" title="Нанести урон (Enter)">−</button></div>`;
-        }).join("") + `<div class="mp-grid" style="margin-top:5px">${b.segNoPlace ? "" : `<button data-do="seg-place">Метки на сцену</button>`}<button data-do="seg-reset">Сбросить</button></div>
+        }).join("") + `<div class="mp-grid" style="margin-top:5px">${b.segNoPlace ? "" : `<button data-do="seg-place">Части на сцену</button>`}<button data-do="seg-reset">Сбросить</button></div>
           <p class="mp-hint">${b.segHint ?? "Урон по части идёт и в хиты босса. Сломана — плашка всем и −1 легендарное сопротивление."}</p>`) : ""}
         ${sec("phase", "Фазы", b.phases.map(p => `<button class="wide${s.phase === p.n ? " on" : ""}" data-do="phase" data-n="${p.n}" title="${esc(p.text)}">${p.n}. ${esc(p.title)}${p.n > 1 ? ` · ${p.hp} хитов` : ""}</button>`).join(""))}
         ${sec("sfx", "Звуки всем", `

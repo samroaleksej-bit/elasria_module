@@ -1,0 +1,156 @@
+{
+ "_id": "sLObsQVfKp95DZVH",
+ "_key": "!actors!sLObsQVfKp95DZVH",
+ "folder": null,
+ "name": "Пожиратель троп: Голова",
+ "type": "npc",
+ "img": "modules/monstryatina/assets/eater/seg-head.webp",
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 23,
+    "proficient": 1
+   },
+   "dex": {
+    "value": 12,
+    "proficient": 0
+   },
+   "con": {
+    "value": 22,
+    "proficient": 1
+   },
+   "int": {
+    "value": 3,
+    "proficient": 0
+   },
+   "wis": {
+    "value": 14,
+    "proficient": 0
+   },
+   "cha": {
+    "value": 5,
+    "proficient": 0
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 17,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 60,
+    "max": 60,
+    "formula": "60"
+   },
+   "movement": {
+    "walk": 0,
+    "units": "ft"
+   },
+   "senses": {
+    "units": "ft"
+   }
+  },
+  "details": {
+   "cr": 0,
+   "type": {
+    "value": "monstrosity",
+    "subtype": "часть тела"
+   },
+   "alignment": "без мировоззрения",
+   "biography": {
+    "value": "<p><b>Часть тела Пожирателя троп.</b> Передние 3 клетки тела.</p><p>Урон по этой части идёт и в хиты Пожирателя (модуль считает сам).</p><p><b>Сломана (60 урона):</b> Челюсть сломана: Укус без захвата, урон −1к12. Материал: зубы Пожирателя.</p><p>−1 использование «Шкуры тропы».</p>"
+   },
+   "xp": {
+    "value": 0
+   }
+  },
+  "traits": {
+   "size": "lg",
+   "dr": {
+    "value": []
+   },
+   "di": {
+    "value": []
+   },
+   "ci": {
+    "value": [
+     "blinded",
+     "charmed",
+     "deafened",
+     "frightened",
+     "grappled",
+     "paralyzed",
+     "petrified",
+     "poisoned",
+     "prone",
+     "restrained",
+     "stunned",
+     "unconscious",
+     "exhaustion"
+    ]
+   },
+   "languages": {
+    "value": []
+   }
+  },
+  "skills": {},
+  "resources": {}
+ },
+ "items": [
+  {
+   "_id": "Cq0F6H83AMaMKNTX",
+   "name": "Часть тела",
+   "type": "feat",
+   "img": "icons/svg/target.svg",
+   "system": {
+    "description": {
+     "value": "<p>Передние 3 клетки тела. Атакуется как обычная цель. Сломана: Челюсть сломана: Укус без захвата, урон −1к12. Материал: зубы Пожирателя.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!sLObsQVfKp95DZVH.Cq0F6H83AMaMKNTX"
+  }
+ ],
+ "prototypeToken": {
+  "name": "Пожиратель троп: Голова",
+  "displayName": 30,
+  "displayBars": 50,
+  "actorLink": true,
+  "disposition": -1,
+  "width": 2,
+  "height": 2,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "texture": {
+   "src": "modules/monstryatina/assets/eater/seg-head.webp",
+   "scaleX": 1,
+   "scaleY": 1,
+   "fit": "contain"
+  },
+  "sight": {
+   "enabled": false,
+   "range": 0,
+   "visionMode": "darkvision"
+  },
+  "ring": {
+   "enabled": false
+  }
+ },
+ "flags": {
+  "monstryatina": {
+   "id": "eater-part-head",
+   "part": "eater.head"
+  }
+ }
+}

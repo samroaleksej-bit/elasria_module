@@ -1,0 +1,156 @@
+{
+ "_id": "R5rf3q2SCeXO9PLU",
+ "_key": "!actors!R5rf3q2SCeXO9PLU",
+ "folder": null,
+ "name": "Пожиратель троп: Хвост",
+ "type": "npc",
+ "img": "modules/monstryatina/assets/eater/seg-tail.webp",
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 23,
+    "proficient": 1
+   },
+   "dex": {
+    "value": 12,
+    "proficient": 0
+   },
+   "con": {
+    "value": 22,
+    "proficient": 1
+   },
+   "int": {
+    "value": 3,
+    "proficient": 0
+   },
+   "wis": {
+    "value": 14,
+    "proficient": 0
+   },
+   "cha": {
+    "value": 5,
+    "proficient": 0
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 16,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 40,
+    "max": 40,
+    "formula": "40"
+   },
+   "movement": {
+    "walk": 0,
+    "units": "ft"
+   },
+   "senses": {
+    "units": "ft"
+   }
+  },
+  "details": {
+   "cr": 0,
+   "type": {
+    "value": "monstrosity",
+    "subtype": "часть тела"
+   },
+   "alignment": "без мировоззрения",
+   "biography": {
+    "value": "<p><b>Часть тела Пожирателя троп.</b> Последняя треть тела.</p><p>Урон по этой части идёт и в хиты Пожирателя (модуль считает сам).</p><p><b>Сломана (40 урона):</b> Хвост срублен: нет атаки Хвостом, скорость −10 фт., не может уползти в фазе 3. Материал: шкура-тропа.</p><p>−1 использование «Шкуры тропы».</p>"
+   },
+   "xp": {
+    "value": 0
+   }
+  },
+  "traits": {
+   "size": "lg",
+   "dr": {
+    "value": []
+   },
+   "di": {
+    "value": []
+   },
+   "ci": {
+    "value": [
+     "blinded",
+     "charmed",
+     "deafened",
+     "frightened",
+     "grappled",
+     "paralyzed",
+     "petrified",
+     "poisoned",
+     "prone",
+     "restrained",
+     "stunned",
+     "unconscious",
+     "exhaustion"
+    ]
+   },
+   "languages": {
+    "value": []
+   }
+  },
+  "skills": {},
+  "resources": {}
+ },
+ "items": [
+  {
+   "_id": "tANYxIvuss1wJ8F6",
+   "name": "Часть тела",
+   "type": "feat",
+   "img": "icons/svg/target.svg",
+   "system": {
+    "description": {
+     "value": "<p>Последняя треть тела. Атакуется как обычная цель. Сломана: Хвост срублен: нет атаки Хвостом, скорость −10 фт., не может уползти в фазе 3. Материал: шкура-тропа.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!R5rf3q2SCeXO9PLU.tANYxIvuss1wJ8F6"
+  }
+ ],
+ "prototypeToken": {
+  "name": "Пожиратель троп: Хвост",
+  "displayName": 30,
+  "displayBars": 50,
+  "actorLink": true,
+  "disposition": -1,
+  "width": 2,
+  "height": 2,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "texture": {
+   "src": "modules/monstryatina/assets/eater/seg-tail.webp",
+   "scaleX": 1,
+   "scaleY": 1,
+   "fit": "contain"
+  },
+  "sight": {
+   "enabled": false,
+   "range": 0,
+   "visionMode": "darkvision"
+  },
+  "ring": {
+   "enabled": false
+  }
+ },
+ "flags": {
+  "monstryatina": {
+   "id": "eater-part-tail",
+   "part": "eater.tail"
+  }
+ }
+}
