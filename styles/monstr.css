@@ -342,3 +342,9 @@
 #monstr-panel .mp-dmg{width:100%; box-sizing:border-box; padding:4px; font-size:11px; background:#212A1C; color:#DCDACB; border:1px solid #35402E}
 #monstr-panel .mp-seg button{padding:4px 0}
 #monstr-stage.mx-contain{background:rgba(8,10,7,.82)}
+
+/* трекер Сигнала можно таскать */
+#monstr-signal{pointer-events:auto}
+#monstr-signal .ms-grip{position:absolute; top:6px; right:8px; cursor:grab; color:var(--ms-grip,#C9963A); font-size:16px; line-height:1; user-select:none; touch-action:none; opacity:.7}
+#monstr-signal .ms-grip:hover{opacity:1}
+#monstr-signal .ms-grip:active{cursor:grabbing}

@@ -6,7 +6,7 @@
 import { BOSSES, TONES } from "./bosses.js";
 
 const MID = "monstryatina";
-const M = { VERSION: "0.5.0", BOSSES };
+const M = { VERSION: "0.5.2", BOSSES };
 const CH = "module." + MID;
 const ROOT = `modules/${MID}/`;
 const isGM = () => !!game.user?.isGM;
@@ -291,13 +291,30 @@ M.Track = {
     const el = document.createElement("div");
     el.id = "monstr-signal"; el.dataset.key = key;
     el.innerHTML = `
+      <span class="ms-grip" title="Зажми и тащи. Двойной клик — на место">⠿</span>
       <p class="ms-k">${esc(b.name)} · активный сигнал</p>
       <p class="ms-t">${a.title}</p>
       ${s.target ? `<p class="ms-x">Цель: <b>${esc(s.target)}</b></p>` : ""}
       <p class="ms-l">${hints ? a.kind : "Что происходит"}</p>
       <p class="ms-c">${hints ? a.counter : a.signal}</p>`;
     document.body.appendChild(el);
+    M.drag(el, el.querySelector(".ms-grip"), "monstr-signal-pos");
   }
+};
+
+/** Перетаскивание плашек за ручку; позиция у каждого игрока своя (localStorage). */
+M.drag = function (el, grip, key) {
+  try { const p = JSON.parse(localStorage.getItem(key)); if (p) { el.style.left = Math.min(Math.max(0, p.x), innerWidth - 80) + "px"; el.style.top = Math.min(Math.max(0, p.y), innerHeight - 40) + "px"; el.style.right = "auto"; } } catch (e) { }
+  grip.addEventListener("dblclick", () => { try { localStorage.removeItem(key); } catch (e) { } el.style.left = ""; el.style.top = ""; el.style.right = ""; });
+  grip.addEventListener("pointerdown", (ev) => {
+    ev.preventDefault(); grip.setPointerCapture(ev.pointerId);
+    const r = el.getBoundingClientRect(), dx = ev.clientX - r.left, dy = ev.clientY - r.top;
+    el.style.right = "auto"; el.style.left = r.left + "px"; el.style.top = r.top + "px";
+    const move = (e) => { el.style.left = Math.min(Math.max(0, e.clientX - dx), innerWidth - 80) + "px"; el.style.top = Math.min(Math.max(0, e.clientY - dy), innerHeight - 40) + "px"; };
+    const up = () => { grip.removeEventListener("pointermove", move); grip.removeEventListener("pointerup", up);
+      try { localStorage.setItem(key, JSON.stringify({ x: parseInt(el.style.left), y: parseInt(el.style.top) })); } catch (e) { } };
+    grip.addEventListener("pointermove", move); grip.addEventListener("pointerup", up);
+  });
 };
 
 /* ================================================================ токены на сцене */
