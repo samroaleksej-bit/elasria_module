@@ -50,7 +50,7 @@ function actor(o) {
     system: { abilities: o.abilities,
       attributes: { ac: { flat: o.ac, calc: "natural" }, hp: { value: o.hp, max: o.hp, formula: o.hpf },
         movement: { ...(o.move || { walk: 40, climb: 40 }), units: "ft" }, senses: { ...(o.senses || { darkvision: 60 }), units: "ft" } },
-      details: { cr: o.cr, type: { value: "monstrosity", subtype: o.subtype }, alignment: "без мировоззрения",
+      details: { cr: o.cr, type: { value: o.ctype || "monstrosity", subtype: o.subtype }, alignment: o.align || "без мировоззрения",
         biography: { value: o.bio } },
       traits: { size: o.size, dr: { value: o.dr || [] }, di: { value: o.di || [] }, ci: { value: o.ci || [] }, languages: { value: [] } },
       skills: o.skills, resources: o.resources || {} },
@@ -155,5 +155,50 @@ const eater = actor({ id: "eater", name: "Пожиратель троп", portra
 <h3>Добыча</h3>${E.loot.map(l => `<p><b>${l[0]}</b> (${l[1]}). ${l[2]}</p>`).join("")}<h3>Крючок</h3><p>${E.hook}</p>`,
   items: eaterItems });
 
-for (const [f, a] of [["sickle", sickle], ["sickle-nymph", nymph], ["eater", eater]]) fs.writeFileSync(path.join(OUT, f + ".json"), JSON.stringify(a, null, 1));
+// ---------- Кровавый Бутон ----------
+const U = window.BOSSES.find(x => x.id === "bud"), UART = "modules/monstryatina/assets/bud/";
+const uAb = ab(U.stats); ["con", "wis", "cha"].forEach(k => uAb[k].proficient = 1);
+const UT = Object.fromEntries(U.traits);
+const uBa = U.ba.map(a => `<h3>${a.n} <small>(${a.t}${a.ph !== "все" ? ", фаза " + a.ph : ""})</small></h3>
+<p><b>Сигнал.</b> ${a.s}</p><p><b>${a.t}.</b> ${a.c}</p><p><b>Разрешение.</b> ${a.r}</p><p><b>Сорвано.</b> ${a.x}</p>`).join("");
+const budItems = [
+  ...["Сердца-розы", "Корни в топи", "Облака пыльцы", "Лицо любимого", "Соль"].map(n => feat(n, UT[n])),
+  feat("Цветущая стойкость (3/день)", UT["Цветущая стойкость (3/день)"], { act: "special", uses: 3 }),
+  feat("Мультиатака", U.actions[0][1], { act: "action" }),
+  weapon("Стебель", U.actions[1][1], { n: 2, d: 10, reach: 15, extra: [dp(2, 6, "", "poison")], img: "icons/magic/nature/root-vine-thorned-coil-green.webp" }),
+  weapon("Корень", U.actions[2][1], { n: 2, d: 8, reach: 60, type: "bludgeoning", img: "icons/magic/nature/root-vine-entangled-humanoid.webp" }),
+  feat("Шипы", U.reactions[0][1], { act: "reaction" }),
+  weapon("Корень (легендарное)", U.legendary[0][1], { n: 2, d: 8, reach: 60, type: "bludgeoning", act: "legendary", legCost: 1, img: "icons/magic/nature/root-vine-entangled-humanoid.webp" }),
+  feat("Ветер", U.legendary[1][1], { act: "legendary", legCost: 1 }),
+  feat("Зов цветка (2 действия, фаза 2+)", U.legendary[2][1], { act: "legendary", cost: 2, legCost: 2 }),
+  feat("Сонный выдох (Боевое действие)", U.ba[1].r, { act: "special", save: { ab: "wis", dc: 17, area: 30 } }),
+  feat("Корни-ноги (Боевое действие)", U.ba[5].r, { act: "special", save: { ab: "str", dc: 18, dmg: [dp(4, 10, "", "bludgeoning")] } }),
+  feat("Боевые действия", `Сигнал в конце хода → Разрешение в начале следующего. Раунды 1–2: одно действие, с 3-го раунда: два.</p>${uBa}<p>`, { img: "icons/svg/sword.svg" }),
+  feat("Слабое место: " + U.weak[0], U.weak[1] + " Трекер кустов — на пульте Монстрятины.", { img: "icons/svg/target.svg" }),
+  feat("Фазы", U.phases.join("<br>"), { img: "icons/svg/clockwork.svg" }),
+  feat("Логово", U.lair.join("<br>"), { img: "icons/svg/house.svg" }),
+];
+const bud = actor({ id: "bud", name: "Кровавый Бутон", portrait: UART + "portrait.webp", token: UART + "token.webp",
+  abilities: uAb, ac: 16, hp: 230, hpf: "20d12 + 100", cr: 11, ctype: "plant", subtype: "", align: "нейтрально-злой", size: "huge", w: 3, scale: 1.3,
+  move: { walk: 0 }, senses: { blindsight: 60, tremorsense: 60 }, sightRange: 60,
+  dr: ["bludgeoning", "piercing"], ci: ["blinded", "deafened", "frightened", "charmed", "prone"], skills: { dec: { value: 1, ability: "cha" } },
+  resources: { legact: { value: 3, max: 3 }, legres: { value: 3, max: 3 } },
+  bio: `<blockquote>${U.quote}</blockquote><p><b>${U.cls}</b> · гекс ${U.hex}</p><p>Говорит голосами любимых, понимает Драконий.</p>
+<h3>Фавориты</h3><p>${U.fav.join(", ")}</p><h3>Фолы</h3><p>${U.fol.join(", ")}</p>
+<h3>Знания</h3>${U.lore.map(l => `<p><b>СЛ ${l[0]}.</b> ${l[1]} <i>(${l[2]})</i></p>`).join("")}
+<h3>Тактика</h3><p><b>Лёгкая:</b> ${U.tactics.easy}</p><p><b>Средняя:</b> ${U.tactics.mid}</p><p><b>Сложная:</b> ${U.tactics.hard}</p>
+<h3>Добыча</h3>${U.loot.map(l => `<p><b>${l[0]}</b> (${l[1]}). ${l[2]}</p>`).join("")}<h3>Крючок</h3><p>${U.hook}</p>`,
+  items: budItems });
+const G = window.SUMMONS.bud.list[0], GT = Object.fromEntries(G.traits);
+const gAb = ab(G.stats); gAb.con.proficient = 1;
+const guest = actor({ id: "bud-guest", name: "Спящий гость", portrait: UART + "guest-portrait.webp", token: UART + "guest-token.webp",
+  abilities: gAb, ac: 12, hp: 30, hpf: "4d8 + 12", cr: 2, ctype: "plant", subtype: "оплетённое тело", size: "med", w: 1, scale: 1.3,
+  move: { walk: 20 }, senses: { blindsight: 30 }, sightRange: 30, dr: ["piercing"], ci: ["charmed", "frightened", "exhaustion"], skills: {},
+  bio: `<p>Встаёт из топи Боевым действием Кровавого Бутона «Сад встаёт» (3 гостя). Это те, кто пришёл сюда раньше героев.</p>`,
+  items: [feat("Не чувствует боли", GT["Не чувствует боли"]), feat("Посмертный цветок", GT["Посмертный цветок"], { act: "special", save: { ab: "wis", dc: 15, area: 10 } }),
+    feat("Знакомое лицо", GT["Знакомое лицо"]), feat("Мультиатака", G.actions[0][1], { act: "action" }),
+    weapon("Лоза", G.actions[1][1], { n: 1, d: 8, reach: 10, img: "icons/magic/nature/root-vine-thorned-coil-green.webp" }),
+    feat("Объятия", G.actions[2][1], { act: "action" })] });
+
+for (const [f, a] of [["sickle", sickle], ["sickle-nymph", nymph], ["eater", eater], ["bud", bud], ["bud-guest", guest]]) fs.writeFileSync(path.join(OUT, f + ".json"), JSON.stringify(a, null, 1));
 console.log("ok", sickle.items.length, nymph.items.length);

@@ -1,0 +1,375 @@
+{
+ "_id": "SYAc0WyyAl5CGmX4",
+ "_key": "!actors!SYAc0WyyAl5CGmX4",
+ "folder": null,
+ "name": "Спящий гость",
+ "type": "npc",
+ "img": "modules/monstryatina/assets/bud/guest-portrait.webp",
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 15,
+    "proficient": 0
+   },
+   "dex": {
+    "value": 8,
+    "proficient": 0
+   },
+   "con": {
+    "value": 16,
+    "proficient": 1
+   },
+   "int": {
+    "value": 3,
+    "proficient": 0
+   },
+   "wis": {
+    "value": 6,
+    "proficient": 0
+   },
+   "cha": {
+    "value": 5,
+    "proficient": 0
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 12,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 30,
+    "max": 30,
+    "formula": "4d8 + 12"
+   },
+   "movement": {
+    "walk": 20,
+    "units": "ft"
+   },
+   "senses": {
+    "blindsight": 30,
+    "units": "ft"
+   }
+  },
+  "details": {
+   "cr": 2,
+   "type": {
+    "value": "plant",
+    "subtype": "оплетённое тело"
+   },
+   "alignment": "без мировоззрения",
+   "biography": {
+    "value": "<p>Встаёт из топи Боевым действием Кровавого Бутона «Сад встаёт» (3 гостя). Это те, кто пришёл сюда раньше героев.</p>"
+   }
+  },
+  "traits": {
+   "size": "med",
+   "dr": {
+    "value": [
+     "piercing"
+    ]
+   },
+   "di": {
+    "value": []
+   },
+   "ci": {
+    "value": [
+     "charmed",
+     "frightened",
+     "exhaustion"
+    ]
+   },
+   "languages": {
+    "value": []
+   }
+  },
+  "skills": {},
+  "resources": {}
+ },
+ "items": [
+  {
+   "_id": "n722YiDO1v3HRFrO",
+   "name": "Не чувствует боли",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Гость не теряет концентрацию Бутона и не отступает.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!SYAc0WyyAl5CGmX4.n722YiDO1v3HRFrO"
+  },
+  {
+   "_id": "QC5FeD7pBeL2gc1a",
+   "name": "Посмертный цветок",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Когда гость умирает, он лопается облаком пыльцы радиусом 10 футов: спасбросок Мудрости СЛ 15 или очарован Бутоном до конца своего следующего хода.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "HEgJGnRM0j9SpHUU": {
+      "_id": "HEgJGnRM0j9SpHUU",
+      "type": "save",
+      "activation": {
+       "type": "special",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {
+       "template": {
+        "type": "radius",
+        "size": "10",
+        "units": "ft"
+       },
+       "affects": {
+        "type": "creature"
+       }
+      },
+      "duration": {
+       "units": "inst"
+      },
+      "save": {
+       "ability": [
+        "wis"
+       ],
+       "dc": {
+        "calculation": "",
+        "formula": "15"
+       }
+      },
+      "damage": {
+       "onSave": "none",
+       "parts": []
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!SYAc0WyyAl5CGmX4.QC5FeD7pBeL2gc1a"
+  },
+  {
+   "_id": "90cLzCa2izS89XhN",
+   "name": "Знакомое лицо",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Если гость — пропавший знакомый героя, этот герой атакует его с помехой.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!SYAc0WyyAl5CGmX4.90cLzCa2izS89XhN"
+  },
+  {
+   "_id": "1sY4bWVB6Ydi03fu",
+   "name": "Мультиатака",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Гость совершает две атаки Лозой.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "OJOVkAyj7xIgGNhT": {
+      "_id": "OJOVkAyj7xIgGNhT",
+      "type": "utility",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!SYAc0WyyAl5CGmX4.1sY4bWVB6Ydi03fu"
+  },
+  {
+   "_id": "g6LvZR1dgtsaYpaL",
+   "name": "Лоза",
+   "type": "weapon",
+   "img": "icons/magic/nature/root-vine-thorned-coil-green.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +4 к попаданию, досягаемость 10 фт. Попадание: 6 (1к8 + 2) рубящего урона, цель опутана (СЛ высвобождения 15).</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 10,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 1,
+      "denomination": 8,
+      "bonus": "",
+      "types": [
+       "slashing"
+      ]
+     }
+    },
+    "activities": {
+     "uMUeukC4QVBX3yxW": {
+      "_id": "uMUeukC4QVBX3yxW",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!SYAc0WyyAl5CGmX4.g6LvZR1dgtsaYpaL"
+  },
+  {
+   "_id": "N6UPnJ27DcLzEFDW",
+   "name": "Объятия",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Опутанное гостем существо в 5 футах: 7 (2к6) некротического урона. Бутон восстанавливает столько же хитов.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "aketwCpUqWrtCHr0": {
+      "_id": "aketwCpUqWrtCHr0",
+      "type": "utility",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!SYAc0WyyAl5CGmX4.N6UPnJ27DcLzEFDW"
+  }
+ ],
+ "prototypeToken": {
+  "name": "Спящий гость",
+  "displayName": 20,
+  "displayBars": 20,
+  "actorLink": false,
+  "disposition": -1,
+  "width": 1,
+  "height": 1,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "texture": {
+   "src": "modules/monstryatina/assets/bud/guest-token.webp",
+   "scaleX": 1.3,
+   "scaleY": 1.3,
+   "fit": "contain"
+  },
+  "sight": {
+   "enabled": true,
+   "range": 30,
+   "visionMode": "darkvision"
+  },
+  "ring": {
+   "enabled": false
+  }
+ },
+ "flags": {
+  "monstryatina": {
+   "id": "bud-guest"
+  }
+ }
+}

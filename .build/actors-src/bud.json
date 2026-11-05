@@ -1,0 +1,901 @@
+{
+ "_id": "BVYF3QwT14K3he8S",
+ "_key": "!actors!BVYF3QwT14K3he8S",
+ "folder": null,
+ "name": "Кровавый Бутон",
+ "type": "npc",
+ "img": "modules/monstryatina/assets/bud/portrait.webp",
+ "system": {
+  "abilities": {
+   "str": {
+    "value": 22,
+    "proficient": 0
+   },
+   "dex": {
+    "value": 8,
+    "proficient": 0
+   },
+   "con": {
+    "value": 20,
+    "proficient": 1
+   },
+   "int": {
+    "value": 8,
+    "proficient": 0
+   },
+   "wis": {
+    "value": 16,
+    "proficient": 1
+   },
+   "cha": {
+    "value": 18,
+    "proficient": 1
+   }
+  },
+  "attributes": {
+   "ac": {
+    "flat": 16,
+    "calc": "natural"
+   },
+   "hp": {
+    "value": 230,
+    "max": 230,
+    "formula": "20d12 + 100"
+   },
+   "movement": {
+    "walk": 0,
+    "units": "ft"
+   },
+   "senses": {
+    "blindsight": 60,
+    "tremorsense": 60,
+    "units": "ft"
+   }
+  },
+  "details": {
+   "cr": 11,
+   "type": {
+    "value": "plant",
+    "subtype": ""
+   },
+   "alignment": "нейтрально-злой",
+   "biography": {
+    "value": "<blockquote>Он показал мне её лицо. Я знал, что это ложь, и всё равно пошёл. — охотник Клыка, которого вытащили из топи</blockquote><p><b>Контролёр · Солдат</b> · гекс Л-7</p><p>Говорит голосами любимых, понимает Драконий.</p>\n<h3>Фавориты</h3><p>Огонь, Соль, Высокая Мудрость: жрецы, друиды, Дальний бой с кочек, Рубящее оружие по корням</p><h3>Фолы</h3><p>Бойцы ближнего боя в топи, Герои с низкой Мудростью, Одиночки, которых некому разбудить</p>\n<h3>Знания</h3><p><b>СЛ 15.</b> Пыльца усыпляет и очаровывает. Где Бутон, там нет насекомых: облака видно заранее. <i>(улика «поляна без насекомых»)</i></p><p><b>СЛ 19.</b> Его корни — это его ноги. Рубить корни значит замедлить его. <i>(улика «копья в корнях»)</i></p><p><b>СЛ 24.</b> Он вянет от соли. И его кусты роз — его сердца: пока они цветут, его не убить. <i>(улика «сухая роза»)</i></p>\n<h3>Тактика</h3><p><b>Лёгкая:</b> Облака стоят на месте. Очарованных не добивает, а держит рядом.</p><p><b>Средняя:</b> Очаровывает самого сильного бойца и бьёт Стеблями тех, кто пришёл его спасать. Корнями держит лучников на кочках.</p><p><b>Сложная:</b> ☠ Сонный выдох в первый раунд на всю партию, потом Зов цветка: спящих подтягивает к себе и рубит Стеблями. Кусты роз стоят за ним.</p>\n<h3>Добыча</h3><p><b>Кровавая роза</b> (Амулет, редкий, требует настройки). Преимущество на спасброски от очарования, 1/день — «Дружба» без компонентов.</p><p><b>Сонная пыльца</b> (Расходник, 3 дозы). Действие: облако 10 фт., спасбросок Мудрости СЛ 17 или сон на 1 минуту.</p><h3>Крючок</h3><p>Бард, романтик или тот, кого когда-то очаровали и предали: пыльца показывает ему лицо того, кого он любил.</p>"
+   }
+  },
+  "traits": {
+   "size": "huge",
+   "dr": {
+    "value": [
+     "bludgeoning",
+     "piercing"
+    ]
+   },
+   "di": {
+    "value": []
+   },
+   "ci": {
+    "value": [
+     "blinded",
+     "deafened",
+     "frightened",
+     "charmed",
+     "prone"
+    ]
+   },
+   "languages": {
+    "value": []
+   }
+  },
+  "skills": {
+   "dec": {
+    "value": 1,
+    "ability": "cha"
+   }
+  },
+  "resources": {
+   "legact": {
+    "value": 3,
+    "max": 3
+   },
+   "legres": {
+    "value": 3,
+    "max": 3
+   }
+  }
+ },
+ "items": [
+  {
+   "_id": "ApEnUNxWJ8e0PLtA",
+   "name": "Сердца-розы",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>На арене растут 4 куста роз (КД 12, 25 хитов, уязвимость к огню). В начале хода Бутон восстанавливает 10 хитов за каждый целый куст.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.ApEnUNxWJ8e0PLtA"
+  },
+  {
+   "_id": "Y9LKXmKx4Q3nUYeR",
+   "name": "Корни в топи",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Бутон атакует Корнем из любой клетки топи в 60 футах.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.Y9LKXmKx4Q3nUYeR"
+  },
+  {
+   "_id": "0PbhIKai1GjKNbIq",
+   "name": "Облака пыльцы",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Существо, которое начинает ход в облаке пыльцы, совершает спасбросок Мудрости СЛ 17 или очаровано до конца своего следующего хода. Очарованное тратит движение, чтобы подойти к Бутону, и не может атаковать его.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.0PbhIKai1GjKNbIq"
+  },
+  {
+   "_id": "uwJFYl4CE5N0i7gX",
+   "name": "Лицо любимого",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Очарованный видит в цветке лицо того, кого любил. Это эффект для отыгрыша, а не механика.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.uwJFYl4CE5N0i7gX"
+  },
+  {
+   "_id": "xmJHRf3yXXQK2iE1",
+   "name": "Соль",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Если по Бутону попадает брошенная соль, до конца следующего хода он уязвим ко всему урону.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.xmJHRf3yXXQK2iE1"
+  },
+  {
+   "_id": "SrwYFqOMKs37mZ71",
+   "name": "Цветущая стойкость (3/день)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Если Бутон проваливает спасбросок, он может преуспеть. За каждый уничтоженный куст роз −1 использование.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "3",
+     "spent": 0,
+     "recovery": [
+      {
+       "period": "day",
+       "type": "recoverAll"
+      }
+     ]
+    },
+    "activities": {
+     "lnhvQ5b1EdcAKayA": {
+      "_id": "lnhvQ5b1EdcAKayA",
+      "type": "utility",
+      "activation": {
+       "type": "special",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": [
+        {
+         "type": "itemUses",
+         "value": "1"
+        }
+       ]
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.SrwYFqOMKs37mZ71"
+  },
+  {
+   "_id": "sBRoa7XR5ymwcT99",
+   "name": "Мультиатака",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Бутон совершает две атаки Стеблем и одну атаку Корнем.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "lBJymXVzbKop5K2b": {
+      "_id": "lBJymXVzbKop5K2b",
+      "type": "utility",
+      "activation": {
+       "type": "action",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.sBRoa7XR5ymwcT99"
+  },
+  {
+   "_id": "CsDsXrvzkmr78gMI",
+   "name": "Стебель",
+   "type": "weapon",
+   "img": "icons/magic/nature/root-vine-thorned-coil-green.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +10 к попаданию, досягаемость 15 фт. Попадание: 17 (2к10 + 6) рубящего урона плюс 7 (2к6) урона ядом.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 15,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 2,
+      "denomination": 10,
+      "bonus": "",
+      "types": [
+       "slashing"
+      ]
+     }
+    },
+    "activities": {
+     "UPSavUE4iubmNYf3": {
+      "_id": "UPSavUE4iubmNYf3",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": [
+        {
+         "number": 2,
+         "denomination": 6,
+         "bonus": "",
+         "types": [
+          "poison"
+         ]
+        }
+       ]
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.CsDsXrvzkmr78gMI"
+  },
+  {
+   "_id": "33uzhAea8015uOKY",
+   "name": "Корень",
+   "type": "weapon",
+   "img": "icons/magic/nature/root-vine-entangled-humanoid.webp",
+   "system": {
+    "description": {
+     "value": "<p>Рукопашная атака: +10 к попаданию, любая клетка топи в 60 фт. Попадание: 15 (2к8 + 6) дробящего урона, цель опутана (СЛ 18).</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 60,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 2,
+      "denomination": 8,
+      "bonus": "",
+      "types": [
+       "bludgeoning"
+      ]
+     }
+    },
+    "activities": {
+     "NLf5WrX6gSYAuV60": {
+      "_id": "NLf5WrX6gSYAuV60",
+      "type": "attack",
+      "activation": {
+       "type": "action",
+       "value": 1
+      },
+      "consumption": {
+       "targets": []
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.33uzhAea8015uOKY"
+  },
+  {
+   "_id": "mh88Yl7BDOq8nady",
+   "name": "Шипы",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Когда по Бутону попадает рукопашная атака из 5 футов, атакующий получает 7 (2к6) колющего урона.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "QtRRdWmlYBjbopxQ": {
+      "_id": "QtRRdWmlYBjbopxQ",
+      "type": "utility",
+      "activation": {
+       "type": "reaction",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.mh88Yl7BDOq8nady"
+  },
+  {
+   "_id": "jVG5USknmmyZmzRI",
+   "name": "Корень (легендарное)",
+   "type": "weapon",
+   "img": "icons/magic/nature/root-vine-entangled-humanoid.webp",
+   "system": {
+    "description": {
+     "value": "<p>Бутон совершает атаку Корнем.</p>"
+    },
+    "type": {
+     "value": "natural",
+     "baseItem": ""
+    },
+    "proficient": 1,
+    "equipped": true,
+    "properties": [],
+    "range": {
+     "reach": 60,
+     "units": "ft"
+    },
+    "damage": {
+     "base": {
+      "number": 2,
+      "denomination": 8,
+      "bonus": "",
+      "types": [
+       "bludgeoning"
+      ]
+     }
+    },
+    "activities": {
+     "SMqqpOfhcIKkMAlg": {
+      "_id": "SMqqpOfhcIKkMAlg",
+      "type": "attack",
+      "activation": {
+       "type": "legendary",
+       "value": 1
+      },
+      "consumption": {
+       "targets": [
+        {
+         "type": "attribute",
+         "target": "resources.legact.value",
+         "value": "1"
+        }
+       ]
+      },
+      "attack": {
+       "ability": "str",
+       "bonus": "",
+       "flat": false,
+       "type": {
+        "value": "melee",
+        "classification": "weapon"
+       }
+      },
+      "damage": {
+       "includeBase": true,
+       "parts": []
+      },
+      "range": {
+       "override": false
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.jVG5USknmmyZmzRI"
+  },
+  {
+   "_id": "f0squmKPXVcglo4U",
+   "name": "Ветер",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Одно облако пыльцы смещается на 15 футов.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "i2770QQNZD0jssvG": {
+      "_id": "i2770QQNZD0jssvG",
+      "type": "utility",
+      "activation": {
+       "type": "legendary",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": [
+        {
+         "type": "attribute",
+         "target": "resources.legact.value",
+         "value": "1"
+        }
+       ]
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.f0squmKPXVcglo4U"
+  },
+  {
+   "_id": "seslTiD1nk738ukD",
+   "name": "Зов цветка (2 действия, фаза 2+)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Каждое очарованное существо подтягивается на 15 футов к Бутону.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "ipOEnqvHYBaVeLra": {
+      "_id": "ipOEnqvHYBaVeLra",
+      "type": "utility",
+      "activation": {
+       "type": "legendary",
+       "value": 2,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": [
+        {
+         "type": "attribute",
+         "target": "resources.legact.value",
+         "value": "2"
+        }
+       ]
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.seslTiD1nk738ukD"
+  },
+  {
+   "_id": "YRoQBj3YsTEHSWdR",
+   "name": "Сонный выдох (Боевое действие)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Облако радиусом 30 футов: спасбросок Мудрости СЛ 17, при провале сон на 1 минуту. Будит урон или действие союзника.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "80k7Q4st8tN9ZMfn": {
+      "_id": "80k7Q4st8tN9ZMfn",
+      "type": "save",
+      "activation": {
+       "type": "special",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {
+       "template": {
+        "type": "radius",
+        "size": "30",
+        "units": "ft"
+       },
+       "affects": {
+        "type": "creature"
+       }
+      },
+      "duration": {
+       "units": "inst"
+      },
+      "save": {
+       "ability": [
+        "wis"
+       ],
+       "dc": {
+        "calculation": "",
+        "formula": "17"
+       }
+      },
+      "damage": {
+       "onSave": "none",
+       "parts": []
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.YRoQBj3YsTEHSWdR"
+  },
+  {
+   "_id": "6waEpSqcGGrczZYY",
+   "name": "Корни-ноги (Боевое действие)",
+   "type": "feat",
+   "img": "icons/svg/aura.svg",
+   "system": {
+    "description": {
+     "value": "<p>Бутон перемещается на 20 футов. Все под ним: спасбросок Силы СЛ 18, 22 (4к10) дробящего урона и опутан при провале.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {
+     "xuZwfoNMWvLlr0KB": {
+      "_id": "xuZwfoNMWvLlr0KB",
+      "type": "save",
+      "activation": {
+       "type": "special",
+       "value": 1,
+       "condition": ""
+      },
+      "consumption": {
+       "targets": []
+      },
+      "range": {},
+      "target": {},
+      "duration": {
+       "units": "inst"
+      },
+      "save": {
+       "ability": [
+        "str"
+       ],
+       "dc": {
+        "calculation": "",
+        "formula": "18"
+       }
+      },
+      "damage": {
+       "onSave": "none",
+       "parts": [
+        {
+         "number": 4,
+         "denomination": 10,
+         "bonus": "",
+         "types": [
+          "bludgeoning"
+         ]
+        }
+       ]
+      }
+     }
+    }
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.6waEpSqcGGrczZYY"
+  },
+  {
+   "_id": "y7wlF73EYoLZxmR8",
+   "name": "Боевые действия",
+   "type": "feat",
+   "img": "icons/svg/sword.svg",
+   "system": {
+    "description": {
+     "value": "<p>Сигнал в конце хода → Разрешение в начале следующего. Раунды 1–2: одно действие, с 3-го раунда: два.</p><h3>Лицо любимого <small>(Нейтрализация)</small></h3>\n<p><b>Сигнал.</b> Цветок медленно поворачивается к одному герою. Лепестки складываются в знакомое лицо, и оно зовёт его по имени.</p><p><b>Нейтрализация.</b> Союзник закрывает цели глаза или кричит ей правду (Убеждение СЛ 14). Сама цель может сказать вслух, что это ложь (Проницательность СЛ 15). Соль в цветок срывает чары.</p><p><b>Разрешение.</b> Цель очарована до конца боя (спасбросок Мудрости СЛ 17 в конце каждого своего хода). Она идёт к Бутону и защищает его.</p><p><b>Сорвано.</b> Лицо расплывается. Это снова просто красный цветок.</p><h3>Сонный выдох <small>(Смягчение)</small></h3>\n<p><b>Сигнал.</b> Бутон набухает, поры на лепестках раскрываются. По топи ползёт тяжёлый сладкий запах.</p><p><b>Смягчение.</b> Задержать дыхание (спасбросок с преимуществом), забраться на кочку выше облака или сдуть его «Порывом ветра».</p><p><b>Разрешение.</b> Облако радиусом 30 футов: спасбросок Мудрости СЛ 17, при провале сон на 1 минуту. Будит урон или действие союзника.</p><p><b>Сорвано.</b> Ветер рвёт облако в клочья, и оно уходит в сторону.</p><h3>Шипы роз <small>(Нейтрализация)</small></h3>\n<p><b>Сигнал.</b> Кусты роз вытягивают побеги к ближайшим героям. Шипы на них встают дыбом.</p><p><b>Нейтрализация.</b> Сжечь или срубить куст до Разрешения (КД 12, 25 хитов, уязвим к огню): этот куст не стреляет.</p><p><b>Разрешение.</b> Каждый целый куст бьёт шипами всех в 15 футах: 13 (3к8) колющего урона, цель кровоточит (1к6 в начале хода, пока не перевяжут, Медицина СЛ 12). Кровь в топи лечит Бутон на 5 за каждого кровоточащего.</p><p><b>Сорвано.</b> Куст вспыхивает. Побеги сворачиваются и чернеют.</p><h3>Сад встаёт <small>(Нейтрализация)</small></h3>\n<p><b>Сигнал.</b> Из топи медленно поднимаются люди и людоящеры, оплетённые розами. Глаза закрыты, рты полны цветов. Это те, кто пришёл сюда раньше вас.</p><p><b>Нейтрализация.</b> Соль или огонь по воде, где они встают (10+ урона): тела рассыпаются, не поднявшись. Друид или жрец может остановить одного проверкой Религии или Природы СЛ 15.</p><p><b>Разрешение.</b> Встают 3 Спящих гостя. Убитый гость лопается облаком пыльцы радиусом 10 футов (спасбросок Мудрости СЛ 15 или очарован до конца хода).</p><p><b>Сорвано.</b> Тела оседают обратно в воду. Розы на них чернеют.</p><h3>Кровавый полив <small>(Нейтрализация, фаза 2)</small></h3>\n<p><b>Сигнал.</b> Стебли обвивают очарованного или опутанного героя и тянутся к его шее.</p><p><b>Нейтрализация.</b> Освободить цель (Атлетика СЛ 16), перерубить стебли (20 рубящего урона) или бросить соль.</p><p><b>Разрешение.</b> Бутон выпивает 27 (6к8) некротического урона и восстанавливает столько же хитов.</p><p><b>Сорвано.</b> Стебли рвутся. Сок брызжет на воду, а не в цветок.</p><h3>Корни-ноги <small>(Нейтрализация, фаза 3)</small></h3>\n<p><b>Сигнал.</b> Топь вспучивается. Бутон с хрустом выдёргивает из воды толстый корень и наклоняется вперёд.</p><p><b>Нейтрализация.</b> Улика «копья в корнях»: 20+ рубящего урона по корням до Разрешения, и он не сдвинется.</p><p><b>Разрешение.</b> Бутон перемещается на 20 футов. Все под ним: спасбросок Силы СЛ 18, 22 (4к10) дробящего урона и опутан при провале.</p><p><b>Сорвано.</b> Корень подрублен. Бутон кренится и уходит в топь глубже.</p><p></p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.y7wlF73EYoLZxmR8"
+  },
+  {
+   "_id": "xx5XltDZL0OOLvOk",
+   "name": "Слабое место: Кусты-сердца",
+   "type": "feat",
+   "img": "icons/svg/target.svg",
+   "system": {
+    "description": {
+     "value": "<p>Четыре куста роз — его сердца. Каждый уничтоженный куст выключает 10 регенерации, одно легендарное сопротивление и свой выстрел шипами. Пока цел хоть один, Бутон почти не умирает. Трекер кустов — на пульте Монстрятины.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.xx5XltDZL0OOLvOk"
+  },
+  {
+   "_id": "pPjTNXWnItk0R4EM",
+   "name": "Фазы",
+   "type": "feat",
+   "img": "icons/svg/clockwork.svg",
+   "system": {
+    "description": {
+     "value": "<p>Облака дрейфуют, розы лечат его.<br>Ниже 50%: бутон раскрывается, облака слипаются в одно в центре (30 фт.). Спасбросок СЛ 16.<br>Ниже 25%: лепестковый дождь, видимость 10 фт. по всей арене. Бутон выдёргивает корни и медленно идёт (10 фт.).</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.pPjTNXWnItk0R4EM"
+  },
+  {
+   "_id": "05ygYQBtjYx1iJfn",
+   "name": "Логово",
+   "type": "feat",
+   "img": "icons/svg/house.svg",
+   "system": {
+    "description": {
+     "value": "<p>Ветер: каждое облако сдвигается на 10 фт. (направление по к8).<br>Корень из воды хватает героя: спасбросок Ловкости СЛ 16 или опутан.</p>"
+    },
+    "type": {
+     "value": "monster",
+     "subtype": ""
+    },
+    "activation": {},
+    "uses": {
+     "max": "",
+     "spent": 0,
+     "recovery": []
+    },
+    "activities": {}
+   },
+   "_key": "!actors.items!BVYF3QwT14K3he8S.05ygYQBtjYx1iJfn"
+  }
+ ],
+ "prototypeToken": {
+  "name": "Кровавый Бутон",
+  "displayName": 20,
+  "displayBars": 20,
+  "actorLink": false,
+  "disposition": -1,
+  "width": 3,
+  "height": 3,
+  "bar1": {
+   "attribute": "attributes.hp"
+  },
+  "texture": {
+   "src": "modules/monstryatina/assets/bud/token.webp",
+   "scaleX": 1.3,
+   "scaleY": 1.3,
+   "fit": "contain"
+  },
+  "sight": {
+   "enabled": true,
+   "range": 60,
+   "visionMode": "darkvision"
+  },
+  "ring": {
+   "enabled": false
+  }
+ },
+ "flags": {
+  "monstryatina": {
+   "id": "bud"
+  }
+ }
+}

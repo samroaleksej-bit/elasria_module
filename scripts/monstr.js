@@ -6,7 +6,7 @@
 import { BOSSES, TONES } from "./bosses.js";
 
 const MID = "monstryatina";
-const M = { VERSION: "0.2.0", BOSSES };
+const M = { VERSION: "0.3.0", BOSSES };
 const CH = "module." + MID;
 const ROOT = `modules/${MID}/`;
 const isGM = () => !!game.user?.isGM;
@@ -305,7 +305,7 @@ M.summon = async function (id = bossId(), count) {
     docs.push(o);
   }
   await canvas.scene.createEmbeddedDocuments("Token", docs);
-  M.sound(id, "nymph");
+  M.sound(id, sm.sound ?? "nymph");
   ui.notifications.info(`${b.name}: на сцене ${count} × ${sm.actor}.`);
 };
 
@@ -385,15 +385,15 @@ M.segHit = async function (sid, dmg, id = bossId()) {
   const before = M.segDmg(id, sid), after = Math.max(0, before + dmg);
   await save(s => { s.segs = s.segs || {}; s.segs[`${id}.${sid}`] = after; });
   const tok = M.bossToken(id), actor = tok?.actor;
-  if (actor && dmg > 0) {
+  if (actor && (dmg > 0 && !b.segNoBossDmg || before < sg.hp && after >= sg.hp)) {
     const hp = actor.system.attributes.hp.value;
-    const upd = { "system.attributes.hp.value": Math.max(0, hp - dmg) };
+    const upd = b.segNoBossDmg ? {} : { "system.attributes.hp.value": Math.max(0, hp - dmg) };
     if (before < sg.hp && after >= sg.hp && actor.system.resources?.legres) upd["system.resources.legres.value"] = Math.max(0, (actor.system.resources.legres.value ?? 0) - 1);
     try { await actor.update(upd); } catch (e) { console.warn(e); }
   }
   if (before < sg.hp && after >= sg.hp) {
-    await M.broadcast({ kicker: `${b.name} · часть тела сломана`, accent: "#E8C46A", glow: "rgba(232,196,106,.5)", title: sg.name, text: sg.broken,
-      meta: "<b>−1 легендарное сопротивление.</b>", art: ROOT + `assets/${id}/seg-${sid}.webp`, duration: 7000, fit: "contain",
+    await M.broadcast({ kicker: `${b.name} · ${b.segKicker ?? "часть тела сломана"}`, accent: "#E8C46A", glow: "rgba(232,196,106,.5)", title: sg.name, text: sg.broken,
+      meta: b.segMeta ?? "<b>−1 легендарное сопротивление.</b>", art: ROOT + (sg.img ? `assets/${id}/${sg.img}` : `assets/${id}/seg-${sid}.webp`), duration: 7000, fit: sg.img ? null : "contain",
       screen: [["shake", { power: 16, duration: 700 }], ["flash", { color: "#E8C46A", opacity: .35 }]], sound: M.sfxPath(id, "none") });
   }
 };
@@ -492,18 +492,18 @@ M.Panel = {
         ${b.summon ? sec("summon", `Призыв · ${esc(b.summon.actor)}`, `
           <div class="mp-grid c3">${[1, 2, 3].map(n => `<button data-do="summon" data-n="${n}"${n === b.summon.count ? ' class="on"' : ""}>${n}</button>`).join("")}</div>
           <p class="mp-hint">Ставит токены вокруг босса (или в центр экрана), актёра берёт из компендиума.</p>`) : ""}
-        ${b.segments ? sec("segs", `Части тела · сломано ${b.segments.filter(x => M.segDmg(id, x.id) >= x.hp).length} из ${b.segments.length}`, b.segments.map(x => {
+        ${b.segments ? sec("segs", `${b.segTitle ?? "Части тела"} · сломано ${b.segments.filter(x => M.segDmg(id, x.id) >= x.hp).length} из ${b.segments.length}`, b.segments.map(x => {
           const d = M.segDmg(id, x.id), br = d >= x.hp;
           return `<div class="mp-seg${br ? " broken" : ""}" title="${esc(x.where)}. Сломана: ${esc(x.broken)}">
             <span class="mp-name">${x.name} <small>КД ${x.ac}</small></span>
             <span class="mp-bar"><i style="width:${Math.min(100, d / x.hp * 100)}%"></i><b>${Math.min(d, x.hp)}/${x.hp}</b></span>
             <input type="number" class="mp-dmg" data-seg="${x.id}" placeholder="урон" min="-99" max="999">
             <button data-do="seg" data-k="${x.id}" title="Нанести урон (Enter)">−</button></div>`;
-        }).join("") + `<div class="mp-grid" style="margin-top:5px"><button data-do="seg-place">Метки на сцену</button><button data-do="seg-reset">Сбросить части</button></div>
-          <p class="mp-hint">Урон по части идёт и в хиты босса. Сломана — плашка всем и −1 легендарное сопротивление.</p>`) : ""}
+        }).join("") + `<div class="mp-grid" style="margin-top:5px">${b.segNoPlace ? "" : `<button data-do="seg-place">Метки на сцену</button>`}<button data-do="seg-reset">Сбросить</button></div>
+          <p class="mp-hint">${b.segHint ?? "Урон по части идёт и в хиты босса. Сломана — плашка всем и −1 легендарное сопротивление."}</p>`) : ""}
         ${sec("phase", "Фазы", b.phases.map(p => `<button class="wide${s.phase === p.n ? " on" : ""}" data-do="phase" data-n="${p.n}" title="${esc(p.text)}">${p.n}. ${esc(p.title)}${p.n > 1 ? ` · ${p.hp} хитов` : ""}</button>`).join(""))}
         ${sec("sfx", "Звуки всем", `
-          <div class="mp-grid">${Object.entries(b.sfx || {}).map(([k, f]) => `<button data-do="sfx" data-n="${f}">${({ strike: "Удар клинка", clash: "Звон клинков", roar: "Рёв", nymph: "Писк нимфы", bite: "Укус", tail: "Удар хвоста", swallow: "Глоток" })[k] ?? k}</button>`).join("")}</div>`)}
+          <div class="mp-grid">${Object.entries(b.sfx || {}).map(([k, f]) => `<button data-do="sfx" data-n="${f}">${({ strike: "Удар клинка", clash: "Звон клинков", roar: "Рёв", nymph: "Писк нимфы", bite: "Укус", tail: "Удар хвоста", swallow: "Глоток", thorn: "Шипы", guest: "Стон гостя", bloom: "Цветение" })[k] ?? k}</button>`).join("")}</div>`)}
         ${sec("banner", "Своя плашка", `
           <input class="mp-in" data-in="title" placeholder="Заголовок">
           <textarea class="mp-in" data-in="text" rows="2" placeholder="Текст"></textarea>
