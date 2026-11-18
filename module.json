@@ -1,0 +1,53 @@
+{
+  "id": "koroleva-piratov-mobs",
+  "title": "Королева пиратов · мобьё",
+  "description": "<p>Противники финала мини-кампании «Пиратская королева мертва» (Смерть Стит Ци): Командор Морского Ордена в двух фазах и Дозор - капитанша, сержант с якорем, маг прилива, отряд, солдат, стрелок, тюремщик. Компендиум готовых актёров dnd5e.</p>",
+  "version": "1.0.0",
+  "authors": [
+    {
+      "name": "Verlierboy",
+      "url": "https://t.me/circleofdms"
+    }
+  ],
+  "compatibility": {
+    "minimum": "13",
+    "verified": "14"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "dnd5e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "5.0.0"
+        }
+      }
+    ]
+  },
+  "packs": [
+    {
+      "name": "actors",
+      "label": "Королева пиратов · мобьё",
+      "path": "packs/actors",
+      "type": "Actor",
+      "system": "dnd5e",
+      "ownership": {
+        "PLAYER": "NONE",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    }
+  ],
+  "packFolders": [
+    {
+      "name": "Королева пиратов",
+      "color": "#1d3a5a",
+      "packs": [
+        "actors"
+      ]
+    }
+  ],
+  "url": "https://github.com/samroaleksej-bit/elasria_module/tree/koroleva-piratov-mobs",
+  "manifest": "https://raw.githubusercontent.com/samroaleksej-bit/elasria_module/koroleva-piratov-mobs/module.json",
+  "download": "https://github.com/samroaleksej-bit/elasria_module/archive/refs/heads/koroleva-piratov-mobs.zip"
+}
