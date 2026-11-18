@@ -1,0 +1,41 @@
+{
+  "_id": "pvScnMetroZal001",
+  "_key": "!scenes!pvScnMetroZal001",
+  "name": "Метро-кафе - зал и кухня",
+  "navigation": false,
+  "sort": 50000,
+  "background": {
+    "src": "modules/privoy-shabashki/maps/metro-kafe-zal.webp"
+  },
+  "thumb": "modules/privoy-shabashki/maps/metro-kafe-zal-thumb.webp",
+  "width": 2048,
+  "height": 1152,
+  "padding": 0,
+  "backgroundColor": "#000000",
+  "grid": {
+    "type": 1,
+    "size": 64,
+    "distance": 2,
+    "units": "m",
+    "alpha": 0.15
+  },
+  "tokenVision": false,
+  "fog": {
+    "exploration": false
+  },
+  "environment": {
+    "globalLight": {
+      "enabled": true
+    }
+  },
+  "initial": {
+    "x": 1024,
+    "y": 576,
+    "scale": 0.5
+  },
+  "folder": null,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}
