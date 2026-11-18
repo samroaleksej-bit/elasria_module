@@ -2,7 +2,7 @@
   "folder": null,
   "name": "Сержант с якорем [Anchor Sergeant]",
   "type": "npc",
-  "img": "",
+  "img": "modules/koroleva-piratov-mobs/assets/serzhant.webp",
   "system": {
     "currency": {
       "pp": 0,
@@ -650,7 +650,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "",
+      "src": "modules/koroleva-piratov-mobs/assets/serzhant-token.webp",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -711,7 +711,7 @@
       "radius": 0
     },
     "ring": {
-      "enabled": true,
+      "enabled": false,
       "colors": {
         "ring": null,
         "background": null

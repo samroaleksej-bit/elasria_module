@@ -2,7 +2,7 @@
   "folder": null,
   "name": "Маг прилива Дозора [Order Tide Mage]",
   "type": "npc",
-  "img": "",
+  "img": "modules/koroleva-piratov-mobs/assets/mag-priliva.webp",
   "system": {
     "currency": {
       "pp": 0,
@@ -652,7 +652,7 @@
     "width": 1,
     "height": 1,
     "texture": {
-      "src": "",
+      "src": "modules/koroleva-piratov-mobs/assets/mag-priliva-token.webp",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -713,7 +713,7 @@
       "radius": 0
     },
     "ring": {
-      "enabled": true,
+      "enabled": false,
       "colors": {
         "ring": null,
         "background": null

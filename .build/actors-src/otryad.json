@@ -2,7 +2,7 @@
   "folder": null,
   "name": "Отряд Дозора [Order Squad]",
   "type": "npc",
-  "img": "",
+  "img": "modules/koroleva-piratov-mobs/assets/znamenosec.webp",
   "system": {
     "currency": {
       "pp": 0,
@@ -655,7 +655,7 @@
     "width": 2,
     "height": 2,
     "texture": {
-      "src": "",
+      "src": "modules/koroleva-piratov-mobs/assets/znamenosec-token.webp",
       "anchorX": 0.5,
       "anchorY": 0.5,
       "fit": "contain",
@@ -716,7 +716,7 @@
       "radius": 0
     },
     "ring": {
-      "enabled": true,
+      "enabled": false,
       "colors": {
         "ring": null,
         "background": null
