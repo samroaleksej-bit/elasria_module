@@ -1,0 +1,41 @@
+{
+  "_id": "pvScnPozhar1et01",
+  "_key": "!scenes!pvScnPozhar1et01",
+  "name": "Пожарная часть №2 - первый этаж",
+  "navigation": false,
+  "sort": 200000,
+  "background": {
+    "src": "modules/privoy-shabashki/maps/pozharnaya-1-etazh.webp"
+  },
+  "thumb": "modules/privoy-shabashki/maps/pozharnaya-1-etazh-thumb.webp",
+  "width": 2048,
+  "height": 1152,
+  "padding": 0,
+  "backgroundColor": "#000000",
+  "grid": {
+    "type": 1,
+    "size": 64,
+    "distance": 2,
+    "units": "m",
+    "alpha": 0.15
+  },
+  "tokenVision": false,
+  "fog": {
+    "exploration": false
+  },
+  "environment": {
+    "globalLight": {
+      "enabled": true
+    }
+  },
+  "initial": {
+    "x": 1024,
+    "y": 576,
+    "scale": 0.5
+  },
+  "folder": null,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

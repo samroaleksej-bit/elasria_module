@@ -1,0 +1,41 @@
+{
+  "_id": "pvScnMedKrysha01",
+  "_key": "!scenes!pvScnMedKrysha01",
+  "name": "Кризисный медцентр - крыша и ангар AV",
+  "navigation": false,
+  "sort": 500000,
+  "background": {
+    "src": "modules/privoy-shabashki/maps/medcentr-krysha.webp"
+  },
+  "thumb": "modules/privoy-shabashki/maps/medcentr-krysha-thumb.webp",
+  "width": 2048,
+  "height": 1152,
+  "padding": 0,
+  "backgroundColor": "#000000",
+  "grid": {
+    "type": 1,
+    "size": 64,
+    "distance": 2,
+    "units": "m",
+    "alpha": 0.15
+  },
+  "tokenVision": false,
+  "fog": {
+    "exploration": false
+  },
+  "environment": {
+    "globalLight": {
+      "enabled": true
+    }
+  },
+  "initial": {
+    "x": 1024,
+    "y": 576,
+    "scale": 0.5
+  },
+  "folder": null,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

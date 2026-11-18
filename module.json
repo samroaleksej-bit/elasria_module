@@ -1,0 +1,32 @@
+{
+  "id": "privoy-shabashki",
+  "title": "Привой · шабашки",
+  "description": "<p>Карты трёх шабашек кампании «Привой» (Cyberpunk RED): подвал «Метро-кафе», Пожарная часть №2 (два этажа), Кризисный медцентр (приёмное и крыша с ангаром AV). В папке assets - арт и токен Глории.</p>",
+  "version": "1.0.0",
+  "authors": [
+    {
+      "name": "Verlierboy",
+      "url": "https://t.me/circleofdms"
+    }
+  ],
+  "compatibility": {
+    "minimum": "12",
+    "verified": "12"
+  },
+  "packs": [
+    {
+      "name": "scenes",
+      "label": "Привой · шабашки · карты",
+      "path": "packs/scenes",
+      "type": "Scene",
+      "ownership": {
+        "PLAYER": "NONE",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    }
+  ],
+  "url": "https://github.com/samroaleksej-bit/elasria_module/tree/privoy-shabashki",
+  "manifest": "https://raw.githubusercontent.com/samroaleksej-bit/elasria_module/privoy-shabashki/module.json",
+  "download": "https://github.com/samroaleksej-bit/elasria_module/archive/refs/heads/privoy-shabashki.zip"
+}

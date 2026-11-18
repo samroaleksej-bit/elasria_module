@@ -1,0 +1,41 @@
+{
+  "_id": "pvScnMetroPodv01",
+  "_key": "!scenes!pvScnMetroPodv01",
+  "name": "Метро-кафе - подвал и морозильник",
+  "navigation": false,
+  "sort": 100000,
+  "background": {
+    "src": "modules/privoy-shabashki/maps/metro-kafe-podval.webp"
+  },
+  "thumb": "modules/privoy-shabashki/maps/metro-kafe-podval-thumb.webp",
+  "width": 2048,
+  "height": 1152,
+  "padding": 0,
+  "backgroundColor": "#000000",
+  "grid": {
+    "type": 1,
+    "size": 64,
+    "distance": 2,
+    "units": "m",
+    "alpha": 0.15
+  },
+  "tokenVision": false,
+  "fog": {
+    "exploration": false
+  },
+  "environment": {
+    "globalLight": {
+      "enabled": true
+    }
+  },
+  "initial": {
+    "x": 1024,
+    "y": 576,
+    "scale": 0.5
+  },
+  "folder": null,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}
