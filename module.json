@@ -1,8 +1,8 @@
 {
   "id": "privoy-shabashki",
   "title": "Привой · шабашки",
-  "description": "<p>Карты трёх шабашек кампании «Привой» (Cyberpunk RED): подвал «Метро-кафе», Пожарная часть №2 (два этажа), Кризисный медцентр (приёмное и крыша с ангаром AV). В папке assets - арт и токен Глории.</p>",
-  "version": "1.0.0",
+  "description": "<p>Карты трёх шабашек кампании «Привой» (Cyberpunk RED): подвал «Метро-кафе», Пожарная часть №2 (два этажа), Кризисный медцентр (приёмное и крыша с ангаром AV). Компендиум NPC: Глория (mook, Cyberpunk RED) с артом и токеном.</p>",
+  "version": "1.1.0",
   "authors": [
     {
       "name": "Verlierboy",
@@ -24,9 +24,29 @@
         "ASSISTANT": "OWNER"
       },
       "flags": {}
+    },
+    {
+      "name": "actors",
+      "label": "Привой · шабашки · NPC",
+      "path": "packs/actors",
+      "type": "Actor",
+      "system": "cyberpunk-red-core",
+      "ownership": {
+        "PLAYER": "NONE",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
     }
   ],
   "url": "https://github.com/samroaleksej-bit/elasria_module/tree/privoy-shabashki",
   "manifest": "https://raw.githubusercontent.com/samroaleksej-bit/elasria_module/privoy-shabashki/module.json",
-  "download": "https://github.com/samroaleksej-bit/elasria_module/archive/refs/heads/privoy-shabashki.zip"
+  "download": "https://github.com/samroaleksej-bit/elasria_module/archive/refs/heads/privoy-shabashki.zip",
+  "relationships": {
+    "systems": [
+      {
+        "id": "cyberpunk-red-core",
+        "type": "system"
+      }
+    ]
+  }
 }
