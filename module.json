@@ -1,8 +1,8 @@
 {
   "id": "privoy-shabashki",
   "title": "Привой · шабашки",
-  "description": "<p>Карты трёх шабашек кампании «Привой» (Cyberpunk RED): «Метро-кафе» (зал и подвал), Пожарная часть №2 (два этажа), Кризисный медцентр (приёмное и крыша с ангаром AV). Компендиум NPC: Глория (mook, Cyberpunk RED) с артом и токеном.</p>",
-  "version": "1.2.0",
+  "description": "<p>Карты трёх шабашек кампании «Привой» (Cyberpunk RED): «Метро-кафе» (зал и подвал), Пожарная часть №2 (два этажа), Кризисный медцентр (приёмное и крыша с ангаром AV). Компендиум NPC: Глория (mook, Cyberpunk RED) с артом и токеном. Раздатки: планы трёх зданий с анимацией постройки (журнал).</p>",
+  "version": "1.3.0",
   "authors": [
     {
       "name": "Verlierboy",
@@ -31,6 +31,17 @@
       "path": "packs/actors",
       "type": "Actor",
       "system": "cyberpunk-red-core",
+      "ownership": {
+        "PLAYER": "NONE",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    },
+    {
+      "name": "handouts",
+      "label": "Привой · шабашки · раздатки",
+      "path": "packs/handouts",
+      "type": "JournalEntry",
       "ownership": {
         "PLAYER": "NONE",
         "ASSISTANT": "OWNER"

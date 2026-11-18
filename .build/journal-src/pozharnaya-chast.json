@@ -1,0 +1,65 @@
+{
+ "_id": "pvJrnPozharka001",
+ "name": "План · Пожарная часть №2",
+ "folder": null,
+ "sort": 200000,
+ "ownership": {
+  "default": 0
+ },
+ "flags": {},
+ "pages": [
+  {
+   "_id": "pvJrnPozharkVid1",
+   "name": "Прогрузка",
+   "type": "video",
+   "title": {
+    "show": false,
+    "level": 1
+   },
+   "src": "modules/privoy-shabashki/handouts/plan-pozharnaya-chast-build.webm",
+   "sort": 100000,
+   "text": {
+    "format": 1
+   },
+   "image": {},
+   "video": {
+    "controls": true,
+    "volume": 0.5,
+    "autoplay": true,
+    "loop": false
+   },
+   "system": {},
+   "ownership": {
+    "default": -1
+   },
+   "flags": {},
+   "_key": "!journal.pages!pvJrnPozharka001.pvJrnPozharkVid1"
+  },
+  {
+   "_id": "pvJrnPozharkImg1",
+   "name": "План",
+   "type": "image",
+   "title": {
+    "show": false,
+    "level": 1
+   },
+   "src": "modules/privoy-shabashki/handouts/plan-pozharnaya-chast.webp",
+   "sort": 200000,
+   "text": {
+    "format": 1
+   },
+   "image": {},
+   "video": {
+    "controls": true,
+    "volume": 0.5
+   },
+   "system": {},
+   "ownership": {
+    "default": -1
+   },
+   "flags": {},
+   "_key": "!journal.pages!pvJrnPozharka001.pvJrnPozharkImg1"
+  }
+ ],
+ "_key": "!journal!pvJrnPozharka001"
+}

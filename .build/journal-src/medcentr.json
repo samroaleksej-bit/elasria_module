@@ -1,0 +1,65 @@
+{
+ "_id": "pvJrnMedcentr001",
+ "name": "План · Кризисный медцентр",
+ "folder": null,
+ "sort": 300000,
+ "ownership": {
+  "default": 0
+ },
+ "flags": {},
+ "pages": [
+  {
+   "_id": "pvJrnMedcentVid1",
+   "name": "Прогрузка",
+   "type": "video",
+   "title": {
+    "show": false,
+    "level": 1
+   },
+   "src": "modules/privoy-shabashki/handouts/plan-medcentr-build.webm",
+   "sort": 100000,
+   "text": {
+    "format": 1
+   },
+   "image": {},
+   "video": {
+    "controls": true,
+    "volume": 0.5,
+    "autoplay": true,
+    "loop": false
+   },
+   "system": {},
+   "ownership": {
+    "default": -1
+   },
+   "flags": {},
+   "_key": "!journal.pages!pvJrnMedcentr001.pvJrnMedcentVid1"
+  },
+  {
+   "_id": "pvJrnMedcentImg1",
+   "name": "План",
+   "type": "image",
+   "title": {
+    "show": false,
+    "level": 1
+   },
+   "src": "modules/privoy-shabashki/handouts/plan-medcentr.webp",
+   "sort": 200000,
+   "text": {
+    "format": 1
+   },
+   "image": {},
+   "video": {
+    "controls": true,
+    "volume": 0.5
+   },
+   "system": {},
+   "ownership": {
+    "default": -1
+   },
+   "flags": {},
+   "_key": "!journal.pages!pvJrnMedcentr001.pvJrnMedcentImg1"
+  }
+ ],
+ "_key": "!journal!pvJrnMedcentr001"
+}

@@ -1,0 +1,65 @@
+{
+ "_id": "pvJrnMetroKafe01",
+ "name": "План · «Метро-кафе»",
+ "folder": null,
+ "sort": 100000,
+ "ownership": {
+  "default": 0
+ },
+ "flags": {},
+ "pages": [
+  {
+   "_id": "pvJrnMetroKaVid1",
+   "name": "Прогрузка",
+   "type": "video",
+   "title": {
+    "show": false,
+    "level": 1
+   },
+   "src": "modules/privoy-shabashki/handouts/plan-metro-kafe-build.webm",
+   "sort": 100000,
+   "text": {
+    "format": 1
+   },
+   "image": {},
+   "video": {
+    "controls": true,
+    "volume": 0.5,
+    "autoplay": true,
+    "loop": false
+   },
+   "system": {},
+   "ownership": {
+    "default": -1
+   },
+   "flags": {},
+   "_key": "!journal.pages!pvJrnMetroKafe01.pvJrnMetroKaVid1"
+  },
+  {
+   "_id": "pvJrnMetroKaImg1",
+   "name": "План",
+   "type": "image",
+   "title": {
+    "show": false,
+    "level": 1
+   },
+   "src": "modules/privoy-shabashki/handouts/plan-metro-kafe.webp",
+   "sort": 200000,
+   "text": {
+    "format": 1
+   },
+   "image": {},
+   "video": {
+    "controls": true,
+    "volume": 0.5
+   },
+   "system": {},
+   "ownership": {
+    "default": -1
+   },
+   "flags": {},
+   "_key": "!journal.pages!pvJrnMetroKafe01.pvJrnMetroKaImg1"
+  }
+ ],
+ "_key": "!journal!pvJrnMetroKafe01"
+}
