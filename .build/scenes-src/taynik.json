@@ -1,0 +1,41 @@
+{
+  "_id": "kpScnTaynik00001",
+  "_key": "!scenes!kpScnTaynik00001",
+  "name": "Тайник со шлюзом и складом",
+  "navigation": false,
+  "sort": 300000,
+  "background": {
+    "src": "modules/koroleva-piratov-mobs/maps/taynik.webp"
+  },
+  "thumb": "modules/koroleva-piratov-mobs/maps/taynik-thumb.webp",
+  "width": 2048,
+  "height": 1152,
+  "padding": 0,
+  "backgroundColor": "#000000",
+  "grid": {
+    "type": 1,
+    "size": 64,
+    "distance": 5,
+    "units": "ft",
+    "alpha": 0.15
+  },
+  "tokenVision": false,
+  "fog": {
+    "exploration": false
+  },
+  "environment": {
+    "globalLight": {
+      "enabled": true
+    }
+  },
+  "initial": {
+    "x": 1024,
+    "y": 576,
+    "scale": 0.5
+  },
+  "folder": null,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

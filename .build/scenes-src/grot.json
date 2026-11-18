@@ -1,0 +1,41 @@
+{
+  "_id": "kpScnGrot0000001",
+  "_key": "!scenes!kpScnGrot0000001",
+  "name": "Грот с причалом",
+  "navigation": false,
+  "sort": 500000,
+  "background": {
+    "src": "modules/koroleva-piratov-mobs/maps/grot.webp"
+  },
+  "thumb": "modules/koroleva-piratov-mobs/maps/grot-thumb.webp",
+  "width": 2048,
+  "height": 1152,
+  "padding": 0,
+  "backgroundColor": "#000000",
+  "grid": {
+    "type": 1,
+    "size": 64,
+    "distance": 5,
+    "units": "ft",
+    "alpha": 0.15
+  },
+  "tokenVision": false,
+  "fog": {
+    "exploration": false
+  },
+  "environment": {
+    "globalLight": {
+      "enabled": true
+    }
+  },
+  "initial": {
+    "x": 1024,
+    "y": 576,
+    "scale": 0.5
+  },
+  "folder": null,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

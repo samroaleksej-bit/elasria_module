@@ -1,0 +1,41 @@
+{
+  "_id": "kpScnKaznPlac001",
+  "_key": "!scenes!kpScnKaznPlac001",
+  "name": "Место казни - плац Дозора",
+  "navigation": false,
+  "sort": 200000,
+  "background": {
+    "src": "modules/koroleva-piratov-mobs/maps/mesto-kazni.webp"
+  },
+  "thumb": "modules/koroleva-piratov-mobs/maps/mesto-kazni-thumb.webp",
+  "width": 2048,
+  "height": 2048,
+  "padding": 0,
+  "backgroundColor": "#000000",
+  "grid": {
+    "type": 1,
+    "size": 64,
+    "distance": 5,
+    "units": "ft",
+    "alpha": 0.15
+  },
+  "tokenVision": false,
+  "fog": {
+    "exploration": false
+  },
+  "environment": {
+    "globalLight": {
+      "enabled": true
+    }
+  },
+  "initial": {
+    "x": 1024,
+    "y": 1024,
+    "scale": 0.5
+  },
+  "folder": null,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

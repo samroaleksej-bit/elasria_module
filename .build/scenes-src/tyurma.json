@@ -1,0 +1,41 @@
+{
+  "_id": "kpScnTyurma00001",
+  "_key": "!scenes!kpScnTyurma00001",
+  "name": "Тюрьма Дозора",
+  "navigation": false,
+  "sort": 400000,
+  "background": {
+    "src": "modules/koroleva-piratov-mobs/maps/tyurma.webp"
+  },
+  "thumb": "modules/koroleva-piratov-mobs/maps/tyurma-thumb.webp",
+  "width": 2048,
+  "height": 2048,
+  "padding": 0,
+  "backgroundColor": "#000000",
+  "grid": {
+    "type": 1,
+    "size": 64,
+    "distance": 5,
+    "units": "ft",
+    "alpha": 0.15
+  },
+  "tokenVision": false,
+  "fog": {
+    "exploration": false
+  },
+  "environment": {
+    "globalLight": {
+      "enabled": true
+    }
+  },
+  "initial": {
+    "x": 1024,
+    "y": 1024,
+    "scale": 0.5
+  },
+  "folder": null,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}
