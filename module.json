@@ -2,7 +2,7 @@
   "id": "privoy-hq",
   "title": "Привой · Штаб (HOMELINE)",
   "description": "<p>Магазин штаб-квартиры в стиле приложения Агента для Cyberpunk RED: улучшения базы за очки штаба (HQ IP) по правилам DLC «No Place Like Home» и декор за эдди из общака. Покупки игроков подтверждает мастер.</p>",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "authors": [{ "name": "AlexeySamro" }],
   "compatibility": { "minimum": "12", "verified": "12" },
   "esmodules": ["scripts/hq.js"],

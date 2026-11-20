@@ -173,17 +173,15 @@ function request(a) {
 }
 
 /* ---------- окно ---------- */
-class HQApp extends Application {
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, { id: "privoy-hq", title: "HOMELINE", classes: ["phq-app"], width: 440, height: 680, resizable: true });
-  }
-  tab = "rooms";
-  async _renderInner() {
+const view = { tab: "rooms" };
+function buildHtml(inAgent = false) {
+  const self = view;
+  {
     const s = getS();
     const tabs = [["rooms", "Улучшения"], ["decor", "Декор"], ["hq", "Наш штаб"]];
     if (game.user.isGM) tabs.push(["gm", "Мастер"]);
     let body = "";
-    if (this.tab === "rooms") {
+    if (self.tab === "rooms") {
       body += `<div class="phq-note">Очки штаба команда получает вместе с групповыми очками развития за миссию. Любое улучшение и любой апгрейд стоят ${COST} HQ IP. Тратит вся команда вместе.</div>`;
       for (const r of ROOMS) {
         const lvl = s.rooms[r.id] ?? 0, maxed = lvl >= r.max;
@@ -195,14 +193,14 @@ class HQApp extends Application {
           <div class="phq-row" style="grid-column:2"><span class="tag">${lvl ? (maxed ? "Установлено, максимум" : `Установлено${lvl > 1 ? `, апгрейд ${lvl - 1}` : ""}`) : ""}</span>
           ${maxed ? "" : `<button class="buy" data-room="${r.id}" ${s.hqip < COST ? "disabled" : ""}>${lvl ? "Апгрейд" : "Установить"} · ${COST} HQ IP</button>`}</div></div>`;
       }
-    } else if (this.tab === "decor") {
+    } else if (self.tab === "decor") {
       body += `<div class="phq-note">Декор ничего не даёт по правилам, это просто ваше место. Платится из общака.</div>`;
       for (const d of DECOR) {
         const n = s.decor[d.id] ?? 0;
         body += `<div class="phq-card ${n ? "own" : ""}"><i class="ic fas fa-tag"></i><h4>${esc(d.name)} <em>${n ? `в штабе: ${n}` : ""}</em></h4><p>${esc(d.t)}</p>
           <div class="phq-row" style="grid-column:2"><span></span><button class="buy eb" data-decor="${d.id}" ${s.eb < d.price ? "disabled" : ""}>Купить · ${d.price} eb</button></div></div>`;
       }
-    } else if (this.tab === "hq") {
+    } else if (self.tab === "hq") {
       const own = ROOMS.filter((r) => s.rooms[r.id]);
       body += `<h3>Улучшения</h3>` + (own.length ? `<ul class="phq-list">${own.map((r) => {
         const lvl = s.rooms[r.id]; const ups = []; for (let i = 1; i < lvl; i++) ups.push(roomUpText(r, i));
@@ -212,21 +210,23 @@ class HQApp extends Application {
       body += `<h3>Общак</h3><div class="phq-gm"><input type="number" min="1" step="50" value="100" data-f="don"><button data-act="donate">Скинуть в общак</button></div>
         <div class="phq-note">Сумма спишется со счёта твоего персонажа, если он назначен.</div>`;
       body += `<h3>Журнал</h3><div class="phq-log">${s.log.slice(0, 15).map((l) => `<span>${new Date(l.t).toLocaleDateString("ru-RU")} · ${esc(l.text)}</span>`).join("") || "Пусто."}</div>`;
-    } else if (this.tab === "gm") {
+    } else if (self.tab === "gm") {
       body += `<h3>Очки штаба</h3><div class="phq-gm"><input type="number" step="10" value="40" data-f="ip"><button data-act="ip">Начислить</button><button data-act="ip-">Списать</button></div>
         <h3>Общак</h3><div class="phq-gm"><input type="number" step="50" value="500" data-f="eb"><button data-act="eb">Добавить</button><button data-act="eb-">Убрать</button></div>
         <h3>Заказы игроков</h3><div class="phq-gm"><label><input type="checkbox" data-act="auto" ${s.auto ? "checked" : ""}> проводить без моего подтверждения</label></div>
         <h3>Сброс</h3><div class="phq-gm"><button data-act="reset">Обнулить штаб</button><button data-act="reset-yes" hidden>Точно обнулить всё</button></div>
         <div class="phq-note">Сброс убирает улучшения, декор, очки, общак и журнал. Минус на вкладке «Наш штаб» снимает один уровень без возврата очков.</div>`;
     }
-    return $(`<div class="phq"><div class="phq-top"><div><b>HOMELINE</b><small>всё для вашей норы · доставка по Найт-Сити</small></div>
+    return `<div class="phq${inAgent ? " in-agent" : ""}"><div class="phq-top"><div><b>HOMELINE</b><small>всё для вашей норы · доставка по Найт-Сити</small></div>
       <div class="phq-bal"><span>${s.hqip} HQ IP</span><span class="eb">${s.eb} eb</span></div></div>
-      <div class="phq-tabs">${tabs.map(([k, l]) => `<button data-tab="${k}" class="${this.tab === k ? "on" : ""}">${l}</button>`).join("")}</div>
-      <div class="phq-body">${body}</div></div>`);
+      <div class="phq-tabs">${tabs.map(([k, l]) => `<button data-tab="${k}" class="${self.tab === k ? "on" : ""}">${l}</button>`).join("")}</div>
+      <div class="phq-body">${body}</div></div>`;
   }
-  activateListeners(html) {
-    super.activateListeners(html);
-    html.find("[data-tab]").on("click", (e) => { this.tab = e.currentTarget.dataset.tab; this.render(); });
+}
+function bindHtml(root, rerender) {
+  {
+    const html = $(root);
+    html.find("[data-tab]").on("click", (e) => { view.tab = e.currentTarget.dataset.tab; rerender(); });
     html.find("[data-room]").on("click", (e) => request({ type: "room", id: e.currentTarget.dataset.room }));
     html.find("[data-decor]").on("click", (e) => request({ type: "decor", id: e.currentTarget.dataset.decor }));
     html.find("[data-act=donate]").on("click", () => request({ type: "donate", amount: Number(html.find("[data-f=don]").val()) }));
@@ -244,21 +244,42 @@ class HQApp extends Application {
     html.find("[data-rm-decor]").on("click", (e) => { const id = e.currentTarget.dataset.rmDecor; edit((s) => { s.decor[id] = (s.decor[id] ?? 1) - 1; if (s.decor[id] <= 0) delete s.decor[id]; }, `Мастер: убрано «${DECOR.find((d) => d.id === id)?.name}»`); });
   }
 }
+class HQApp extends Application {
+  static get defaultOptions() {
+    return foundry.utils.mergeObject(super.defaultOptions, { id: "privoy-hq", title: "HOMELINE", classes: ["phq-app"], width: 440, height: 680, resizable: true });
+  }
+  async _renderInner() { return $(buildHtml(false)); }
+  activateListeners(html) { super.activateListeners(html); bindHtml(html[0], () => this.render()); }
+}
+/* ---------- вкладка в телефоне Агента (модуль night-city-map 0.30.2+) ---------- */
+const NCM = "night-city-map";
+const ncmApi = () => { const m = game.modules.get(NCM); return m?.active ? m.api : null; };
+const refreshAll = () => { if (app?.rendered) app.render(); ncmApi()?.refreshAgentApp?.(MID); };
+function registerInAgent(api) {
+  if (!api?.registerAgentApp) return false;
+  return api.registerAgentApp({ id: MID, icon: "fas fa-house-signal", label: "Дом",
+    render: () => buildHtml(true), bind: (el) => bindHtml(el, () => api.refreshAgentApp(MID)) });
+}
 let app = null;
-const open = () => { app ??= new HQApp(); app.render(true); return app; };
-const toggle = () => (app?.rendered ? app.close() : open());
+const openWindow = () => { app ??= new HQApp(); app.render(true); return app; };
+const inAgent = () => !!ncmApi()?.openAgentApp && agentHas;
+let agentHas = false;
+const open = () => (inAgent() ? ncmApi().openAgentApp(MID) : openWindow());
+const toggle = () => (inAgent() ? open() : app?.rendered ? app.close() : openWindow());
 
 Hooks.once("init", () => {
-  game.settings.register(MID, "state", { scope: "world", config: false, type: Object, default: DEF, onChange: () => app?.rendered && app.render() });
+  game.settings.register(MID, "state", { scope: "world", config: false, type: Object, default: DEF, onChange: () => refreshAll() });
   game.keybindings.register(MID, "open", { name: "Открыть HOMELINE (магазин штаба)", editable: [{ key: "KeyH", modifiers: ["Shift"] }], onDown: () => { toggle(); return true; } });
 });
 Hooks.once("ready", () => {
-  game.modules.get(MID).api = { open, toggle, state: getS, addHQIP: async (n) => { const s = getS(); s.hqip += Number(n) || 0; stamp(s, `Мастер: +${n} HQ IP`); await setS(s); } };
+  agentHas = registerInAgent(ncmApi());
+  game.modules.get(MID).api = { open, toggle, openWindow, state: getS, addHQIP: async (n) => { const s = getS(); s.hqip += Number(n) || 0; stamp(s, `Мастер: +${n} HQ IP`); await setS(s); } };
   game.socket.on(`module.${MID}`, (m) => {
     if (m.op === "req" && iAmActiveGM()) gmHandle(m.a, m.user);
     if (m.op === "reply" && m.to === game.user.id) ui.notifications.warn(m.text);
   });
 });
+Hooks.on("nightCityMapAgentReady", (api) => { agentHas = registerInAgent(api) || agentHas; });
 Hooks.on("getSceneControlButtons", (controls) => {
   const tok = Array.isArray(controls) ? controls.find((c) => c.name === "token") : controls?.tokens;
   const tool = { name: "privoy-hq", title: "HOMELINE - магазин штаба (Shift+H)", icon: "fas fa-house-signal", button: true, onClick: () => toggle() };

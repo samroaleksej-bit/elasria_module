@@ -32,3 +32,20 @@
 .phq-gm button{width:auto;margin:0;line-height:1.6;padding:2px 10px}
 .phq-note{font-size:12px;color:#8fa0b0;line-height:1.4}
 .phq a.x{color:#ff5a6e;cursor:pointer;font-size:12px}
+
+/* внутри телефона Агента */
+#ncm-agent .ag-body .phq{flex:1;min-height:0;color:#e8eef2;font-size:13px}
+#ncm-agent .phq.in-agent .phq-top{padding:6px 10px}
+#ncm-agent .phq.in-agent .phq-top b{font-size:14px}
+#ncm-agent .phq.in-agent .phq-top small{display:none}
+#ncm-agent .phq.in-agent .phq-tabs button{all:unset;flex:1;text-align:center;cursor:pointer;color:#8fa0b0;padding:7px 2px;font-size:12px;border-bottom:2px solid transparent}
+#ncm-agent .phq.in-agent .phq-tabs button.on{color:#00e5ff;border-bottom-color:#00e5ff}
+#ncm-agent .phq.in-agent .phq-body{padding:8px}
+#ncm-agent .phq.in-agent .phq-card{grid-template-columns:1fr}
+#ncm-agent .phq.in-agent .phq-card i.ic{display:none}
+#ncm-agent .phq.in-agent .phq-row{grid-column:1 !important}
+#ncm-agent .phq.in-agent button.buy{all:unset;cursor:pointer;background:#00e5ff;color:#0b0e13;border-radius:4px;font-weight:700;padding:4px 10px;font-size:12px}
+#ncm-agent .phq.in-agent button.buy.eb{background:#fcee0a}
+#ncm-agent .phq.in-agent button.buy:disabled{background:#263040;color:#6b7a89;cursor:not-allowed}
+#ncm-agent .phq.in-agent .phq-gm button{all:unset;cursor:pointer;background:#263040;color:#e8eef2;border-radius:4px;padding:3px 9px;font-size:12px}
+#ncm-agent .phq.in-agent .phq-gm input[type=number]{width:74px}
