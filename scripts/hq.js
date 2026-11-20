@@ -82,7 +82,7 @@ const DECOR = [
 const DEF = { hqip: 0, eb: 0, rooms: {}, decor: {}, log: [], auto: false };
 const getS = () => foundry.utils.mergeObject(foundry.utils.deepClone(DEF), game.settings.get(MID, "state") ?? {});
 const setS = (s) => game.settings.set(MID, "state", s);
-const esc = (t) => foundry.utils.escapeHTML(String(t ?? ""));
+const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const activeGM = () => game.users.activeGM ?? game.users.find((u) => u.isGM && u.active);
 const iAmActiveGM = () => game.user.isGM && activeGM()?.id === game.user.id;
 const roomUpText = (r, lvl) => (r.ups ? r.ups[lvl - 1] : r.up);
