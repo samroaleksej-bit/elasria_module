@@ -1,0 +1,68 @@
+{
+ "_id": "dkFeatSteed00001",
+ "name": "Нечестивый скакун [Unholy Steed]",
+ "type": "feat",
+ "img": "icons/svg/mystery-man.svg",
+ "system": {
+  "description": {
+   "value": "<p><strong>Увеличение характеристики.</strong> Сила или Телосложение +1, максимум 20.</p>\n<p><strong>Скакун из-за грани.</strong> Заклинание <em>Поиск скакуна [Find Steed]</em> у вас всегда подготовлено, базовая характеристика - Харизма. Его можно наложить за 1 единицу смерти вместо ячейки: тогда скакун приходит исчадием, а выбранные вами цели совершают спасбросок Мудрости против его Мрачного взора с помехой. Обычными ячейками накладывать тоже можно.</p><p><em>Источник: Unearthed Arcana, злодейские опции (UAVO). Плейтест-материал, пересказ правил.</em></p>",
+   "chat": ""
+  },
+  "source": {
+   "custom": "UA: Villainous Options",
+   "rules": "2024",
+   "revision": 1
+  },
+  "type": {
+   "value": "feat",
+   "subtype": "general"
+  },
+  "requirements": "8 уровень, черта «Посвящённый рыцаря смерти»",
+  "prerequisites": {
+   "level": 8
+  },
+  "advancement": [
+   {
+    "_id": "dkFeatSteeASI001",
+    "type": "AbilityScoreImprovement",
+    "configuration": {
+     "points": 1,
+     "fixed": {
+      "str": 0,
+      "dex": 0,
+      "con": 0,
+      "int": 0,
+      "wis": 0,
+      "cha": 0
+     },
+     "cap": 1,
+     "locked": [
+      "dex",
+      "int",
+      "wis",
+      "cha"
+     ]
+    },
+    "value": {
+     "type": "asi"
+    },
+    "title": ""
+   }
+  ],
+  "properties": [],
+  "activities": {},
+  "uses": {
+   "spent": 0,
+   "max": "",
+   "recovery": []
+  }
+ },
+ "effects": [],
+ "folder": null,
+ "sort": 500000,
+ "ownership": {
+  "default": 0
+ },
+ "flags": {},
+ "_key": "!items!dkFeatSteed00001"
+}

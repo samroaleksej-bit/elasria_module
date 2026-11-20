@@ -1,0 +1,68 @@
+{
+ "_id": "dkFeatAscension1",
+ "name": "Вознесение рыцаря смерти [Death Knight Ascension]",
+ "type": "feat",
+ "img": "icons/svg/fire.svg",
+ "system": {
+  "description": {
+   "value": "<p>Путь завершён: вы стали рыцарем смерти.</p>\n<p><strong>Увеличение характеристики.</strong> Сила или Харизма +1, максимум 20.</p>\n<p><strong>Нежить.</strong> Ваш тип существа - нежить.</p>\n<p><strong>Нечестивая анатомия.</strong> Сопротивление некротическому урону и урону ядом. Обезвоживание, недоедание и удушье не дают вам истощения.</p>\n<p><strong>Сфера адского пламени.</strong> Действием Магия потратьте от 1 до 5 единиц смерти и метните сферу в точку в пределах 120 футов. Все в радиусе 20 футов совершают спасбросок Ловкости, Сл 8 + модификатор Харизмы + бонус мастерства. Провал: 2к6 огнём и 2к6 некротического урона за каждую потраченную единицу. Успех: половина.</p><p><em>Источник: Unearthed Arcana, злодейские опции (UAVO). Плейтест-материал, пересказ правил.</em></p>",
+   "chat": ""
+  },
+  "source": {
+   "custom": "UA: Villainous Options",
+   "rules": "2024",
+   "revision": 1
+  },
+  "type": {
+   "value": "feat",
+   "subtype": "general"
+  },
+  "requirements": "12 уровень",
+  "prerequisites": {
+   "level": 12
+  },
+  "advancement": [
+   {
+    "_id": "dkFeatAsceASI001",
+    "type": "AbilityScoreImprovement",
+    "configuration": {
+     "points": 1,
+     "fixed": {
+      "str": 0,
+      "dex": 0,
+      "con": 0,
+      "int": 0,
+      "wis": 0,
+      "cha": 0
+     },
+     "cap": 1,
+     "locked": [
+      "dex",
+      "con",
+      "int",
+      "wis"
+     ]
+    },
+    "value": {
+     "type": "asi"
+    },
+    "title": ""
+   }
+  ],
+  "properties": [],
+  "activities": {},
+  "uses": {
+   "spent": 0,
+   "max": "",
+   "recovery": []
+  }
+ },
+ "effects": [],
+ "folder": null,
+ "sort": 600000,
+ "ownership": {
+  "default": 0
+ },
+ "flags": {},
+ "_key": "!items!dkFeatAscension1"
+}

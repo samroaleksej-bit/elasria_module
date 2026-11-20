@@ -1,0 +1,73 @@
+{
+ "_id": "dkFeatInitiate01",
+ "name": "Посвящённый рыцаря смерти [Death Knight Initiate]",
+ "type": "feat",
+ "img": "icons/svg/skull.svg",
+ "system": {
+  "description": {
+   "value": "<p><strong>Увеличение характеристики.</strong> Сила или Харизма +1, максимум 20.</p>\n<p><strong>Единицы смерти.</strong> Запас равен вашему бонусу мастерства, полностью восстанавливается после продолжительного отдыха. Единицы тратятся на умения пути рыцаря смерти. Счётчик единиц ведётся на этой черте.</p>\n<p><strong>Удар ужаса.</strong> Заклинание <em>Гневная кара [Wrathful Smite]</em> у вас всегда подготовлено, базовая характеристика - Харизма. Его можно наложить за 1 единицу смерти вместо ячейки: тогда цель совершает спасброски Мудрости против эффекта с помехой. Обычными ячейками накладывать тоже можно.</p><p><em>Источник: Unearthed Arcana, злодейские опции (UAVO). Плейтест-материал, пересказ правил.</em></p>",
+   "chat": ""
+  },
+  "source": {
+   "custom": "UA: Villainous Options",
+   "rules": "2024",
+   "revision": 1
+  },
+  "type": {
+   "value": "feat",
+   "subtype": "general"
+  },
+  "requirements": "4 уровень, умение «Оружейные приёмы»",
+  "prerequisites": {
+   "level": 4
+  },
+  "advancement": [
+   {
+    "_id": "dkFeatInitASI001",
+    "type": "AbilityScoreImprovement",
+    "configuration": {
+     "points": 1,
+     "fixed": {
+      "str": 0,
+      "dex": 0,
+      "con": 0,
+      "int": 0,
+      "wis": 0,
+      "cha": 0
+     },
+     "cap": 1,
+     "locked": [
+      "dex",
+      "con",
+      "int",
+      "wis"
+     ]
+    },
+    "value": {
+     "type": "asi"
+    },
+    "title": ""
+   }
+  ],
+  "properties": [],
+  "activities": {},
+  "uses": {
+   "spent": 0,
+   "max": "@prof",
+   "recovery": [
+    {
+     "period": "lr",
+     "type": "recoverAll"
+    }
+   ]
+  }
+ },
+ "effects": [],
+ "folder": null,
+ "sort": 100000,
+ "ownership": {
+  "default": 0
+ },
+ "flags": {},
+ "_key": "!items!dkFeatInitiate01"
+}

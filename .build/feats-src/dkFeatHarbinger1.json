@@ -1,0 +1,67 @@
+{
+ "_id": "dkFeatHarbinger1",
+ "name": "Предвестник рока [Harbinger of Doom]",
+ "type": "feat",
+ "img": "icons/svg/degen.svg",
+ "system": {
+  "description": {
+   "value": "<p><strong>Увеличение характеристики.</strong> Сила, Телосложение или Харизма +1, максимум 20.</p>\n<p><strong>Дурное знамение.</strong> Заклинание <em>Порча [Bane]</em> у вас всегда подготовлено, базовая характеристика - Харизма. Его можно наложить за 1 единицу смерти вместо ячейки: тогда цели вычитают из бросков атаки и спасбросков 1к6 вместо 1к4. Обычными ячейками накладывать тоже можно.</p><p><em>Источник: Unearthed Arcana, злодейские опции (UAVO). Плейтест-материал, пересказ правил.</em></p>",
+   "chat": ""
+  },
+  "source": {
+   "custom": "UA: Villainous Options",
+   "rules": "2024",
+   "revision": 1
+  },
+  "type": {
+   "value": "feat",
+   "subtype": "general"
+  },
+  "requirements": "Черта «Посвящённый рыцаря смерти»",
+  "prerequisites": {
+   "level": null
+  },
+  "advancement": [
+   {
+    "_id": "dkFeatHarbASI001",
+    "type": "AbilityScoreImprovement",
+    "configuration": {
+     "points": 1,
+     "fixed": {
+      "str": 0,
+      "dex": 0,
+      "con": 0,
+      "int": 0,
+      "wis": 0,
+      "cha": 0
+     },
+     "cap": 1,
+     "locked": [
+      "dex",
+      "int",
+      "wis"
+     ]
+    },
+    "value": {
+     "type": "asi"
+    },
+    "title": ""
+   }
+  ],
+  "properties": [],
+  "activities": {},
+  "uses": {
+   "spent": 0,
+   "max": "",
+   "recovery": []
+  }
+ },
+ "effects": [],
+ "folder": null,
+ "sort": 300000,
+ "ownership": {
+  "default": 0
+ },
+ "flags": {},
+ "_key": "!items!dkFeatHarbinger1"
+}

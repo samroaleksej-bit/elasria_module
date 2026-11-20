@@ -1,0 +1,68 @@
+{
+ "_id": "dkFeatAuthority1",
+ "name": "Власть ужаса [Dread Authority]",
+ "type": "feat",
+ "img": "icons/svg/terror.svg",
+ "system": {
+  "description": {
+   "value": "<p><strong>Увеличение характеристики.</strong> Телосложение или Харизма +1, максимум 20.</p>\n<p><strong>Приказ ужаса.</strong> Заклинание <em>Приказ [Command]</em> у вас всегда подготовлено, базовая характеристика - Харизма. Его можно наложить за 1 единицу смерти вместо ячейки: тогда нежить, ставшая целью, совершает спасбросок с помехой. Обычными ячейками накладывать тоже можно.</p><p><em>Источник: Unearthed Arcana, злодейские опции (UAVO). Плейтест-материал, пересказ правил.</em></p>",
+   "chat": ""
+  },
+  "source": {
+   "custom": "UA: Villainous Options",
+   "rules": "2024",
+   "revision": 1
+  },
+  "type": {
+   "value": "feat",
+   "subtype": "general"
+  },
+  "requirements": "Черта «Посвящённый рыцаря смерти»",
+  "prerequisites": {
+   "level": null
+  },
+  "advancement": [
+   {
+    "_id": "dkFeatAuthASI001",
+    "type": "AbilityScoreImprovement",
+    "configuration": {
+     "points": 1,
+     "fixed": {
+      "str": 0,
+      "dex": 0,
+      "con": 0,
+      "int": 0,
+      "wis": 0,
+      "cha": 0
+     },
+     "cap": 1,
+     "locked": [
+      "str",
+      "dex",
+      "int",
+      "wis"
+     ]
+    },
+    "value": {
+     "type": "asi"
+    },
+    "title": ""
+   }
+  ],
+  "properties": [],
+  "activities": {},
+  "uses": {
+   "spent": 0,
+   "max": "",
+   "recovery": []
+  }
+ },
+ "effects": [],
+ "folder": null,
+ "sort": 200000,
+ "ownership": {
+  "default": 0
+ },
+ "flags": {},
+ "_key": "!items!dkFeatAuthority1"
+}

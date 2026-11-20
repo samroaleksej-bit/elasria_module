@@ -1,0 +1,67 @@
+{
+ "_id": "dkFeatPresence01",
+ "name": "Смертельное присутствие [Deathly Presence]",
+ "type": "feat",
+ "img": "icons/svg/aura.svg",
+ "system": {
+  "description": {
+   "value": "<p><strong>Увеличение характеристики.</strong> Сила, Телосложение или Харизма +1, максимум 20.</p>\n<p><strong>Ужасающее присутствие.</strong> Заклинание <em>Ужас [Fear]</em> у вас всегда подготовлено, базовая характеристика - Харизма. Его можно наложить за 1 единицу смерти вместо ячейки: тогда каждое существо, провалившее спасбросок, вдобавок получает 2к6 психического урона. Обычными ячейками накладывать тоже можно.</p><p><em>Источник: Unearthed Arcana, злодейские опции (UAVO). Плейтест-материал, пересказ правил.</em></p>",
+   "chat": ""
+  },
+  "source": {
+   "custom": "UA: Villainous Options",
+   "rules": "2024",
+   "revision": 1
+  },
+  "type": {
+   "value": "feat",
+   "subtype": "general"
+  },
+  "requirements": "8 уровень, черта «Посвящённый рыцаря смерти»",
+  "prerequisites": {
+   "level": 8
+  },
+  "advancement": [
+   {
+    "_id": "dkFeatPresASI001",
+    "type": "AbilityScoreImprovement",
+    "configuration": {
+     "points": 1,
+     "fixed": {
+      "str": 0,
+      "dex": 0,
+      "con": 0,
+      "int": 0,
+      "wis": 0,
+      "cha": 0
+     },
+     "cap": 1,
+     "locked": [
+      "dex",
+      "int",
+      "wis"
+     ]
+    },
+    "value": {
+     "type": "asi"
+    },
+    "title": ""
+   }
+  ],
+  "properties": [],
+  "activities": {},
+  "uses": {
+   "spent": 0,
+   "max": "",
+   "recovery": []
+  }
+ },
+ "effects": [],
+ "folder": null,
+ "sort": 400000,
+ "ownership": {
+  "default": 0
+ },
+ "flags": {},
+ "_key": "!items!dkFeatPresence01"
+}
