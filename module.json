@@ -1,0 +1,15 @@
+{
+  "id": "nachtmark",
+  "title": "Нахтмарк · имена и названия",
+  "description": "<p>Личный модуль мастера: заменяет имена и названия в импортированном приключении на имена Нахтмарка (Эластрия) — журналы, сцены, существа, предметы, таблицы и заметки на картах. Работает по словарю, сам текст приключения не содержит. Исходные значения сохраняются, всё возвращается одной кнопкой.</p>",
+  "version": "0.1.0",
+  "authors": [{ "name": "Verlierboy", "url": "https://t.me/circleofdms" }],
+  "compatibility": { "minimum": "13", "verified": "14" },
+  "esmodules": ["scripts/main.js"],
+  "relationships": {
+    "requires": [{ "id": "kadzoki-proklyatie-strada", "type": "module", "compatibility": {} }]
+  },
+  "url": "https://github.com/samroaleksej-bit/elasria_module/tree/nachtmark",
+  "manifest": "https://raw.githubusercontent.com/samroaleksej-bit/elasria_module/nachtmark/module.json",
+  "download": "https://github.com/samroaleksej-bit/elasria_module/archive/refs/heads/nachtmark.zip"
+}
