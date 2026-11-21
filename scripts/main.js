@@ -3,6 +3,8 @@
 // и запоминает исходные значения во флагах, чтобы всё можно было вернуть.
 import { convertHTML, convertPlain } from "./engine.js";
 import { RULES, NAME_OVERRIDES, sceneNameOverride, DICT_VERSION } from "./dictionary.js";
+import { openBook, toggleBook, refreshBook, onSocket as onBookSocket, travel as bookTravel } from "./book.js";
+import { registerSfx } from "./sfx.js";
 
 const MOD = "nachtmark";
 const SOURCE = "kadzoki-proklyatie-strada";
@@ -350,10 +352,45 @@ export async function openDialog() {
 
 Hooks.once("init", () => {
   game.settings.register(MOD, "state", { scope: "world", config: false, type: Object, default: { applied: false, v: 0 } });
+
+  // книга отряда
+  game.settings.register(MOD, "book", { scope: "world", config: false, type: Object, default: { q: {}, o: {}, e: {} }, onChange: () => refreshBook() });
+  game.settings.register(MOD, "travel", {
+    name: "Клик по метке на карте книги",
+    hint: "Что происходит, когда игрок нажимает на метку места в Книге Нахтмарка.",
+    scope: "world", config: true, type: String, default: "self",
+    choices: {
+      self: "Игрок сразу переходит на сцену сам",
+      ask: "Спросить мастера",
+      party: "Мастер автоматически переводит весь отряд",
+      off: "Только открыть страницу места"
+    }
+  });
+  registerSfx();
+  game.keybindings.register(MOD, "book", {
+    name: "Открыть или закрыть Книгу Нахтмарка",
+    editable: [{ key: "KeyB" }],
+    onDown: () => { toggleBook(); return true; }
+  });
+});
+
+Hooks.on("canvasReady", () => refreshBook());
+
+// кнопка книги в панели инструментов слева
+Hooks.on("getSceneControlButtons", (controls) => {
+  const tools = controls.tokens?.tools;
+  if (!tools) return;
+  tools.nachtmarkBook = {
+    name: "nachtmarkBook", title: "Книга Нахтмарка", icon: "fa-solid fa-book-open",
+    order: Object.keys(tools).length, button: true,
+    onChange: () => toggleBook()
+  };
 });
 
 Hooks.once("ready", () => {
-  game.modules.get(MOD).api = { open: openDialog, run, swaps: runSwaps, convert: (text) => convertHTML(text, RULES) };
+  game.socket.on(`module.${MOD}`, onBookSocket);
+  game.modules.get(MOD).api = { open: openDialog, run, swaps: runSwaps, convert: (text) => convertHTML(text, RULES),
+    book: openBook, toggleBook, travel: bookTravel };
   if (!game.user.isGM) return;
   const state = game.settings.get(MOD, "state") ?? {};
   if (!state.applied && game.packs.get(PACK))
