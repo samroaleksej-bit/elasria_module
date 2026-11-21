@@ -294,6 +294,49 @@ export async function runSwaps(mode = "apply") {
   return report;
 }
 
+/* =====================================================================
+ * Случайные события Нахтмарка: свои таблицы на день и на ночь.
+ * Существа - ссылками на компендиум Grim Hollow, тексты событий свои.
+ * ===================================================================== */
+let eventData = null;
+async function loadEvents() {
+  eventData ??= await (await fetch(`modules/${MOD}/data/events.json`)).json();
+  return eventData;
+}
+
+function eventHTML(row) {
+  const mobs = row.mobs.map((m) => {
+    const count = /^\d+$/.test(m.count) ? `× ${m.count}` : `× [[/r ${m.count}]]`;
+    return `<li>@UUID[${m.uuid}]{${m.name}} ${count} (ПО ${m.cr})</li>`;
+  }).join("");
+  return `<p>${row.text}</p>${mobs ? `<ul>${mobs}</ul>` : ""}`;
+}
+
+/** Таблица в мире: создаётся при первом броске, пересоздаётся при обновлении данных модуля. */
+async function ensureEventTable(kind) {
+  const data = await loadEvents();
+  const src = data.tables.find((t) => t.kind === kind);
+  if (!src) throw new Error(`Нет таблицы событий «${kind}».`);
+  let table = game.tables.find((t) => t._source.flags?.[MOD]?.events === kind);
+  if (table && table._source.flags[MOD].v !== data.version) { await table.delete(); table = null; }
+  if (table) return table;
+  return RollTable.implementation.create({
+    name: src.name, formula: src.formula, replacement: true, displayRoll: true,
+    description: `<p>${src.intro}</p>`,
+    flags: { [MOD]: { events: kind, v: data.version } },
+    results: src.rows.map((row) => ({ type: CONST.TABLE_RESULT_TYPES.TEXT, name: row.n, description: eventHTML(row), range: [row.r, row.r], weight: 1 }))
+  });
+}
+
+/** Бросить событие. Результат видит только мастер. kind: "day" или "night". */
+export async function rollEvent(kind = "day") {
+  if (!game.user.isGM) throw new Error("Только мастер бросает события.");
+  const table = await ensureEventTable(kind);
+  const { roll, results } = await table.roll();
+  await table.toMessage(results, { roll, messageData: { whisper: game.users.filter((u) => u.isGM).map((u) => u.id) } });
+  return results;
+}
+
 const TYPE_NAMES = { Folder: "папки", JournalEntry: "журналы", JournalEntryPage: "страницы журналов", Scene: "сцены", Token: "токены на сценах",
   Note: "заметки на картах", Drawing: "надписи на картах", Actor: "существа", Item: "предметы", RollTable: "таблицы", TableResult: "строки таблиц", Playlist: "плейлисты" };
 const listReport = (r) => Object.entries(r.byType).map(([k, n]) => `<li>${TYPE_NAMES[k] ?? k}: ${n}</li>`).join("");
@@ -316,16 +359,23 @@ export async function openDialog() {
       <p><b>Имена.</b></p>${status}
       ${mobStatus}
       <p><b>Сначала сделайте копию мира.</b> Имена возвращаются из сохранённых значений, мобы - из компендиума приключения.</p>
-      <p>Не меняются: подписи, нарисованные на самих картах, английские названия в квадратных скобках и папки видеосцен. Мобов меняйте вне боя.</p>`,
+      <p>Не меняются: подписи, нарисованные на самих картах, английские названия в квадратных скобках и папки видеосцен. Мобов меняйте вне боя.</p>
+      <p><b>События.</b> Кнопки «Событие: день» и «Событие: ночь» бросают по таблицам Нахтмарка с существами из Grim Hollow. Результат приходит шёпотом мастеру; сами таблицы появляются во вкладке таблиц после первого броска.</p>`,
     buttons: [
       { action: "apply", label: "Имена: перенести", icon: "fa-solid fa-feather-pointed", default: true },
       { action: "revert", label: "Имена: вернуть", icon: "fa-solid fa-rotate-left" },
       { action: "mobs", label: "Мобы: заменить", icon: "fa-solid fa-skull" },
       { action: "mobs-revert", label: "Мобы: вернуть", icon: "fa-solid fa-rotate-left" },
+      { action: "event-day", label: "Событие: день", icon: "fa-solid fa-sun" },
+      { action: "event-night", label: "Событие: ночь", icon: "fa-solid fa-moon" },
       { action: "close", label: "Закрыть", icon: "fa-solid fa-xmark" }
     ],
     rejectClose: false
   });
+  if (answer === "event-day" || answer === "event-night") {
+    try { await rollEvent(answer === "event-day" ? "day" : "night"); } catch (e) { console.error(`${MOD} |`, e); ui.notifications.error(`Нахтмарк: ${e.message}`); }
+    return;
+  }
   if (answer === "mobs" || answer === "mobs-revert") {
     ui.notifications.info(answer === "mobs" ? "Нахтмарк: меняю мобов…" : "Нахтмарк: возвращаю прежних мобов…");
     try {
@@ -390,7 +440,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
 Hooks.once("ready", () => {
   game.socket.on(`module.${MOD}`, onBookSocket);
   game.modules.get(MOD).api = { open: openDialog, run, swaps: runSwaps, convert: (text) => convertHTML(text, RULES),
-    book: openBook, toggleBook, travel: bookTravel };
+    book: openBook, toggleBook, travel: bookTravel, event: rollEvent };
   if (!game.user.isGM) return;
   const state = game.settings.get(MOD, "state") ?? {};
   if (!state.applied && game.packs.get(PACK))
