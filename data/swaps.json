@@ -1,0 +1,123 @@
+[
+  {
+    "old": "Волк",
+    "uuid": "Compendium.grim-hollow-2024-ru.creatures.Actor.ghmstHungererWol",
+    "name": "Голодный волк",
+    "book": "Grim Hollow"
+  },
+  {
+    "old": "Лютый Волк",
+    "uuid": "Compendium.ag-fifthpendium-tcm.actors.Actor.tcmBatHound00000",
+    "name": "Летучая гончая",
+    "book": "The Crooked Moon"
+  },
+  {
+    "old": "Зомби",
+    "uuid": "Compendium.grim-hollow-2024-ru.creatures.Actor.ghmstWeepingZomb",
+    "name": "Плачущий зомби",
+    "book": "Grim Hollow"
+  },
+  {
+    "old": "Зомби Страда",
+    "uuid": "Compendium.grim-hollow-2024-ru.creatures.Actor.ghmstShatterCorp",
+    "name": "Расколотый труп",
+    "book": "Grim Hollow"
+  },
+  {
+    "old": "Упырь",
+    "uuid": "Compendium.ag-fifthpendium-tcm.actors.Actor.tcmGhostCrawler0",
+    "name": "Призрачный ползун",
+    "book": "The Crooked Moon"
+  },
+  {
+    "old": "Вурдалак",
+    "uuid": "Compendium.grim-hollow-2024-ru.creatures.Actor.ghmstMouruge0000",
+    "name": "Мураж",
+    "book": "Grim Hollow"
+  },
+  {
+    "old": "Скелет",
+    "uuid": "Compendium.grim-hollow-2024-ru.creatures.Actor.ghmstHermitSkull",
+    "name": "Череп отшельника",
+    "book": "Grim Hollow"
+  },
+  {
+    "old": "Тень",
+    "uuid": "Compendium.ag-fifthpendium-tcm.actors.Actor.tcmWaywardHaint0",
+    "name": "Заблудший морок",
+    "book": "The Crooked Moon"
+  },
+  {
+    "old": "Спектр",
+    "uuid": "Compendium.grim-hollow-2024-ru.creatures.Actor.ghmstCorpseWisp0",
+    "name": "Трупный огонёк",
+    "book": "Grim Hollow"
+  },
+  {
+    "old": "Полтергейст",
+    "uuid": "Compendium.grim-hollow-2024-ru.creatures.Actor.ghmstOblivionWhi",
+    "name": "Свистун забвения",
+    "book": "Grim Hollow"
+  },
+  {
+    "old": "Привидение",
+    "uuid": "Compendium.grim-hollow-2024-ru.creatures.Actor.ghmstCatacombHau",
+    "name": "Привидение катакомб",
+    "book": "Grim Hollow"
+  },
+  {
+    "old": "Снежная дева",
+    "uuid": "Compendium.grim-hollow-2024-ru.creatures.Actor.ghmstRimeHunger0",
+    "name": "Голод инея",
+    "book": "Grim Hollow"
+  },
+  {
+    "old": "Пугало",
+    "minHp": 10,
+    "uuid": "Compendium.ag-fifthpendium-tcm.actors.Actor.tcmCornDolly0000",
+    "name": "Кукла из соломы",
+    "book": "The Crooked Moon"
+  },
+  {
+    "old": "Ветвистая зараза",
+    "uuid": "Compendium.grim-hollow-2024-ru.creatures.Actor.ghmstGripper0000",
+    "name": "Хвататель",
+    "book": "Grim Hollow"
+  },
+  {
+    "old": "Игольчатая зараза",
+    "uuid": "Compendium.grim-hollow-2024-ru.creatures.Actor.ghmstThornlamm00",
+    "name": "Торнламм",
+    "book": "Grim Hollow"
+  },
+  {
+    "old": "Вьющаяся зараза",
+    "uuid": "Compendium.grim-hollow-2024-ru.creatures.Actor.ghmstLesserMaide",
+    "name": "Меньшие волосы девы",
+    "book": "Grim Hollow"
+  },
+  {
+    "old": "Баровийская ведьма",
+    "uuid": "Compendium.grim-hollow-2024-ru.creatures.Actor.ghmstRedHag00000",
+    "name": "Красная карга",
+    "book": "Grim Hollow"
+  },
+  {
+    "old": "Фанатик культа",
+    "uuid": "Compendium.grim-hollow-2024-ru.creatures.Actor.ghmstEldritchPri",
+    "name": "Жуткий жрец",
+    "book": "Grim Hollow"
+  },
+  {
+    "old": "Вампирское отродье",
+    "uuid": "Compendium.grim-hollow-2024-ru.creatures.Actor.ghmstVampireSpaw",
+    "name": "Отпрыск вампира",
+    "book": "Grim Hollow"
+  },
+  {
+    "old": "Адская гончая",
+    "uuid": "Compendium.grim-hollow-2024-ru.creatures.Actor.ghmstLupilisk000",
+    "name": "Люпилиск",
+    "book": "Grim Hollow"
+  }
+]

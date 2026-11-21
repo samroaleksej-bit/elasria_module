@@ -153,6 +153,145 @@ export async function run(mode = "apply") {
   return report;
 }
 
+/* =====================================================================
+ * Замена мобов: токены на сценах приключения получают существ из других
+ * установленных модулей. Статблоков здесь нет - только ссылки на компендиумы.
+ * ===================================================================== */
+let swapTable = null;
+async function loadSwaps() {
+  swapTable ??= await (await fetch(`modules/${MOD}/data/swaps.json`)).json();
+  return swapTable;
+}
+
+async function mobFolder() {
+  const have = game.folders.find((f) => f.type === "Actor" && f._source.flags?.[MOD]?.mobs);
+  return have ?? Folder.create({ name: "Нахтмарк · мобы", type: "Actor", flags: { [MOD]: { mobs: true } } });
+}
+
+/** Существо-замена в мире: берём уже импортированное или импортируем из компендиума. */
+async function importMob(swap, dry) {
+  const have = game.actors.find((a) => a._source.flags?.[MOD]?.source === swap.uuid);
+  if (have) return have;
+  const src = await fromUuid(swap.uuid);
+  if (!src) return null;
+  if (dry) return src;
+  const data = game.actors.fromCompendium(src);
+  data.folder = (await mobFolder()).id;
+  data.flags = { ...(data.flags ?? {}), [MOD]: { source: swap.uuid } };
+  return Actor.implementation.create(data);
+}
+
+async function mobTexture(actor) {
+  const proto = actor.prototypeToken.toObject();
+  let src = proto.texture?.src;
+  if (proto.randomImg && typeof actor.getTokenImages === "function") {
+    const imgs = await actor.getTokenImages();
+    if (imgs?.length) src = imgs[Math.floor(Math.random() * imgs.length)];
+  }
+  return { ...proto.texture, src };
+}
+
+const cleanName = (s) => String(s ?? "").replace(/\s*\[[^\]]*\]\s*$/, "");
+/** Поля, которые новый токен берёт у нового существа; всё остальное (место, этаж, скрытость, флаги) остаётся от старого. */
+const FROM_PROTO = ["width", "height", "ring", "sight", "detectionModes", "light", "bar1", "bar2", "disposition"];
+
+/**
+ * Пересоздать токены на том же месте и с тем же идентификатором.
+ * Править на месте нельзя: у половины токенов в сцену вшита копия старого существа со всеми способностями.
+ */
+async function replaceTokens(scene, items) {
+  const ids = items.map((d) => d._id);
+  const backup = ids.map((id) => scene.tokens.get(id)?.toObject()).filter(Boolean);
+  await scene.deleteEmbeddedDocuments("Token", ids);
+  try {
+    await scene.createEmbeddedDocuments("Token", items, { keepId: true });
+  } catch (e) {
+    await scene.createEmbeddedDocuments("Token", backup, { keepId: true }); // вернуть как было и сообщить
+    throw e;
+  }
+}
+
+/** mode: "apply" - заменить, "revert" - вернуть, "preview" - только посчитать. */
+export async function runSwaps(mode = "apply") {
+  if (!game.user.isGM) throw new Error("Только мастер может менять мобов.");
+  const dry = mode === "preview";
+  const table = await loadSwaps();
+  const sets = await collect();
+  const report = { tokens: 0, scenes: 0, byMob: {}, missing: [] };
+
+  if (mode === "revert") {
+    const pack = game.packs.get(PACK);
+    const [adv] = await pack.getDocuments();
+    const original = new Map();
+    for (const s of adv.toObject().scenes ?? []) for (const t of s.tokens ?? []) original.set(`${s._id}.${t._id}`, t);
+    for (const scene of sets.Scene) {
+      const items = [];
+      for (const tok of scene.tokens) {
+        const was = tok._source.flags?.[MOD]?.was;
+        if (!was) continue;
+        const cur = tok.toObject();
+        const place = { x: cur.x, y: cur.y, elevation: cur.elevation, hidden: cur.hidden, ...("level" in cur ? { level: cur.level } : {}) };
+        const orig = original.get(`${scene.id}.${tok.id}`);
+        let data;
+        if (orig) data = { ...orig, ...place };
+        else {
+          const actor = game.actors.get(was);
+          if (!actor) continue;
+          const proto = actor.prototypeToken.toObject();
+          data = { ...cur, actorId: actor.id, name: proto.name || actor.name, texture: await mobTexture(actor) };
+          for (const k of FROM_PROTO) if (k in proto) data[k] = proto[k];
+          delete data.delta;
+          data.flags = { ...(data.flags ?? {}), [MOD]: { was: "" } };
+        }
+        data._id = tok.id;
+        items.push(data);
+      }
+      if (!items.length) continue;
+      report.tokens += items.length; report.scenes++;
+      await replaceTokens(scene, items);
+      await tick();
+    }
+    // токены вернулись из компендиума со старыми именами: если имена уже перенесены, переносим и их
+    if (report.tokens && game.settings.get(MOD, "state")?.applied) await run("apply");
+    return report;
+  }
+
+  // существа-замены
+  const mobs = new Map();
+  for (const swap of table) {
+    const mob = await importMob(swap, dry);
+    if (mob) mobs.set(swap.uuid, mob); else report.missing.push(`${swap.name} (${swap.book})`);
+  }
+  const byOld = new Map(table.map((s) => [s.old, s]));
+  for (const scene of sets.Scene) {
+    const items = [];
+    for (const tok of scene.tokens) {
+      if (tok._source.flags?.[MOD]?.was) continue; // уже заменён
+      const actor = game.actors.get(tok._source.actorId);
+      if (!actor) continue;
+      const swap = byOld.get(origName(actor));
+      if (!swap) continue;
+      if (swap.minHp && (actor._source.system?.attributes?.hp?.max ?? 0) < swap.minHp) continue;
+      const mob = mobs.get(swap.uuid);
+      if (!mob) continue;
+      report.byMob[swap.name] = (report.byMob[swap.name] ?? 0) + 1;
+      if (dry) { items.push(null); continue; }
+      const old = tok.toObject();
+      const proto = mob.prototypeToken.toObject();
+      const data = { ...old, actorId: mob.id, actorLink: false, name: cleanName(proto.name || mob.name), texture: await mobTexture(mob) };
+      for (const k of FROM_PROTO) if (k in proto) data[k] = proto[k];
+      delete data.delta;
+      // от старого токена берём чужие флаги, но не сохранённое прежнее имя: иначе «вернуть имена» назвало бы нового моба старым
+      data.flags = { ...(old.flags ?? {}), [MOD]: { was: actor.id } };
+      items.push(data);
+    }
+    if (!items.length) continue;
+    report.tokens += items.length; report.scenes++;
+    if (!dry) { await replaceTokens(scene, items); await tick(); }
+  }
+  return report;
+}
+
 const TYPE_NAMES = { Folder: "папки", JournalEntry: "журналы", JournalEntryPage: "страницы журналов", Scene: "сцены", Token: "токены на сценах",
   Note: "заметки на картах", Drawing: "надписи на картах", Actor: "существа", Item: "предметы", RollTable: "таблицы", TableResult: "строки таблиц", Playlist: "плейлисты" };
 const listReport = (r) => Object.entries(r.byType).map(([k, n]) => `<li>${TYPE_NAMES[k] ?? k}: ${n}</li>`).join("");
@@ -161,25 +300,42 @@ const listReport = (r) => Object.entries(r.byType).map(([k, n]) => `<li>${TYPE_N
 export async function openDialog() {
   if (!game.user.isGM) return;
   const { DialogV2 } = foundry.applications.api;
-  let preview;
-  try { preview = await run("preview"); } catch (e) { return ui.notifications.error(`Нахтмарк: ${e.message}`); }
+  let preview, mobs;
+  try { preview = await run("preview"); mobs = await runSwaps("preview"); } catch (e) { return ui.notifications.error(`Нахтмарк: ${e.message}`); }
   const state = game.settings.get(MOD, "state") ?? {};
+  const mobStatus = `<p><b>Мобы.</b> К замене токенов: <b>${mobs.tokens}</b> на ${mobs.scenes} сценах.${mobs.missing.length
+    ? ` Не найдены в компендиумах (модуль не установлен или не включён): ${mobs.missing.join(", ")}.` : ""}</p>`;
   const status = state.applied
     ? `<p>Перенос уже выполнен. ${preview.docs ? `С тех пор изменилось документов: <b>${preview.docs}</b> — нажмите «Перенести», чтобы обновить.` : "Все документы в порядке."}</p>`
     : `<p>Будет изменено документов: <b>${preview.docs}</b>, полей: <b>${preview.fields}</b>.</p><ul>${listReport(preview)}</ul>`;
   const answer = await DialogV2.wait({
     window: { title: "Нахтмарк — перенос приключения" },
     content: `<p>Модуль заменяет имена и названия в импортированном приключении на имена Нахтмарка: журналы, сцены, существа, предметы, таблицы, заметки на картах.</p>
-      ${status}
-      <p><b>Сначала сделайте копию мира.</b> Исходные значения сохраняются, кнопка «Вернуть как было» их восстанавливает.</p>
-      <p>Не меняются: подписи, нарисованные на самих картах, английские названия в квадратных скобках и папки видеосцен.</p>`,
+      <p><b>Имена.</b></p>${status}
+      ${mobStatus}
+      <p><b>Сначала сделайте копию мира.</b> Имена возвращаются из сохранённых значений, мобы - из компендиума приключения.</p>
+      <p>Не меняются: подписи, нарисованные на самих картах, английские названия в квадратных скобках и папки видеосцен. Мобов меняйте вне боя.</p>`,
     buttons: [
-      { action: "apply", label: "Перенести в Нахтмарк", icon: "fa-solid fa-feather-pointed", default: true },
-      { action: "revert", label: "Вернуть как было", icon: "fa-solid fa-rotate-left" },
+      { action: "apply", label: "Имена: перенести", icon: "fa-solid fa-feather-pointed", default: true },
+      { action: "revert", label: "Имена: вернуть", icon: "fa-solid fa-rotate-left" },
+      { action: "mobs", label: "Мобы: заменить", icon: "fa-solid fa-skull" },
+      { action: "mobs-revert", label: "Мобы: вернуть", icon: "fa-solid fa-rotate-left" },
       { action: "close", label: "Закрыть", icon: "fa-solid fa-xmark" }
     ],
     rejectClose: false
   });
+  if (answer === "mobs" || answer === "mobs-revert") {
+    ui.notifications.info(answer === "mobs" ? "Нахтмарк: меняю мобов…" : "Нахтмарк: возвращаю прежних мобов…");
+    try {
+      const report = await runSwaps(answer === "mobs" ? "apply" : "revert");
+      ui.notifications.info(`Нахтмарк: готово. Токенов: ${report.tokens}, сцен: ${report.scenes}.`);
+      console.log(`${MOD} | ${answer}`, report);
+    } catch (e) {
+      console.error(`${MOD} |`, e);
+      ui.notifications.error(`Нахтмарк: ${e.message}`);
+    }
+    return;
+  }
   if (answer !== "apply" && answer !== "revert") return;
   ui.notifications.info(answer === "apply" ? "Нахтмарк: переношу, это займёт до минуты…" : "Нахтмарк: возвращаю исходные названия…");
   try {
@@ -197,7 +353,7 @@ Hooks.once("init", () => {
 });
 
 Hooks.once("ready", () => {
-  game.modules.get(MOD).api = { open: openDialog, run, convert: (text) => convertHTML(text, RULES) };
+  game.modules.get(MOD).api = { open: openDialog, run, swaps: runSwaps, convert: (text) => convertHTML(text, RULES) };
   if (!game.user.isGM) return;
   const state = game.settings.get(MOD, "state") ?? {};
   if (!state.applied && game.packs.get(PACK))
