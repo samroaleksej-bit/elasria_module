@@ -180,7 +180,7 @@ export function bookHTML(C, st, view, isGM) {
         <h2>${esc(sel.n)}</h2>
         <div class="bb-meta">${esc(sel.g)}</div>
         <div class="bb-rule"></div>
-        ${sel.html ? `<div class="bb-paper ${esc(sel.kind ?? "")}">${sel.img ? `<img class="bb-mug" src="${C.art}${sel.img}" data-zoom="${esc(sel.n)}" draggable="false">` : ""}${sel.html}</div>` : photo(C, sel.img, sel.n, "sheet")}
+        ${sel.own ? `<figure class="bb-photo sheet"><img src="modules/nachtmark/art/handouts/${sel.own}" data-zoom="${esc(sel.n)}" draggable="false"></figure>` : sel.html ? `<div class="bb-paper ${esc(sel.kind ?? "")}">${sel.img ? `<img class="bb-mug" src="${C.art}${sel.img}" data-zoom="${esc(sel.n)}" draggable="false">` : ""}${sel.html}</div>` : photo(C, sel.img, sel.n, "sheet")}
         ${isGM ? gmBlock("letters", sel, st) : ""}
       </div>`;
     }

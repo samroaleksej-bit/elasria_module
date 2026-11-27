@@ -22,6 +22,7 @@ r = must(r, '${sel.reward ? `<p class="bb-reward"><b>Награда.</b> ${esc(s
 r = must(r, 'Пока никто в крепости не доверил вам дел. Пройдитесь по дворам — работа найдётся.', 'Пока никто в Нахтмарке не доверил вам своих бед.', 'пустые задания');
 r = must(r, 'Она появится, когда вы доберётесь до крепости.', 'Она появится, когда вы войдёте в Нахтмарк.', 'пустая карта');
 r = must(r, '<ul>${pins.map((p) => `<li data-travel=', '<ul>${pins.filter((p, i, a) => a.findIndex((q) => q.place === p.place) === i).map((p) => `<li data-travel=', 'список меток без повторов');
+r = must(r, '${sel.html ? `<div class="bb-paper ${esc(sel.kind ?? "")}">', '${sel.own ? `<figure class="bb-photo sheet"><img src="modules/nachtmark/art/handouts/${sel.own}" data-zoom="${esc(sel.n)}" draggable="false"></figure>` : sel.html ? `<div class="bb-paper ${esc(sel.kind ?? "")}">', 'свои картинки в письмах');
 r = r.replace(/ — /g, ' - ');
 wr('scripts/render.js', r);
 
