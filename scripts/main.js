@@ -337,6 +337,42 @@ export async function rollEvent(kind = "day") {
   return results;
 }
 
+/** Сцены пролога: свои карты модуля для соло-сцен героев и общего сбора. grid - размер клетки в пикселях. */
+const PROLOGUE = [
+  { key: "varis", n: "Пролог: заколоченный дом", img: "varis-house.webp", grid: 100 },
+  { key: "sariel", n: "Пролог: опушка Слепых Кодр", img: "sariel-edge.webp", grid: 70 },
+  { key: "dirk", n: "Пролог: гать через низину", img: "dirk-causeway.webp", grid: 100 },
+  { key: "koyon", n: "Пролог: мёртвый хутор", img: "koyon-hamlet.webp", grid: 100 },
+  { key: "chapel", n: "Пролог: часовня", img: "chapel.webp", grid: 70 }
+];
+const PROLOGUE_FOLDER = "Нахтмарк: пролог";
+
+/** Создать недостающие сцены пролога. Уже созданные не трогает - их можно править руками. */
+export async function createPrologue() {
+  if (!game.user.isGM) throw new Error("Только мастер создаёт сцены.");
+  const have = new Set(game.scenes.filter((s) => s.flags?.[MOD]?.prologue).map((s) => s.flags[MOD].prologue));
+  const todo = PROLOGUE.filter((p) => !have.has(p.key));
+  if (!todo.length) return { created: 0, total: PROLOGUE.length };
+  const folder = game.folders.find((f) => f.type === "Scene" && f.flags?.[MOD]?.prologue)
+    ?? await Folder.implementation.create({ name: PROLOGUE_FOLDER, type: "Scene", flags: { [MOD]: { prologue: true } } });
+  const v14 = (game.release?.generation ?? 13) >= 14;
+  for (const p of todo) {
+    const src = `modules/${MOD}/art/maps/${p.img}`;
+    const data = { name: p.n, folder: folder.id, navigation: false, width: 2000, height: 1125, padding: 0, tokenVision: false,
+      grid: { type: 1, size: p.grid, distance: 5, units: "ft", alpha: 0.15 },
+      environment: { globalLight: { enabled: true }, darknessLevel: 0 },
+      flags: { [MOD]: { prologue: p.key } } };
+    // с 14-й версии фон сцены лежит в её уровне, раньше - в самой сцене
+    if (v14) { data.levels = [{ _id: "defaultLevel0000", name: p.n, background: { src } }]; data.initialLevel = "defaultLevel0000"; }
+    else data.background = { src };
+    const scene = await Scene.implementation.create(data, { keepEmbeddedIds: true });
+    const level = scene?.levels?.contents?.[0];
+    if (level && !level.background?.src) await level.update({ "background.src": src });
+    try { const t = await scene.createThumbnail?.(); if (t?.thumb) await scene.update({ thumb: t.thumb }); } catch (e) { console.warn(`${MOD} | миниатюра не создана`, e); }
+  }
+  return { created: todo.length, total: PROLOGUE.length };
+}
+
 const TYPE_NAMES = { Folder: "папки", JournalEntry: "журналы", JournalEntryPage: "страницы журналов", Scene: "сцены", Token: "токены на сценах",
   Note: "заметки на картах", Drawing: "надписи на картах", Actor: "существа", Item: "предметы", RollTable: "таблицы", TableResult: "строки таблиц", Playlist: "плейлисты" };
 const listReport = (r) => Object.entries(r.byType).map(([k, n]) => `<li>${TYPE_NAMES[k] ?? k}: ${n}</li>`).join("");
@@ -360,7 +396,8 @@ export async function openDialog() {
       ${mobStatus}
       <p><b>Сначала сделайте копию мира.</b> Имена возвращаются из сохранённых значений, мобы - из компендиума приключения.</p>
       <p>Не меняются: подписи, нарисованные на самих картах, английские названия в квадратных скобках и папки видеосцен. Мобов меняйте вне боя.</p>
-      <p><b>События.</b> Кнопки «Событие: день» и «Событие: ночь» бросают по таблицам Нахтмарка с существами из Grim Hollow и The Crooked Moon. Результат приходит шёпотом мастеру; сами таблицы появляются во вкладке таблиц после первого броска.</p>`,
+      <p><b>События.</b> Кнопки «Событие: день» и «Событие: ночь» бросают по таблицам Нахтмарка с существами из Grim Hollow и The Crooked Moon. Результат приходит шёпотом мастеру; сами таблицы появляются во вкладке таблиц после первого броска.</p>
+      <p><b>Пролог.</b> Кнопка создаёт пять сцен с картами модуля в папке «${PROLOGUE_FOLDER}»: дом, опушка, гать, хутор и часовня. Стен и света на них нет, клетку при желании поправьте в настройках сцены.</p>`,
     buttons: [
       { action: "apply", label: "Имена: перенести", icon: "fa-solid fa-feather-pointed", default: true },
       { action: "revert", label: "Имена: вернуть", icon: "fa-solid fa-rotate-left" },
@@ -368,10 +405,18 @@ export async function openDialog() {
       { action: "mobs-revert", label: "Мобы: вернуть", icon: "fa-solid fa-rotate-left" },
       { action: "event-day", label: "Событие: день", icon: "fa-solid fa-sun" },
       { action: "event-night", label: "Событие: ночь", icon: "fa-solid fa-moon" },
+      { action: "prologue", label: "Пролог: создать сцены", icon: "fa-solid fa-map" },
       { action: "close", label: "Закрыть", icon: "fa-solid fa-xmark" }
     ],
     rejectClose: false
   });
+  if (answer === "prologue") {
+    try {
+      const r = await createPrologue();
+      ui.notifications.info(r.created ? `Нахтмарк: создано сцен пролога: ${r.created}. Папка «${PROLOGUE_FOLDER}».` : "Нахтмарк: все сцены пролога уже есть.");
+    } catch (e) { console.error(`${MOD} |`, e); ui.notifications.error(`Нахтмарк: ${e.message}`); }
+    return;
+  }
   if (answer === "event-day" || answer === "event-night") {
     try { await rollEvent(answer === "event-day" ? "day" : "night"); } catch (e) { console.error(`${MOD} |`, e); ui.notifications.error(`Нахтмарк: ${e.message}`); }
     return;
@@ -440,7 +485,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
 Hooks.once("ready", () => {
   game.socket.on(`module.${MOD}`, onBookSocket);
   game.modules.get(MOD).api = { open: openDialog, run, swaps: runSwaps, convert: (text) => convertHTML(text, RULES),
-    book: openBook, toggleBook, travel: bookTravel, event: rollEvent };
+    book: openBook, toggleBook, travel: bookTravel, event: rollEvent, prologue: createPrologue };
   if (!game.user.isGM) return;
   const state = game.settings.get(MOD, "state") ?? {};
   if (!state.applied && game.packs.get(PACK))
