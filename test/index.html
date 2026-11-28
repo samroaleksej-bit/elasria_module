@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Мастер + 2 игрока</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #111; }
+  body { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 58% 42%; gap: 4px; }
+  iframe { border: 0; width: 100%; height: 100%; }
+  #gm { grid-column: 1 / -1; }
+</style>
+</head>
+<body>
+<iframe id="gm" src="mock.html?role=gm"></iframe>
+<iframe id="p1" src="mock.html?role=p1"></iframe>
+<iframe id="p2" src="mock.html?role=p2"></iframe>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Макет Foundry: карточки героев</title>
+<link rel="stylesheet" href="../styles/hero-cards.css">
+<style>
+  html, body { margin: 0; height: 100%; background: #2b2f3a; color: #ddd; font: 13px sans-serif; overflow: hidden; }
+  #who { position: fixed; left: 8px; top: 6px; z-index: 200000; background: #000a; padding: 2px 8px; border-radius: 4px; }
+  .application { position: fixed; left: 20px; top: 40px; width: 440px; height: 560px; z-index: 60; border: 1px solid #555; display: flex; flex-direction: column; }
+  .application .window-header { padding: 6px 10px; }
+  .application .window-content { flex: 1; overflow: auto; }
+</style>
+</head>
+<body>
+<div id="who"></div>
+<script>
+/* Макет Foundry v13 для проверки синхронизации: role=gm|p1|p2 в адресе.
+   Настройки мира лежат в localStorage: запись в одном окне приходит
+   остальным событием storage, как рассылка настроек в Foundry. */
+const role = new URLSearchParams(location.search).get("role") || "gm";
+const isGM = role === "gm";
+document.getElementById("who").textContent = isGM ? "Мастер" : `Игрок ${role}`;
+const KEY = (m, k) => `mock.${m}.${k}`;
+const reg = {};
+const hooks = {};
+const portrait = (c, t) => "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 520"><rect width="400" height="520" fill="${c}"/><circle cx="200" cy="170" r="90" fill="#0005"/><rect x="80" y="280" width="240" height="260" rx="90" fill="#0005"/><text x="200" y="190" font-size="80" text-anchor="middle" fill="#fff9">${t}</text></svg>`);
+
+const item = (type, name, system = {}) => ({ type, name, system });
+const act = (type) => [{ type: "utility", activation: { type } }];
+const desc = (t) => ({ value: `<p>${t}</p>` });
+const spell = (name, level, t, o = {}) => item("spell", name, { level, description: desc(t), activation: { type: o.cast ?? "action", value: o.val ?? 1 }, properties: new Set(o.props ?? []), method: "spell", prepared: o.prep ?? 1 });
+
+const wizardItems = [
+  item("class", "Волшебник", { levels: 7, identifier: "wizard" }),
+  item("subclass", "Школа воплощения", { classIdentifier: "wizard" }),
+  item("race", "Высший эльф"),
+  item("feat", "Магическое восстановление", { type: { value: "class" }, uses: { max: 1, recovery: [{ period: "lr" }] }, activities: act("special"), description: desc("Раз в день после короткого отдыха вы восстанавливаете часть ячеек заклинаний. Суммарный круг не больше половины уровня.") }),
+  item("feat", "Создание заклинаний", { type: { value: "subclass" }, description: desc("Вы создаёте островки безопасности внутри своих заклинаний воплощения. Выбранные существа автоматически преуспевают в спасброске.") }),
+  item("feat", "Мощный заговор", { type: { value: "subclass" }, description: desc("Ваши заговоры наносят половину урона даже при успешном спасброске цели.") }),
+  item("feat", "Увеличение характеристик", { type: { value: "class" }, description: desc("Служебное.") }),
+  item("feat", "Тёмное зрение", { type: { value: "race" }, description: desc("Вы видите в темноте на 60 футов как при тусклом свете.") }),
+  item("feat", "Транс", { type: { value: "race" }, description: desc("Эльфы не спят. Вместо этого они медитируют 4 часа в день.") }),
+  item("feat", "Наследие фей", { type: { value: "race" }, description: desc("Вы совершаете с преимуществом спасброски от очарования, и вас нельзя магически усыпить.") }),
+  item("feat", "Исследователь", { type: { value: "background" }, description: desc("Если вы чего-то не знаете, то обычно знаете, где это можно узнать.") }),
+  item("feat", "Боевой заклинатель", { type: { value: "feat" }, activities: act("reaction"), description: desc("Преимущество на спасброски концентрации. Реакцией можно сотворить заклинание вместо провоцированной атаки.") }),
+  item("feat", "Бдительный", { type: { value: "feat" }, description: desc("Бонус +5 к инициативе. Вас нельзя застать врасплох, пока вы в сознании.") }),
+  spell("Огненный снаряд", 0, "Вы метаете сгусток огня в существо или предмет в пределах дистанции. Урон 2к10 огнём."),
+  spell("Волшебная рука", 0, "Призрачная парящая рука появляется в точке, выбранной вами в пределах дистанции."),
+  spell("Луч холода", 0, "Морозный луч бьёт в цель. Урон 2к8 холодом, скорость цели падает на 10 футов."),
+  spell("Фокусы", 0, "Простой магический трюк, которым начинающие заклинатели оттачивают умение."),
+  spell("Щит", 1, "Невидимый барьер магической силы защищает вас. +5 к КД до начала вашего следующего хода.", { cast: "reaction" }),
+  spell("Волшебная стрела", 1, "Вы создаёте три светящихся дротика. Каждый попадает в цель и наносит 1к4+1 урона силовым полем."),
+  spell("Обнаружение магии", 1, "Вы чувствуете присутствие магии в пределах 30 футов от себя.", { props: ["concentration", "ritual"] }),
+  spell("Доспехи мага", 1, "Вы касаетесь согласного существа без доспехов. Его КД становится 13 + модификатор Ловкости.", { prep: 0 }),
+  spell("Поиск фамильяра", 1, "Вы получаете на службу фамильяра: духа в облике выбранного животного.", { cast: "hour", props: ["ritual"], prep: 0 }),
+  spell("Туманный шаг", 2, "Вас окутывает серебристый туман, и вы телепортируетесь на 30 футов.", { cast: "bonus" }),
+  spell("Палящий луч", 2, "Вы создаёте три огненных луча и бросаете ими в цели в пределах дистанции."),
+  spell("Невидимость", 2, "Существо, которого вы касаетесь, становится невидимым, пока заклинание активно.", { props: ["concentration"] }),
+  spell("Паутина", 2, "Вы создаёте массу густой клейкой паутины в точке в пределах дистанции.", { props: ["concentration"], prep: 0 }),
+  spell("Огненный шар", 3, "Яркий луч вылетает из вашего пальца и взрывается огнём. Урон 8к6 в радиусе 20 футов."),
+  spell("Контрзаклинание", 3, "Вы пытаетесь прервать существо, накладывающее заклинание.", { cast: "reaction" }),
+  spell("Полёт", 3, "Вы касаетесь согласного существа. Оно получает скорость полёта 60 футов.", { props: ["concentration"] }),
+  spell("Рассеивание магии", 3, "Выберите существо, предмет или магический эффект. Заклинания 3 круга и ниже на цели оканчиваются.", { prep: 0 }),
+  spell("Крошечная хижина Леомунда", 3, "Неподвижный купол радиусом 10 футов появляется вокруг вас.", { cast: "minute", props: ["ritual"] }),
+  spell("Изгнание", 4, "Вы пытаетесь отправить существо на другой план существования.", { props: ["concentration"] }),
+  spell("Переносящая дверь", 4, "Вы телепортируетесь в любое место в пределах 500 футов."),
+  spell("Стена огня", 4, "Вы создаёте стену огня на твёрдой поверхности в пределах дистанции.", { props: ["concentration"], prep: 0 }),
+  item("weapon", "Посох", { equipped: true, quantity: 1 }),
+  item("equipment", "Мантия", { equipped: true, quantity: 1 }),
+  item("equipment", "Плащ защиты", { equipped: true, attuned: true, rarity: "uncommon", properties: new Set(["mgc"]), description: desc("Вы получаете бонус +1 к КД и спасброскам, пока носите этот плащ.") }),
+  item("equipment", "Жезл хранителя договора +1", { equipped: false, attuned: false, rarity: "uncommon", properties: new Set(["mgc"]), description: desc("Бонус +1 к броскам атаки заклинаниями и к СЛ ваших заклинаний.") }),
+  item("consumable", "Зелье лечения", { quantity: 3, rarity: "common", properties: new Set(["mgc"]), description: desc("Выпив зелье, вы восстанавливаете 2к4+2 хита.") }),
+  item("loot", "Книга заклинаний", { quantity: 1 }),
+  item("consumable", "Рационы", { quantity: 8 }),
+  item("loot", "Верёвка пеньковая", { quantity: 1 }),
+  item("tool", "Набор каллиграфа", { quantity: 1 }),
+  item("container", "Рюкзак", { quantity: 1 }),
+  item("loot", "Чернила", { quantity: 2 }),
+  item("consumable", "Факел", { quantity: 5 })
+];
+const fighterItems = [
+  item("class", "Воин", { levels: 7, identifier: "fighter" }),
+  item("subclass", "Мастер боевых искусств", { classIdentifier: "fighter" }),
+  item("race", "Человек"),
+  item("feat", "Второе дыхание", { type: { value: "class" }, uses: { max: 1, recovery: [{ period: "sr" }] }, activities: act("bonus"), description: desc("Бонусным действием вы восстанавливаете 1к10 + уровень воина хитов.") }),
+  item("feat", "Всплеск действий", { type: { value: "class" }, uses: { max: 1, recovery: [{ period: "sr" }] }, activities: act("special"), description: desc("В свой ход вы можете совершить одно дополнительное действие.") }),
+  item("feat", "Дополнительная атака", { type: { value: "class" }, description: desc("Вы можете атаковать дважды, когда совершаете действие Атака.") }),
+  item("feat", "Кости превосходства", { type: { value: "subclass" }, uses: { max: 5, recovery: [{ period: "sr" }] }, description: desc("У вас есть пять костей превосходства к8. Они тратятся на приёмы.") }),
+  item("feat", "Парирование", { type: { value: "subclass" }, activities: act("reaction"), description: desc("Реакцией вы уменьшаете урон от рукопашной атаки на кость превосходства + модификатор Ловкости.") }),
+  item("feat", "Боевой стиль: дуэлянт", { type: { value: "class" }, description: desc("Служебное.") }),
+  item("weapon", "Длинный меч", { equipped: true, quantity: 1 }),
+  item("weapon", "Лёгкий арбалет", { equipped: true, quantity: 1 }),
+  item("equipment", "Кольчуга", { equipped: true, quantity: 1 }),
+  item("equipment", "Щит", { equipped: true, quantity: 1 }),
+  item("consumable", "Арбалетные болты", { quantity: 20 })
+];
+const abil = (a) => Object.fromEntries(Object.entries(a).map(([k, [value, proficient]]) => [k, { value, mod: Math.floor((value - 10) / 2), proficient }]));
+const mkActor = (id, name, type, owner, color, letter, items, system) => {
+  const a = { id, name, type, hasPlayerOwner: owner, img: portrait(color, letter), items: { contents: items }, system };
+  a.classes = Object.fromEntries(items.filter((i) => i.type === "class").map((c) => [c.system.identifier, c]));
+  return a;
+};
+const actors = [
+  mkActor("a1", "Элариэль Лунный Шёпот", "character", true, "#3b4a7a", "Э", wizardItems, {
+    attributes: { ac: { value: 13 }, hp: { max: 44 }, movement: { walk: 30, units: "ft" }, prof: 3, spell: { dc: 15, attack: 7 } },
+    abilities: abil({ str: [8, 0], dex: [14, 0], con: [14, 0], int: [18, 1], wis: [12, 1], cha: [10, 0] }),
+    spells: { spell1: { max: 4 }, spell2: { max: 3 }, spell3: { max: 3 }, spell4: { max: 1 } }, currency: { gp: 112, sp: 14, cp: 30 }
+  }),
+  mkActor("a2", "Бром Железнобок", "character", true, "#7a4a3b", "Б", fighterItems, {
+    attributes: { ac: { value: 18 }, hp: { max: 67 }, movement: { walk: 30, units: "ft" }, prof: 3 },
+    abilities: abil({ str: [18, 1], dex: [12, 0], con: [16, 1], int: [10, 0], wis: [12, 0], cha: [8, 0] }), currency: { gp: 35 }
+  }),
+  mkActor("n1", "Старый Гоблин-шаман", "npc", false, "#4a6a3b", "Г", [item("feat", "Проворный побег", { activities: act("bonus"), description: desc("Гоблин может бонусным действием совершить Отход или Засаду.") }), spell("Ядовитые брызги", 0, "Вы выпускаете клуб ядовитого газа в существо.")], {
+    attributes: { ac: { value: 12 }, hp: { max: 17 }, movement: { walk: 30, units: "ft" }, prof: 2, spell: { dc: 12 } },
+    abilities: abil({ str: [8, 0], dex: [14, 0], con: [10, 0], int: [10, 0], wis: [14, 0], cha: [8, 0] })
+  })
+];
+
+class ApplicationV2 {
+  constructor(o = {}) { this.position = { left: 20, top: 40, ...(o.position ?? {}) }; this.rendered = false; }
+  async render() {
+    if (!this.el) {
+      this.el = document.createElement("div");
+      this.el.className = "application " + (this.constructor.DEFAULT_OPTIONS.classes ?? []).join(" ");
+      this.el.id = this.constructor.DEFAULT_OPTIONS.id;
+      this.el.innerHTML = `<header class="window-header">${this.constructor.DEFAULT_OPTIONS.window.title}</header><section class="window-content"></section>`;
+      document.body.append(this.el);
+    }
+    this._replaceHTML(await this._renderHTML(), this.el.querySelector(".window-content"));
+    this.rendered = true;
+    return this;
+  }
+  setPosition(p) { Object.assign(this.position, p ?? {}); return this.position; }
+  async close() { this.el?.remove(); this.el = null; this.rendered = false; this._onClose?.(); }
+}
+
+window.foundry = { applications: { api: { ApplicationV2 }, apps: { FilePicker: { implementation: class { constructor(o) { this.o = o; } render() { this.o.callback("art-16x9.webp"); } } } } }, utils: { randomID: () => Math.random().toString(36).slice(2, 12) } };
+window.ui = { notifications: { warn: (m) => console.warn("warn:", m), info: (m) => console.log("info:", m) } };
+window.canvas = { tokens: { controlled: isGM ? [{ actor: actors[2] }] : [] } };
+window.Hooks = { once: (n, f) => (hooks[n] ??= []).push(f), on: (n, f) => (hooks[n] ??= []).push(f) };
+window.game = {
+  user: { isGM, id: role },
+  world: { title: "Тестовый мир" },
+  system: { id: "dnd5e" },
+  // у игроков актёров нет вовсе: карточка обязана рисоваться только из присланных данных
+  actors: isGM ? { contents: actors, get: (id) => actors.find((a) => a.id === id) } : { contents: [], get: () => undefined },
+  modules: { get: () => (window.__mod ??= {}) },
+  keybindings: { register() {} },
+  settings: {
+    register(m, k, cfg) { reg[KEY(m, k)] = cfg; },
+    get(m, k) {
+      const cfg = reg[KEY(m, k)];
+      const raw = cfg.scope === "world" ? localStorage.getItem(KEY(m, k)) : sessionStorage.getItem(KEY(m, k));
+      return raw == null ? cfg.default : JSON.parse(raw);
+    },
+    async set(m, k, v) {
+      const cfg = reg[KEY(m, k)];
+      if (cfg.scope === "world" && !isGM) throw new Error("игрок не может писать настройки мира");
+      (cfg.scope === "world" ? localStorage : sessionStorage).setItem(KEY(m, k), JSON.stringify(v));
+      cfg.onChange?.(JSON.parse(JSON.stringify(v)));
+      return v;
+    }
+  }
+};
+window.addEventListener("storage", (e) => { const cfg = reg[e.key]; if (cfg?.onChange && e.newValue != null) cfg.onChange(JSON.parse(e.newValue)); });
+</script>
+<script type="module">
+  await import("../scripts/hero-cards.js");
+  for (const n of ["init", "ready"]) for (const f of (window.__hooks?.[n] ?? [])) f();
+</script>
+<script>window.__hooks = hooks;</script>
+</body>
+</html>
