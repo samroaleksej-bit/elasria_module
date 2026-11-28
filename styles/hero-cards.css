@@ -413,15 +413,8 @@
 /* ───── лицевая сторона из портрета актёра ───── */
 #hc-card .hc-pf { position: absolute; inset: 0; display: flex; align-items: stretch; background: #0d0b16; }
 #hc-card .hc-pf-bg { position: absolute; inset: -40px; background: center / cover no-repeat; filter: blur(28px) brightness(.45) saturate(1.3); }
-#hc-card .hc-pf-img { position: relative; flex: 0 0 46%; display: grid; place-items: end center; overflow: hidden;
-  -webkit-mask-image: linear-gradient(90deg, #000 70%, transparent); mask-image: linear-gradient(90deg, #000 70%, transparent); }
-#hc-card .hc-pf-img img { width: 100%; height: 100%; object-fit: cover; object-position: top; border: 0; }
-#hc-card .hc-pf-txt { position: relative; flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 6cqw 0 2cqw; color: var(--hc-cream); }
-#hc-card .hc-pf-eyebrow { font-family: var(--hc-sans); font-size: 1.4cqw; letter-spacing: .4em; text-transform: uppercase; color: var(--hc-accent); }
-#hc-card .hc-pf-name { font-family: var(--hc-serif); font-weight: 700; font-size: 6cqw; line-height: 1; margin: 1.2cqw 0 1cqw; text-shadow: 0 0.4cqw 2cqw #000; }
-#hc-card .hc-pf-cls { font-family: var(--hc-serif); font-size: 2.4cqw; color: var(--hc-accent); font-style: italic; }
-#hc-card .hc-pf-race { font-family: var(--hc-sans); font-size: 1.5cqw; color: var(--hc-muted); margin-top: .6cqw; letter-spacing: .08em; }
-#hc-card .hc-pf-line { width: 40%; height: 2px; margin-top: 2.4cqw; background: linear-gradient(90deg, var(--hc-accent), transparent); }
+#hc-card .hc-pf-img { position: relative; flex: 1; min-width: 0; display: grid; place-items: center; }
+#hc-card .hc-pf-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; border: 0; filter: drop-shadow(0 0 3cqw rgba(0, 0, 0, 0.65)); }
 
 /* ───── пульт ───── */
 #hc-fab { position: fixed; right: calc(var(--sidebar-width, 300px) + 24px); bottom: 14px; z-index: 70; width: 46px; height: 46px; padding: 0; border-radius: 50%; line-height: 1;

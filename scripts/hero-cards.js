@@ -310,19 +310,12 @@ function bookHTML(payload) {
 }
 function decorBack(cap) { return `<div class="hc-decor"><div class="hc-back-ring"><span>✦</span></div>${cap ? `<div class="hc-back-title">${esc(cap)}</div>` : ""}</div>`; }
 
-function frontHTML(card, st, cap) {
+function frontHTML(card) {
   if (card.art) return `<img src="${esc(card.art)}" alt="${esc(card.name)}"><div class="hc-shine"></div>`;
-  // портрет актёра: собираем карточку сами, чтобы лицо не обрезалось
-  const cls = st?.classes?.map((c) => `${c.name} ${c.level}`).join(" / ") ?? "";
+  // своей картинки нет: арт актёра целиком по центру, по краям он же, размытый
   return `<div class="hc-pf">
       <div class="hc-pf-bg" style="background-image:url('${cssUrl(card.img)}')"></div>
-      <div class="hc-pf-img"><img src="${esc(card.img)}" alt=""></div>
-      <div class="hc-pf-txt">
-        ${cap ? `<div class="hc-pf-eyebrow">${esc(cap)}</div>` : ""}
-        <div class="hc-pf-name">${esc(card.name)}</div>
-        ${cls ? `<div class="hc-pf-cls">${esc(cls)}</div>` : ""}${st?.race ? `<div class="hc-pf-race">${esc(st.race)}</div>` : ""}
-        <div class="hc-pf-line"></div>
-      </div>
+      <div class="hc-pf-img"><img src="${esc(card.img)}" alt="${esc(card.name)}"></div>
     </div><div class="hc-shine"></div>`;
 }
 
@@ -406,7 +399,7 @@ function renderCard(payload, flipped = false, page = 0) {
   root.innerHTML = `
     <div class="hc-backdrop"></div><div class="hc-snow"></div>
     <div class="hc-stage"><div class="hc-card">
-      <div class="hc-face hc-front">${frontHTML(card, stats, payload.caption)}</div>
+      <div class="hc-face hc-front">${frontHTML(card)}</div>
       <div class="hc-face hc-back">${decorBack(payload.caption)}</div>
     </div></div>
     ${isGM() ? `<button type="button" class="hc-close" title="Закрыть у всех (Esc)">✕</button>
@@ -512,7 +505,7 @@ class HeroPanel extends AppV2 {
           <div class="hc-pn-hn">${esc(a.name)}</div>
           <div class="hc-pn-hb"><button data-a="art" data-id="${a.id}" title="Своя картинка карточки (16:9)">🖼</button><input type="color" data-color="${a.id}" value="${esc(m.accent)}" title="Цвет подсветки">${m.art ? `<button data-a="unart" data-id="${a.id}" title="Убрать свою картинку">✕</button>` : ""}</div>
         </div>`; }).join("")}</div>` : `<p class="hc-pn-hint">В мире нет персонажей игроков. Карточку любого актёра можно показать через «Токен».</p>`}
-      <p class="hc-pn-hint">Без своей картинки карточка собирается из портрета актёра. Своя картинка лучше всего 16:9. Оборот листается как книжка: лист, все умения, заклинания, снаряжение.</p>
+      <p class="hc-pn-hint">Без своей картинки на лице арт актёра целиком. Своя картинка лучше всего 16:9. Оборот листается как книжка: лист, все умения, заклинания, снаряжение.</p>
       </div>`;
   }
 

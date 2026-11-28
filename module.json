@@ -2,7 +2,7 @@
   "id": "hero-cards",
   "title": "Карточки героев",
   "description": "Мастер показывает карточку героя всем игрокам: она вылетает, переворачивается и листается как книжка - лист персонажа, все умения, заклинания и снаряжение. Для dnd5e.",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "authors": [{ "name": "Verlierboy", "url": "https://t.me/circleofdms" }],
   "compatibility": { "minimum": "13", "verified": "13" },
   "relationships": { "systems": [{ "id": "dnd5e", "type": "system" }] },
