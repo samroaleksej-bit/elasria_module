@@ -347,21 +347,30 @@ const PROLOGUE = [
 ];
 const PROLOGUE_FOLDER = "Нахтмарк: пролог";
 
-/** Создать недостающие сцены пролога. Уже созданные не трогает - их можно править руками. */
-export async function createPrologue() {
+/** Флешбэки героев: зацикленные ролики модуля, сцены без сетки. */
+const FLASHBACKS = [
+  { key: "varis", n: "Флешбэк: Варис", img: "varis.webm" },
+  { key: "sariel", n: "Флешбэк: Сариэль", img: "sariel.webm" },
+  { key: "dirk", n: "Флешбэк: Дирк", img: "dirk.webm" },
+  { key: "koyon", n: "Флешбэк: Койон", img: "koyon.webm" }
+];
+const FLASHBACK_FOLDER = "Нахтмарк: флешбэки";
+
+/** Создать недостающие сцены набора. Уже созданные не трогает - их можно править руками. */
+async function createSet({ list, flag, folderName, dir, width, height }) {
   if (!game.user.isGM) throw new Error("Только мастер создаёт сцены.");
-  const have = new Set(game.scenes.filter((s) => s.flags?.[MOD]?.prologue).map((s) => s.flags[MOD].prologue));
-  const todo = PROLOGUE.filter((p) => !have.has(p.key));
-  if (!todo.length) return { created: 0, total: PROLOGUE.length };
-  const folder = game.folders.find((f) => f.type === "Scene" && f.flags?.[MOD]?.prologue)
-    ?? await Folder.implementation.create({ name: PROLOGUE_FOLDER, type: "Scene", flags: { [MOD]: { prologue: true } } });
+  const have = new Set(game.scenes.filter((s) => s.flags?.[MOD]?.[flag]).map((s) => s.flags[MOD][flag]));
+  const todo = list.filter((p) => !have.has(p.key));
+  if (!todo.length) return { created: 0, total: list.length };
+  const folder = game.folders.find((f) => f.type === "Scene" && f.flags?.[MOD]?.[flag])
+    ?? await Folder.implementation.create({ name: folderName, type: "Scene", flags: { [MOD]: { [flag]: true } } });
   const v14 = (game.release?.generation ?? 13) >= 14;
   for (const p of todo) {
-    const src = `modules/${MOD}/art/maps/${p.img}`;
-    const data = { name: p.n, folder: folder.id, navigation: false, width: 2000, height: 1125, padding: 0, tokenVision: false,
-      grid: { type: 1, size: p.grid, distance: 5, units: "ft", alpha: 0.15 },
+    const src = `modules/${MOD}/art/${dir}/${p.img}`;
+    const data = { name: p.n, folder: folder.id, navigation: false, width, height, padding: 0, tokenVision: false,
+      grid: p.grid ? { type: 1, size: p.grid, distance: 5, units: "ft", alpha: 0.15 } : { type: 0, size: 100 },
       environment: { globalLight: { enabled: true }, darknessLevel: 0 },
-      flags: { [MOD]: { prologue: p.key } } };
+      flags: { [MOD]: { [flag]: p.key } } };
     // с 14-й версии фон сцены лежит в её уровне, раньше - в самой сцене
     if (v14) { data.levels = [{ _id: "defaultLevel0000", name: p.n, background: { src } }]; data.initialLevel = "defaultLevel0000"; }
     else data.background = { src };
@@ -370,8 +379,11 @@ export async function createPrologue() {
     if (level && !level.background?.src) await level.update({ "background.src": src });
     try { const t = await scene.createThumbnail?.(); if (t?.thumb) await scene.update({ thumb: t.thumb }); } catch (e) { console.warn(`${MOD} | миниатюра не создана`, e); }
   }
-  return { created: todo.length, total: PROLOGUE.length };
+  return { created: todo.length, total: list.length };
 }
+
+export const createPrologue = () => createSet({ list: PROLOGUE, flag: "prologue", folderName: PROLOGUE_FOLDER, dir: "maps", width: 2000, height: 1125 });
+export const createFlashbacks = () => createSet({ list: FLASHBACKS, flag: "flashback", folderName: FLASHBACK_FOLDER, dir: "idle", width: 1920, height: 1080 });
 
 const TYPE_NAMES = { Folder: "папки", JournalEntry: "журналы", JournalEntryPage: "страницы журналов", Scene: "сцены", Token: "токены на сценах",
   Note: "заметки на картах", Drawing: "надписи на картах", Actor: "существа", Item: "предметы", RollTable: "таблицы", TableResult: "строки таблиц", Playlist: "плейлисты" };
@@ -397,7 +409,8 @@ export async function openDialog() {
       <p><b>Сначала сделайте копию мира.</b> Имена возвращаются из сохранённых значений, мобы - из компендиума приключения.</p>
       <p>Не меняются: подписи, нарисованные на самих картах, английские названия в квадратных скобках и папки видеосцен. Мобов меняйте вне боя.</p>
       <p><b>События.</b> Кнопки «Событие: день» и «Событие: ночь» бросают по таблицам Нахтмарка с существами из Grim Hollow и The Crooked Moon. Результат приходит шёпотом мастеру; сами таблицы появляются во вкладке таблиц после первого броска.</p>
-      <p><b>Пролог.</b> Кнопка создаёт пять сцен с картами модуля в папке «${PROLOGUE_FOLDER}»: дом, опушка, гать, хутор и часовня. Стен и света на них нет, клетку при желании поправьте в настройках сцены.</p>`,
+      <p><b>Пролог.</b> Кнопка создаёт пять сцен с картами модуля в папке «${PROLOGUE_FOLDER}»: дом, опушка, гать, хутор и часовня. Стен и света на них нет, клетку при желании поправьте в настройках сцены.</p>
+      <p><b>Флешбэки.</b> Кнопка создаёт четыре сцены с живыми картинками героев в папке «${FLASHBACK_FOLDER}». Сетки на них нет.</p>`,
     buttons: [
       { action: "apply", label: "Имена: перенести", icon: "fa-solid fa-feather-pointed", default: true },
       { action: "revert", label: "Имена: вернуть", icon: "fa-solid fa-rotate-left" },
@@ -406,6 +419,7 @@ export async function openDialog() {
       { action: "event-day", label: "Событие: день", icon: "fa-solid fa-sun" },
       { action: "event-night", label: "Событие: ночь", icon: "fa-solid fa-moon" },
       { action: "prologue", label: "Пролог: создать сцены", icon: "fa-solid fa-map" },
+      { action: "flashbacks", label: "Флешбэки: создать сцены", icon: "fa-solid fa-film" },
       { action: "close", label: "Закрыть", icon: "fa-solid fa-xmark" }
     ],
     rejectClose: false
@@ -414,6 +428,13 @@ export async function openDialog() {
     try {
       const r = await createPrologue();
       ui.notifications.info(r.created ? `Нахтмарк: создано сцен пролога: ${r.created}. Папка «${PROLOGUE_FOLDER}».` : "Нахтмарк: все сцены пролога уже есть.");
+    } catch (e) { console.error(`${MOD} |`, e); ui.notifications.error(`Нахтмарк: ${e.message}`); }
+    return;
+  }
+  if (answer === "flashbacks") {
+    try {
+      const r = await createFlashbacks();
+      ui.notifications.info(r.created ? `Нахтмарк: создано флешбэков: ${r.created}. Папка «${FLASHBACK_FOLDER}».` : "Нахтмарк: все флешбэки уже есть.");
     } catch (e) { console.error(`${MOD} |`, e); ui.notifications.error(`Нахтмарк: ${e.message}`); }
     return;
   }
@@ -485,7 +506,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
 Hooks.once("ready", () => {
   game.socket.on(`module.${MOD}`, onBookSocket);
   game.modules.get(MOD).api = { open: openDialog, run, swaps: runSwaps, convert: (text) => convertHTML(text, RULES),
-    book: openBook, toggleBook, travel: bookTravel, event: rollEvent, prologue: createPrologue };
+    book: openBook, toggleBook, travel: bookTravel, event: rollEvent, prologue: createPrologue, flashbacks: createFlashbacks };
   if (!game.user.isGM) return;
   const state = game.settings.get(MOD, "state") ?? {};
   if (!state.applied && game.packs.get(PACK))
