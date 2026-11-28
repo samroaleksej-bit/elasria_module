@@ -463,37 +463,26 @@
   inset: 0;
   visibility: hidden;
   z-index: 1;
-  transform-origin: left center;
   background:
     radial-gradient(ellipse at 0% 0%, color-mix(in srgb, var(--hc-accent) 18%, #0d0b15) 0%, transparent 55%),
     linear-gradient(135deg, #16121f 0%, #0d0b15 100%);
 }
 #hc-card .hc-page.hc-on { visibility: visible; z-index: 2; }
-#hc-card .hc-page.hc-under { visibility: visible; z-index: 1; }
-#hc-card .hc-page.hc-turn-out { visibility: visible; z-index: 3; animation: hc-turn-out 0.7s cubic-bezier(0.45, 0.05, 0.55, 0.95) both; }
-#hc-card .hc-page.hc-turn-in { z-index: 3; animation: hc-turn-in 0.7s cubic-bezier(0.45, 0.05, 0.55, 0.95) both; }
-#hc-card .hc-page::after {
-  content: "";
+#hc-card .hc-page.hc-turn-out { visibility: visible; z-index: 3; animation: hc-fade-out 0.45s ease-out both; }
+
+/* смена страницы: по обороту пробегает блик */
+#hc-card .hc-glint {
   position: absolute;
   inset: 0;
+  z-index: 4;
   pointer-events: none;
-  opacity: 0;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.15) 60%, rgba(255, 255, 255, 0.08));
+  background: linear-gradient(105deg, transparent 32%, color-mix(in srgb, var(--hc-accent) 22%, rgba(255, 255, 255, 0.3)) 48%, transparent 64%);
+  transform: translateX(-130%);
 }
-#hc-card .hc-page.hc-turn-out::after { animation: hc-turn-shade 0.7s ease-in both; }
-#hc-card .hc-page.hc-turn-in::after { animation: hc-turn-shade 0.7s ease-out reverse both; }
-
-@keyframes hc-turn-out {
-  0%   { transform: perspective(170cqw) rotateY(0deg); opacity: 1; }
-  80%  { opacity: 1; }
-  100% { transform: perspective(170cqw) rotateY(-88deg); opacity: 0; }
-}
-@keyframes hc-turn-in {
-  0%   { transform: perspective(170cqw) rotateY(-88deg); opacity: 0; }
-  20%  { opacity: 1; }
-  100% { transform: perspective(170cqw) rotateY(0deg); opacity: 1; }
-}
-@keyframes hc-turn-shade { from { opacity: 0; } to { opacity: 1; } }
+#hc-card .hc-book.hc-glint-next .hc-glint { animation: hc-glint-next 0.6s ease-out both; }
+#hc-card .hc-book.hc-glint-prev .hc-glint { animation: hc-glint-prev 0.6s ease-out both; }
+@keyframes hc-glint-next { from { transform: translateX(-130%); } to { transform: translateX(130%); } }
+@keyframes hc-glint-prev { from { transform: translateX(130%); } to { transform: translateX(-130%); } }
 
 #hc-card .hc-pageno {
   position: absolute;
@@ -596,7 +585,5 @@
 #hc-card.hc-leaving .hc-nav { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  #hc-card .hc-page.hc-turn-out { animation: hc-fade-out 0.3s ease-in both; }
-  #hc-card .hc-page.hc-turn-in { animation: hc-fade-in 0.3s ease-out both; }
-  #hc-card .hc-page::after { display: none; }
+  #hc-card .hc-glint { display: none; }
 }

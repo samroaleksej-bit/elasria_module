@@ -11,7 +11,7 @@ const MID = "hero-cards";
 const CARD_ID = "hc-card";
 const SPIN_MS = 1500;
 const LEAVE_MS = 700;
-const TURN_MS = 700;
+const TURN_MS = 600;
 const COL_UNITS = 13;          // высота колонки страницы в условных строках
 
 const ACCENTS = ["#d9b46a", "#8fd3f0", "#e89650", "#e2788c", "#a98cf0", "#7fd6a0", "#f0d27a", "#e06a5a"];
@@ -306,7 +306,7 @@ function bookHTML(payload) {
   return `<div class="hc-book">${pages.map((pg, i) => `<div class="hc-page" data-page="${i}">
       ${pg.kind === "sheet" ? sheetHTML(payload.stats, payload.caption) : listHTML(pg, payload.card.name)}
       ${n > 1 ? `<div class="hc-pageno">${i + 1} / ${n}</div>` : ""}
-    </div>`).join("")}</div>`;
+    </div>`).join("")}<div class="hc-glint"></div></div>`;
 }
 function decorBack(cap) { return `<div class="hc-decor"><div class="hc-back-ring"><span>✦</span></div>${cap ? `<div class="hc-back-title">${esc(cap)}</div>` : ""}</div>`; }
 
@@ -372,7 +372,7 @@ function setFlipped(f) {
   syncNav(root);
 }
 
-/** Открыть страницу книжки. animate: перелистнуть с загибом листа. */
+/** Открыть страницу книжки. animate: сменить страницу с бликом. */
 function setPage(n, animate = false) {
   const root = document.getElementById(CARD_ID);
   if (!root) return;
@@ -383,13 +383,15 @@ function setPage(n, animate = false) {
   syncNav(root);
   if (!pages.length) return;            // карточка ещё вылетает: страница применится после вылета
   clearTimeout(root._turn);
-  pages.forEach((el) => el.classList.remove("hc-turn-out", "hc-turn-in", "hc-under"));
-  const show = () => pages.forEach((el, i) => el.classList.toggle("hc-on", i === n));
-  if (!animate || from === n || !pages[from] || !root._flipped) return show();
-  show();
-  if (n > from) pages[from].classList.add("hc-turn-out");                 // вперёд: старый лист уходит влево
-  else { pages[n].classList.add("hc-turn-in"); pages[from].classList.add("hc-under"); }   // назад: лист возвращается
-  root._turn = setTimeout(() => pages.forEach((el) => el.classList.remove("hc-turn-out", "hc-turn-in", "hc-under")), TURN_MS + 40);
+  const book = root.querySelector(".hc-book");
+  const clear = () => { pages.forEach((el) => el.classList.remove("hc-turn-out")); book?.classList.remove("hc-glint-next", "hc-glint-prev"); };
+  clear();
+  pages.forEach((el, i) => el.classList.toggle("hc-on", i === n));
+  if (!animate || from === n || !pages[from] || !root._flipped) return;
+  void book?.offsetWidth;                                   // перезапуск блика при быстром листании
+  pages[from].classList.add("hc-turn-out");                 // старая страница гаснет
+  book?.classList.add(n > from ? "hc-glint-next" : "hc-glint-prev");
+  root._turn = setTimeout(clear, TURN_MS + 40);
 }
 
 function renderCard(payload, flipped = false, page = 0) {
